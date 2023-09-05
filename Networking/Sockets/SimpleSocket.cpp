@@ -38,13 +38,13 @@ int HDE::SimpleSocket::get_sock()
 	return sock;
 }
 
-int HDE::SimpleSocket::get_connection()
-{
-	return connection;
-}
+// int HDE::SimpleSocket::get_connection()
+// {
+// 	return connection;
+// }
 
-// setter functions
-void HDE::SimpleSocket::set_connection(int con)
-{
-	connection = con;
-}
+// // setter functions
+// void HDE::SimpleSocket::set_connection(int con)
+// {
+// 	connection = con;
+// }
