@@ -17,15 +17,9 @@
 	
 int main(int argc , char *argv[])
 {
-	// int opt = TRUE;
-	int master_socket;
-	int addrlen;
-	int new_socket;
-	int client_socket[30];
-	int max_clients = 30;
-	int activity;
-	int i;
-	int valread , sd;
+	int opt = TRUE;
+	int master_socket , addrlen , new_socket , client_socket[30] ,
+		max_clients = 30 , activity, i , valread , sd;
 	int max_sd;
 	struct sockaddr_in address;
 		
@@ -50,14 +44,14 @@ int main(int argc , char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	
-	// //set master socket to allow multiple connections ,
-	// //this is just a good habit, it will work without this
-	// if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,
-	// 	sizeof(opt)) < 0 )
-	// {
-	// 	perror("setsockopt");
-	// 	exit(EXIT_FAILURE);
-	// }
+	//set master socket to allow multiple connections ,
+	//this is just a good habit, it will work without this
+	if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,
+		sizeof(opt)) < 0 )
+	{
+		perror("setsockopt");
+		exit(EXIT_FAILURE);
+	}
 	
 	//type of socket created
 	address.sin_family = AF_INET;
@@ -113,7 +107,7 @@ int main(int argc , char *argv[])
 	
 		if ((activity < 0) && (errno!=EINTR))
 		{
-			printf("select error");
+			printf("select error \n\n\n");
 		}
 			
 		//If something happened on the master socket ,
@@ -128,7 +122,7 @@ int main(int argc , char *argv[])
 			}
 			
 			//inform user of socket number - used in send and receive commands
-			printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
+			printf("New connection , socket fd is %d , ip is : %s , port : %d\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
 				(address.sin_port));
 		
 			//send new connection greeting message

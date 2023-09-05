@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 16:45:37 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 17:14:20 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,8 +120,8 @@ void TestServer::launch()
 	//set of socket descriptors
 	fd_set readfds;
 
-	int client_socket[30];
-	int max_clients = 30;
+	int client_socket[5];
+	int max_clients = 5;
 	int max_sd;
 	int sd;
 	int activity;
@@ -159,15 +159,17 @@ void TestServer::launch()
 			if(sd > max_sd)
 				max_sd = sd;
 		}
-		std::cout << "============= WAITING =============" << std::endl;
+		std::cout << "============= WAITING FOR NEXT CONNECT =============" << std::endl;
 
 		//wait for an activity on one of the sockets , timeout is NULL ,
 		//so wait indefinitely
+		printf("-------------------------------\nMAX SD = %d\n\n-------------------------------", max_sd);
+		
 		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 	
 		if ((activity < 0) && (errno!=EINTR))
 		{
-			printf("select error");
+			printf("select error && activity = %d\n\n", activity);
 		}
 
 		//If something happened on the master socket ,
@@ -178,8 +180,8 @@ void TestServer::launch()
 			sleep(2);
 			handler();
 			responder();
-			std::cout << "============= DONE =============" << std::endl;
 			std::cout << "count = " << count << std::endl;
+			std::cout << "============= DONE =============" << std::endl;
 			count++;
 
 			//add new socket to array of sockets
