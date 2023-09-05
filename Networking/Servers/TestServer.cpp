@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 18:45:02 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 20:46:57 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,12 +129,6 @@ void TestServer::responder()
 		// later, this function will, instead of 'response,' use the parsed buffer from the read function
 		write(new_socket, response, strlen(response));
 		
-		/*
-		AFTER THE PARSING:
-		Depending on the HTTP headers (like Connection: keep-alive), 
-		We might keep the connection open for further requests from the same client.
-		*/
-		//close(new_socket);
 	}
 }
 
@@ -240,10 +234,17 @@ void TestServer::launch()
 				//incoming message
 				if ((valread = read( sd , buffer, 1024)) == 0)
 				{
+					/*
+					AFTER THE PARSING:
+					Depending on the HTTP headers (like Connection: keep-alive), 
+					We might keep the connection open for further requests from the same client.
+					*/
+					//close(new_socket);
 					close(new_socket);
 					//Close the socket and mark as 0 in list for reuse
 					close( sd );
 					client_socket[i] = 0;
+					std::cout << "this is open" << std::endl;
 				}
 					
 				//Echo back the message that came in
@@ -253,6 +254,7 @@ void TestServer::launch()
 					//of the data read
 					buffer[valread] = '\0';
 					send(sd , buffer , strlen(buffer) , 0 );
+					std::cout << "this is closed" << std::endl;
 				}
 			}
 		}	
