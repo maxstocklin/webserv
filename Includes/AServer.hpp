@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   MyServer.hpp                                       :+:      :+:    :+:   */
+/*   AServer.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/04 15:54:10 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 21:42:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MYSEVER_HPP
-# define MYSEVER_HPP
+#ifndef ASEVER_HPP
+# define ASEVER_HPP
 
-#include "../alibnetworking.hpp"
+#include "ListeningSocket.hpp"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -21,16 +21,16 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-class Server
+class AServer
 {
 	public:
-		Server(int domain, int service, int protocol, int port, u_long interface, int bklog);
+		AServer(int domain, int service, int protocol, int port, u_long interface, int bklog);
 		virtual void launch() = 0;
 
 		// getters
 		ListeningSocket * get_socket();
 	private:
-		Server();
+		AServer();
 		ListeningSocket * socket;
 		virtual void accepter() = 0;
 		virtual void handler() = 0;

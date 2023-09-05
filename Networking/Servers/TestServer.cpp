@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 20:48:30 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 21:41:12 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "TestServer.hpp"
+#include "../../Includes/TestServer.hpp"
 #include <cstring>
 #include <iostream>
 
@@ -29,7 +29,7 @@
 #define TRUE 1
 #define FALSE 0
 
-TestServer::TestServer() : Server(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
+TestServer::TestServer() : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
 {
 
 	launch();

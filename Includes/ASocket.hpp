@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mysocket.hpp                                       :+:      :+:    :+:   */
+/*   ASocket.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/04 14:43:28 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 21:40:14 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MYSOCKET_HPP
-# define MYSOCKET_HPP
+#ifndef ASOCKET_HPP
+# define ASOCKET_HPP
 
 # define PORT 8080
 
@@ -20,11 +20,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-class Socket
+class ASocket
 {
 	public:
 		// constructors
-		Socket(int domain, int service, int protocol, int port, u_long interface);
+		ASocket(int domain, int service, int protocol, int port, u_long interface);
 
 		// virtual function to connect to network
 		virtual int connect_network(int sock, struct sockaddr_in address) = 0;
@@ -45,7 +45,7 @@ class Socket
 		int	sock_fd;
 		struct sockaddr_in address;
 
-		Socket();
+		ASocket();
 
 };
 

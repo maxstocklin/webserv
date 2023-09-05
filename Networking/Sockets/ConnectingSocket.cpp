@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ConnectingSocket.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:12:01 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/04 15:16:42 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 21:43:41 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ConnectingSocket.hpp"
+#include "../../Includes/ConnectingSocket.hpp"
 
-ConnectingSocket::ConnectingSocket(int domain, int service, int protocol, int port, u_long interface) : Socket(domain, service, protocol, port, interface)
+ConnectingSocket::ConnectingSocket(int domain, int service, int protocol, int port, u_long interface) : ASocket(domain, service, protocol, port, interface)
 {
 	//establish network connection
 	set_connection(connect_network(get_sock(), get_address()));

@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   MySocket.cpp                                       :+:      :+:    :+:   */
+/*   ASocket.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:21 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 11:11:59 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 21:37:32 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "MySocket.hpp"
+#include "../../Includes/ASocket.hpp"
 
-Socket::Socket(int domain, int service, int protocol, int port, u_long interface)
+ASocket::ASocket(int domain, int service, int protocol, int port, u_long interface)
 {
 	// define address structure
 	address.sin_family = domain;
@@ -28,7 +28,7 @@ Socket::Socket(int domain, int service, int protocol, int port, u_long interface
 }
 
 // test connection virtual function
-void Socket::test_connection(int item_to_test)
+void ASocket::test_connection(int item_to_test)
 {
 	// confirm the socket or connection has been properly established
 	if (item_to_test < 0)
@@ -38,22 +38,22 @@ void Socket::test_connection(int item_to_test)
 	}
 }
 
-void Socket::set_connection(int con)
+void ASocket::set_connection(int con)
 {
 	connection = con;
 }
 
-struct sockaddr_in Socket::get_address()
+struct sockaddr_in ASocket::get_address()
 {
 	return address;
 }
 
-int Socket::get_sock()
+int ASocket::get_sock()
 {
 	return sock_fd;
 }
 
-int Socket::get_connection()
+int ASocket::get_connection()
 {
 	return connection;
 }

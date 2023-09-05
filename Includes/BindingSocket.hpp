@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BindingSocket.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 13:53:06 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 21:43:57 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#include "MySocket.hpp"
+#include "ASocket.hpp"
 
-class BindingSocket : public Socket
+class BindingSocket : public ASocket
 {
 	public:
 		// constructors
