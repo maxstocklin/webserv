@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mysocket.cpp                                       :+:      :+:    :+:   */
+/*   MySocket.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:21 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/04 14:51:20 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 11:11:59 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void Socket::test_connection(int item_to_test)
 		exit(EXIT_FAILURE);
 	}
 }
+
 void Socket::set_connection(int con)
 {
 	connection = con;

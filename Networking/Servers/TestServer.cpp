@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 01:22:10 by max              ###   ########.fr       */
+/*   Updated: 2023/09/05 15:10:11 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ void TestServer::accepter()
 {
 	struct sockaddr_in address = get_socket()->get_address();
 	int addrlen = sizeof(address);
+
+	//get_socket() returns the main socket instance (ListenSocket class)
+	//get_sock() returns the main socket FD
 	new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 	
 	memset(buffer, 0, sizeof(buffer)); // Zero out the buffer
@@ -100,4 +103,5 @@ void TestServer::launch()
 		std::cout << "count = " << count << std::endl;
 		count++;
 	}
+	// close(server_fd);
 }

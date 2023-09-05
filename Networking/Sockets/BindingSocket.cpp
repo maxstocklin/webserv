@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:12:01 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/04 15:16:35 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 13:52:59 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ BindingSocket::BindingSocket(int domain, int service, int protocol, int port, u_
 	test_connection(get_connection());
 
 }
-int BindingSocket::connect_network(int sock, struct sockaddr_in address)
+int BindingSocket::connect_network(int Sock_fd, struct sockaddr_in address)
 {
-	return (bind(sock, (struct sockaddr *)&address, sizeof(address)));
+	return (bind(Sock_fd, (struct sockaddr *)&address, sizeof(address)));
 }
-

@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/04 14:19:13 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/05 13:53:06 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class BindingSocket : public Socket
 		BindingSocket(int domain, int service, int protocol, int port, u_long interface);
 
 		// virtual function to connect to network
-		int connect_network(int sock, struct sockaddr_in address);
+		int connect_network(int Sock_fd, struct sockaddr_in address);  // todo --> sock??
 
 	private:
 		BindingSocket();
