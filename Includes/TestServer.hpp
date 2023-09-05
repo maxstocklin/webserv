@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 21:39:31 by max              ###   ########.fr       */
+/*   Updated: 2023/09/05 22:02:14 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,8 @@ class TestServer : public AServer
 		void launch();
 
 	private:
-		char buffer[30000] = {0};
+		char buffer[30000];
 		int new_socket;
-		bool isFaviconRequest = false; // Add this as a member variable in your TestServer class
 		void accepter();
 		void handler();
 		void responder();

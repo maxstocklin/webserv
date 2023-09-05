@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 21:41:12 by max              ###   ########.fr       */
+/*   Updated: 2023/09/05 22:31:35 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 
 TestServer::TestServer() : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
 {
-
+	memset(buffer, 0, sizeof(buffer));
 	launch();
 }
 
@@ -75,61 +75,38 @@ void TestServer::handler()
 	std::cout << "HERE COMES THE BUFFER" << std::endl;
 	std::cout << buffer << std::endl;
 	std::cout << "THERE LEAVES THE BUFFER" << std::endl;
-    // Check if the request is for /favicon.ico
-    if (strstr(buffer, "GET /favicon.ico") != NULL)
-    {
-        isFaviconRequest = true;
-    }
-    else
-    {
-        isFaviconRequest = false;
-    }
 }
 
 void TestServer::responder()
 {
-    // if (isFaviconRequest)
-    // {
-    //     // Respond with a 404 Not Found or serve an actual favicon
-    //     const char *response = 
-    //     "HTTP/1.1 404 Not Found\r\n"
-    //     "Content-Type: text/plain\r\n"
-    //     "Connection: close\r\n"
-    //     "\r\n"
-    //     "Not Found";
-    //     write(new_socket, response, strlen(response));
-    // }
-    // else
-	{
-		const char *response_headers = 
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/html\r\n"
-		"Connection: close\r\n";
+	const char *response_headers = 
+	"HTTP/1.1 200 OK\r\n"
+	"Content-Type: text/html\r\n"
+	"Connection: close\r\n";
 
-		const char *html_content = 
-		"<!DOCTYPE html>\r\n"
-		"<html>\r\n"
-		"<head><title>My Page</title></head>\r\n"
-		"<body>\r\n"
-		"<h1>Hello, my name is Jeff!</h1>\r\n"
-		"<p>I'm a web developer with a passion for learning new things.</p>\r\n"
-		"<h2>Some of my hobbies:</h2>\r\n"
-		"<ul>\r\n"
-		"    <li>Coding</li>\r\n"
-		"    <li>Photography</li>\r\n"
-		"    <li>Traveling</li>\r\n"
-		"</ul>\r\n"
-		"</body>\r\n"
-		"</html>";
+	const char *html_content = 
+	"<!DOCTYPE html>\r\n"
+	"<html>\r\n"
+	"<head><title>My Page</title></head>\r\n"
+	"<body>\r\n"
+	"<h1>Hello, my name is Jeff!</h1>\r\n"
+	"<p>I'm a web developer with a passion for learning new things.</p>\r\n"
+	"<h2>Some of my hobbies:</h2>\r\n"
+	"<ul>\r\n"
+	"    <li>Coding</li>\r\n"
+	"    <li>Photography</li>\r\n"
+	"    <li>Traveling</li>\r\n"
+	"</ul>\r\n"
+	"</body>\r\n"
+	"</html>";
 
-		char response[2048]; // Make sure the size is enough to contain both headers and content
-		// sprintf(response, "%s%s", response_headers, html_content);
-		int content_length = strlen(html_content);
-		sprintf(response, "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
-		// later, this function will, instead of 'response,' use the parsed buffer from the read function
-		write(new_socket, response, strlen(response));
-		
-	}
+	char response[2048]; // Make sure the size is enough to contain both headers and content
+	// sprintf(response, "%s%s", response_headers, html_content);
+	int content_length = strlen(html_content);
+	snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
+
+	// later, this function will, instead of 'response,' use the parsed buffer from the read function
+	write(new_socket, response, strlen(response));
 }
 
 
