@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/06 02:08:07 by max              ###   ########.fr       */
+/*   Updated: 2023/09/06 17:09:17 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,26 @@ void TestServer::accepter()
 // handle CGI scripts?
 void TestServer::handler()
 {
-	std::cout << "HERE COMES THE BUFFER" << std::endl;
+	std::cout << "###################### Buffer start ######################" << std::endl;
 	std::cout << buffer << std::endl;
-	std::cout << "THERE LEAVES THE BUFFER" << std::endl;
+	std::cout << "###################### Buffer end  ######################" << std::endl;
+	std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
+	request.setBuffer(buffer);
+	request.parse();
+	std::cout << "Method: " << request.method << std::endl;
+	std::cout << "Path: " << request.path << std::endl;
+	std::cout << "content-length: " << request.contentLength << std::endl;
+	std::cout << "Connection: " << request.connection << std::endl;
+	for (std::map<std::string, std::string>::iterator i = request.urlParams.begin(); i != request.urlParams.end(); i++ )
+	{
+		std::cout << "urlParam: " << i->first << " : " << i->second << std::endl;
+	}
+	for (std::map<std::string, std::string>::iterator i = request.bodyParams.begin(); i != request.bodyParams.end(); i++ )
+	{
+		std::cout << "bodyParam: " << i->first << " : " << i->second << std::endl;
+	}
+
+	std::cout << "###################### End Parsed Results ######################" << std::endl;
 }
 
 void TestServer::responder()

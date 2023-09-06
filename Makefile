@@ -120,6 +120,7 @@ SRC_HEADER      =   AServer.hpp \
 SRC_FILES       =   main.cpp \
 					Servers/AServer.cpp \
 					Servers/TestServer.cpp \
+					Servers/ParsingRequest.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
 					Sockets/ConnectingSocket.cpp \
