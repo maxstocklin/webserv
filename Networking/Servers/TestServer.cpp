@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 22:31:35 by max              ###   ########.fr       */
+/*   Updated: 2023/09/06 02:08:07 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,11 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 
-	
-#define TRUE 1
-#define FALSE 0
-
 TestServer::TestServer() : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
 {
 	memset(buffer, 0, sizeof(buffer));
 	launch();
 }
-
 
 void TestServer::accepter()
 {
@@ -44,8 +39,6 @@ void TestServer::accepter()
 	//get_socket() returns the main socket instance (ListenSocket class)
 	//get_sock() returns the main socket FD
 	/*new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);*/
-	
-	// added
 	if ((new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
 	{
 		perror("Accept:");
@@ -57,7 +50,8 @@ void TestServer::accepter()
 		(address.sin_port));
 
 	
-	memset(buffer, 0, sizeof(buffer)); // Zero out the buffer
+	memset(buffer, 0, sizeof(buffer));
+
 	/*
 	1. Ensure that the server handles partial reads and writes if the data is large for one call
 	--> getnextline()
@@ -135,7 +129,6 @@ void TestServer::launch()
 		client_socket[i] = 0;
 	}
 
-	
 	int count = 0;
 	while (1)
 	{
@@ -167,15 +160,14 @@ void TestServer::launch()
 		printf("-------------------------------\nMAX SD = %d\n\n-------------------------------\n\n", max_sd);
 		
 		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
-	
+
 		if ((activity < 0) && (errno!=EINTR))
 		{
 			printf("select error && activity = %d\n\n", activity);
 			perror("select");
-
 		}
 
-		//If something happened on the master socket ,
+		//If something happened on the master socket,
 		//then its an incoming connection
 		if (FD_ISSET(get_socket()->get_sock(), &readfds))
 		{
@@ -194,9 +186,7 @@ void TestServer::launch()
 				if( client_socket[i] == 0 )
 				{
 					client_socket[i] = new_socket;
-					
 					printf("Adding to list of sockets as %d\n" , i);
-						
 					break;
 				}
 			}
