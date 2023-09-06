@@ -1,23 +1,25 @@
-#include "BindingSocket.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   BindingSocket.cpp                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vfinocie <vfinocie@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/04 14:12:01 by mstockli          #+#    #+#             */
+/*   Updated: 2023/09/06 13:56:50 by vfinocie         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-//constructor
-HDE::BindingSocket::BindingSocket(int domain, int service, int protocol, int port, u_long interface) : SimpleSocket(domain, service, protocol, port, interface)
+#include "../../Includes/BindingSocket.hpp"
+
+BindingSocket::BindingSocket(int domain, int service, int protocol, int port, u_long interface) : ASocket(domain, service, protocol, port, interface)
 {
-	//set_connection(connect_to_network(get_sock(), get_address()));
-	connect_to_network(get_sock(), get_address());
-	test_connection(binding);
+	//establish network connection
+	set_connection(connect_network(get_sock(), get_address()));
+	test_connection(get_connection());
+
 }
-
-//mutators
-// definition of connect_toNetwork virtual function
-void HDE::BindingSocket::connect_to_network(int sock, struct sockaddr_in address)
+int BindingSocket::connect_network(int Sock_fd, struct sockaddr_in address)
 {
-	//return bind(sock, (struct sockaddr_in *)&address. sizeof(address));
-	binding = bind(sock, (struct sockaddr *)&address, sizeof(address));
-}
-
-//getter
-int HDE::BindingSocket::get_binding()
-{
-	return binding;
+	return (bind(Sock_fd, (struct sockaddr *)&address, sizeof(address)));
 }

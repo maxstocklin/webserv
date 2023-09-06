@@ -1,23 +1,27 @@
-#include "ListeningSocket.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ListeningSocket.cpp                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vfinocie <vfinocie@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
+/*   Updated: 2023/09/06 13:57:22 by vfinocie         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-HDE::ListeningSocket::ListeningSocket(int domain, int service, int protocol, int port, u_long interface, int bklg): BindingSocket(domain, service, protocol, port, interface)
+#include "../../Includes/ListeningSocket.hpp"
+
+ListeningSocket::ListeningSocket(int domain, int service, int protocol, int port, u_long interface, int bklog) : BindingSocket(domain, service, protocol, port, interface)
 {
-	backlog = bklg;
+	backlog = bklog;
 	start_listening();
 	test_connection(listening);
 }
 
-void HDE::ListeningSocket::start_listening()
+void ListeningSocket::start_listening()
 {
 	listening = listen(get_sock(), backlog);
-}
-
-int HDE::ListeningSocket::get_listening()
-{
-	return listening;
-}
-
-int HDE::ListeningSocket::get_backlog()
-{
-	return backlog;
+	std::cout << "sock = " << get_sock() << std::endl;
+	std::cout << "listening = " << listening << std::endl;
 }
