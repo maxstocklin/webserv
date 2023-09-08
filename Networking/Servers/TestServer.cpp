@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/06 02:08:07 by max              ###   ########.fr       */
+/*   Updated: 2023/09/08 14:12:12 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,6 @@ void TestServer::launch()
 {
 	//set of socket descriptors
 	fd_set readfds;
-
 	int client_socket[5];
 	int max_clients = 5;
 	int max_sd;
@@ -159,7 +158,7 @@ void TestServer::launch()
 		//so wait indefinitely
 		printf("-------------------------------\nMAX SD = %d\n\n-------------------------------\n\n", max_sd);
 		
-		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		activity = select(max_sd + 1 , &readfds , NULL , NULL , NULL);
 
 		if ((activity < 0) && (errno!=EINTR))
 		{

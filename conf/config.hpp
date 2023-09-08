@@ -1,38 +1,46 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   TestServer.hpp                                     :+:      :+:    :+:   */
+/*   config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/08 14:12:11 by mstockli         ###   ########.fr       */
+/*   Created: 2023/09/08 11:12:40 by mstockli          #+#    #+#             */
+/*   Updated: 2023/09/08 14:25:52 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TESTSEVER_HPP
-# define TESTSEVER_HPP
 
-#include "AServer.hpp"
+#ifndef CONFIG_HPP
+# define CONFIG_HPP
 
 #include <stdio.h>
 #include <iostream>
 #include <sys/socket.h>
-#include <netinet/in.h>
-
-class TestServer : public AServer
+#include <vector>
+ #include <fcntl.h>
+ 
+class Config
 {
 	public:
-		TestServer();
-		void launch();
+		// constructors
+		Config(char **av);
+		Config();
+		~Config();
+
+		void readsplit(char *config_file);
+
+		// getters
+
+		//setters
 
 	private:
+		int	fd;
+		int	brackets_count;
 		char buffer[30000];
-		int new_socket;
-		void accepter();
-		void handler();
-		void responder();
 
 };
+
+
 
 #endif
