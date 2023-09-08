@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/07 14:16:35 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/08 15:25:10 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 
-TestServer::TestServer() : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
+TestServer::TestServer(char **env) : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3), env(env)
 {
 	memset(buffer, 0, sizeof(buffer));
 	launch();
@@ -73,13 +73,34 @@ void TestServer::handler()
 	request.setBuffer(buffer);
 	request.parse();
 	std::cout << request << std::endl;
-	
 
 	std::cout << "###################### End Parsed Results ######################" << std::endl;
 }
 
 void TestServer::responder()
 {
+	char **av;
+	av = (char **)malloc(10 * sizeof( char *));
+	av[0] =(char*)malloc(sizeof(char) * 10);
+	av[1] =(char*)malloc(sizeof(char) * 10);
+	av[2] =(char*)malloc(sizeof(char) * 10);
+	strcpy(av[0], "ls");
+	strcpy(av[1], "-a");
+	av[2] = 0;
+	if (request.path.size() > 5 )
+	{
+		if (!(request.path.substr(request.path.size()-4, request.path.size()).compare(".php")))
+		{	
+			std::cout << "PHP Script found" << std::endl;
+			int i = 0;
+			while (env[i])
+			{
+				std::cout << env[i] << std::endl;
+				i++;
+			}
+			execve("/bin/ls", av, env);
+		}
+	}
 	const char *response_headers = 
 	"HTTP/1.1 200 OK\r\n"
 	"Content-Type: text/html\r\n"

@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/07 17:31:18 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/08 14:13:05 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class ParsingRequest {
         std::string connection;
         int contentLength;
         std::vector<std::string> cgiEnvVector;
-        char **cgiEnv;
+        std::vector<char *> cgiEnv;
 
     private:
 

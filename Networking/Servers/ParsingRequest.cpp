@@ -49,6 +49,7 @@ std::map<std::string, std::string> ParsingRequest::getParameters(std::string par
 void ParsingRequest::parse(){
     urlParams.clear();
     bodyParams.clear();
+    cgiEnvVector.clear();
     char *ptr;
     ptr = strtok( _buffer, "\n");
     //method and path always on first line
@@ -57,8 +58,8 @@ void ParsingRequest::parse(){
     cgiEnvVector.push_back("REQUEST_METHOD: " + method);
 
     std::size_t questMarkPosition = getStringPiece(ptr, 1).find("?");
-    urlParams = getParameters(getStringPiece(ptr, 1).substr(questMarkPosition +1));
-    cgiEnvVector.push_back("QUERY_STRING: " + getStringPiece(ptr, 1).substr(questMarkPosition +1));
+   
+    cgiEnvVector.push_back("QUERY_STRING: " + (questMarkPosition == std::string::npos ? "" : getStringPiece(ptr, 1).substr(questMarkPosition +1)) );
 
     path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
     cgiEnvVector.push_back("PATH_INFO: " + getStringPiece(ptr, 1).substr(0, questMarkPosition));
@@ -71,7 +72,7 @@ void ParsingRequest::parse(){
         if (!getStringPiece(ptr, 0).compare("content-length:"))
         {
             contentLength = stoi(getStringPiece(ptr, 1));
-            cgiEnvVector.push_back("CONTENT_LENGTH: "+ getStringPiece(ptr, 1));
+            // cgiEnvVector.push_back("CONTENT_LENGTH: "+ getStringPiece(ptr, 1));
         }
         if (getStringPiece(ptr, 0).find_first_of(":") > getStringPiece(ptr, 0).size())
         {
@@ -82,6 +83,15 @@ void ParsingRequest::parse(){
     }  
 
 
+   
+    for(unsigned int i = 0; i < cgiEnvVector.size(); i++)
+    {
+        cgiEnv.push_back(const_cast<char*>(cgiEnvVector[i].c_str()));;
+        // std::cout <<"env string variable " << cgiEnvVector[i] << " " << std::endl;
+        // std::cout <<"env const char *variable " << cgiEnv[i] << " " << std::endl;
+    }
+    // cgiEnv[index + 1] = NULL;
+
 }
 
 std::ostream &operator << (std::ostream &o, ParsingRequest  & request )
@@ -90,14 +100,12 @@ std::ostream &operator << (std::ostream &o, ParsingRequest  & request )
 	o << "Path: " << request.path << std::endl;
 	o << "content-length: " << request.contentLength << std::endl;
 	o << "Connection: " << request.connection << std::endl;
-	for (std::map<std::string, std::string>::iterator i = request.urlParams.begin(); i != request.urlParams.end(); i++ )
-	{
-		o << "urlParam: " << i->first << " : " << i->second << std::endl;
-	}
-	for (std::map<std::string, std::string>::iterator i = request.bodyParams.begin(); i != request.bodyParams.end(); i++ )
-	{
-		o << "bodyParam: " << i->first << " : " << i->second << std::endl;
-	}
+    for(unsigned int i = 0; i < request.cgiEnv.size(); i++)
+    {
+        std::cout <<"env const char *variable " << request.cgiEnv[i] << " " << std::endl;
+    }
+
+    
 
 
     return (o);

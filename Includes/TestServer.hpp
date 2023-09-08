@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/06 13:54:27 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/08 15:11:35 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 class TestServer : public AServer
 {
 	public:
-		TestServer();
+		TestServer(char **env);
 		void launch();
 		ParsingRequest request;
 
@@ -35,6 +35,7 @@ class TestServer : public AServer
 		void accepter();
 		void handler();
 		void responder();
+		char **env;
 
 };
 

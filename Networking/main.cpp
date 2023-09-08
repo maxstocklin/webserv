@@ -1,6 +1,8 @@
 #include "../Includes/TestServer.hpp"
 
-int main()
+int main(int argc, char **argv, char **env)
 {
-    TestServer test;
+    (void)argc;
+    (void)argv;
+    TestServer test(env);
 }
