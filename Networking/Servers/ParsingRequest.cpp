@@ -50,21 +50,22 @@ void ParsingRequest::parse(){
     urlParams.clear();
     bodyParams.clear();
     cgiEnvVector.clear();
+    cgiEnv.clear();
     char *ptr;
     ptr = strtok( _buffer, "\n");
     //method and path always on first line
     method = getStringPiece(ptr, 0);
     
-    cgiEnvVector.push_back("REQUEST_METHOD: " + method);
+    cgiEnvVector.push_back("REQUEST_METHOD=" + method);
 
     std::size_t questMarkPosition = getStringPiece(ptr, 1).find("?");
    
-    cgiEnvVector.push_back("QUERY_STRING: " + (questMarkPosition == std::string::npos ? "" : getStringPiece(ptr, 1).substr(questMarkPosition +1)) );
+    cgiEnvVector.push_back("QUERY_STRING=" + (questMarkPosition == std::string::npos ? "" : getStringPiece(ptr, 1).substr(questMarkPosition +1)) );
 
     path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
-    cgiEnvVector.push_back("PATH_INFO: " + getStringPiece(ptr, 1).substr(0, questMarkPosition));
-    cgiEnvVector.push_back("SCRIPT_INFO: " + getStringPiece(ptr, 1).substr(0, questMarkPosition));
-    cgiEnvVector.push_back("GATEWAY_INTERFACE: CGI/1.1");
+    cgiEnvVector.push_back("PATH_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
+    cgiEnvVector.push_back("SCRIPT_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
+    cgiEnvVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
     while (ptr != NULL)  
     {  
         if (!getStringPiece(ptr, 0).compare("Connection:"))

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/11 15:56:38 by max              ###   ########.fr       */
+/*   Updated: 2023/09/11 17:48:17 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,16 @@ void TestServer::accepter(ListeningSocket *master_socket)
 // handle CGI scripts?
 void TestServer::handler()
 {
-	std::cout << "HERE COMES THE BUFFER" << std::endl;
+	std::cout << "###################### Buffer start ######################" << std::endl;
 	std::cout << buffer << std::endl;
-	std::cout << "THERE LEAVES THE BUFFER" << std::endl;
+	std::cout << "###################### Buffer end  ######################" << std::endl;
+	std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
+	request.setBuffer(buffer);
+	request.parse();
+	std::cout << request << std::endl;
+
+	std::cout << "###################### End Parsed Results ######################" << std::endl;
+
 }
 
 
@@ -97,102 +104,55 @@ void TestServer::responder()
 		}
 	}
 
+
+    int pipefd[2];
+    pipe(pipefd); // Create a pipe to capture output
+
+    if (fork() == 0) // Child process
+	{
+        close(pipefd[0]); // Close read end of pipe
+        int errdup = dup2(pipefd[1], STDOUT_FILENO); // Redirect stdout to write end of pipe
+
+		if (pipefd[1] == -1 || errdup == -1)
+		{
+			perror("error man");
+			exit(0);
+		}
+		char *argv[] =
+		{
+			const_cast<char*>("/usr/local/bin/php"),  // Path to PHP interpreter
+			const_cast<char*>("/Users/max/Desktop/cursus/webserv3/Networking/Cgi/index.php"),  // Path to your PHP script
+			NULL
+		};
+	    close(pipefd[1]); // Close write end of pipe in the parent
+		fflush(stdout);
+
+        execve("/usr/local/bin/php", argv, request.cgiEnv.data()); // Run PHP on the script
+		perror("execve failed");
+
+        exit(0);
+    }
+
+    close(pipefd[1]); // Close write end of pipe in the parent
+
+    char html_content[4096];
+    int readbytes2 = read(pipefd[0], html_content, sizeof(html_content)); // Read the script's output
+
+	html_content[readbytes2] = 0;
+
 	const char *response_headers = 
 	"HTTP/1.1 200 OK\r\n"
 	"Content-Type: text/html\r\n"
 	"Connection: close\r\n";
 
-	const char *html_content = 
-	"<!DOCTYPE html>\r\n"
-	"<html>\r\n"
-	"<head><title>My Page</title></head>\r\n"
-	"<body>\r\n"
-	"<h1>Hello, my name is Jeff!</h1>\r\n"
-	"<p>I'm a web developer with a passion for learning new things.</p>\r\n"
-	"<h2>Some of my hobbies:</h2>\r\n"
-	"<ul>\r\n"
-	"    <li>Coding</li>\r\n"
-	"    <li>Photography</li>\r\n"
-	"    <li>Traveling</li>\r\n"
-	"</ul>\r\n"
-	"</body>\r\n"
-	"</html>";
-
 	char response[2048]; // Make sure the size is enough to contain both headers and content
-	// sprintf(response, "%s%s", response_headers, html_content);
+
 	int content_length = strlen(html_content);
+
 	snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
-
+	std::cout << "---resp\n" << response << "----\n";
 	// later, this function will, instead of 'response,' use the parsed buffer from the read function
-	// write(new_socket, response, strlen(response));
-
-
-
-	// char **tab;
-	// tab = malloc(sizeof(char *) * 10000);
-	// tab[0] = malloc(sizeof(char) * 10000);
-	// tab[0] = 
-    // int pipefd[2];
-    // pipe(pipefd); // Create a pipe to capture output
-
-    if (fork() == 0) // Child process
-	{
-        // close(pipefd[0]); // Close read end of pipe
-        // dup2(pipefd[1], STDOUT_FILENO); // Redirect stdout to write end of pipe
-		char **argv;
-		argv = (char **)malloc(109 * sizeof( char *));
-		argv[0] =(char*)malloc(sizeof(char) * 100);
-		argv[1] =(char*)malloc(sizeof(char) * 100);
-
-		char * const * nul = NULL;
-		strcpy(argv[0], "/Users/max/Desktop/cursus/webserv3/Networking/Cgi/index.php");
-		argv[1] = 0;
-		std::cout << "########################################\n\n" << std::endl;
-
-        execve(argv[0], argv, nul); // Run PHP on the script
-		std::cout << "########################################\n\n" << std::endl;
-        exit(0);
-    }
-
-    // close(pipefd[1]); // Close write end of pipe in the parent
-
-    // char buff2[4096];
-    // read(pipefd[0], buff2, sizeof(buff2)); // Read the script's output
-
-	// // std::cout << buff2 << std::endl;
-
-	// write(new_socket, buff2, strlen(buff2));
-
-
-
-
-
-
-
-
-
-
-	// int fd = open("Networking/Cgi/index.php", O_RDONLY);
-	// if (fd == -1) {
-	// 	perror("Error opening file");
-	// 	// Handle the error and return or exit
-	// }
-
-	// char buff2[40096];
-	// int bytes_read = read(fd, buff2, sizeof(buff2) - 1);
-
-	// if (bytes_read == -1) {
-	// 	perror("Error reading file");
-	// 	close(fd);
-	// 	// Handle the error and return or exit
-	// }
-	// std::cout << buff2 << std::endl;
-
-	// buff2[bytes_read] = '\0'; // Null-terminate the read content
-
-	// write(new_socket, buff2, strlen(buff2));
-
-	// close(fd);
+	write(new_socket, response, strlen(response));
 
 }
 
