@@ -1,4 +1,5 @@
 #include "CgiHandler.hpp"
+#include <sys/wait.h>
 
 CgiHandler::CgiHandler(Request &req) : _body(req.getBody())
 {
@@ -44,7 +45,49 @@ std::string const&CgiHandler::ExecCgi(std::string const & script)
 {
 	pid_t		pid;
 	std::string res;
+	// first reunite all env in a char**
+	char		**env;
+        // // Set environment variables
+        // for (std::map<std::string, std::string>::const_iterator it = _env.begin(); it != _env.end(); ++it) {
+        //     std::string env_var = it->first + "=" + it->second;
+        //     putenv(const_cast<char*>(env_var.c_str()));
+        // }
+	int pipe_fd[2];
+	int status;
+
+	if(pipe(pipe_fd) == -1)
+	{
+		//handle pipe error
+		return res;
+	}
+
 	// fork a process to execute logic implementation
+	pid = fork();
+	if (pid == -1)
+	{
+		// handle fork error 
+		close(pipe_fd[0]);
+		close(pipe_fd[1]);
+		return res;
+	}
+
+	if(pid == 0) // here we'r in the child process
+	{
+		close(pipe_fd[0]);  // Close the read end of the pipe
+        // Redirect standard output to the write end of the pipe
+        if (dup2(pipe_fd[1], STDOUT_FILENO) == -1) {
+            // Handle error
+            exit(1);
+        }
+        // Execute the CGI script
+        execve(script.c_str(), NULL, env);
+        // If execve fails, handle the error
+        exit(1);
+	}
+	else {
+		waitpid(pid, &status, 0);
+
+	}
 
 
 	// return string response body
