@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/11 11:39:16 by max              ###   ########.fr       */
+/*   Updated: 2023/09/11 18:10:41 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include "ListeningSocket.hpp"
 
 class ParsingRequest {
 
@@ -24,7 +25,7 @@ class ParsingRequest {
         
         ParsingRequest();
         ~ParsingRequest();
-        void parse();
+        void parse(ListeningSocket *master_socket);
         void setBuffer(char * buffer);
         std::map<std::string, std::string> getParameters(std::string params);
         char _buffer[30000];

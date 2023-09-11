@@ -46,7 +46,8 @@ std::map<std::string, std::string> ParsingRequest::getParameters(std::string par
     return (paramMap);
 };
 
-void ParsingRequest::parse(){
+void ParsingRequest::parse(ListeningSocket *master_socket)
+{
     urlParams.clear();
     bodyParams.clear();
     cgiEnvVector.clear();
@@ -61,13 +62,15 @@ void ParsingRequest::parse(){
     std::size_t questMarkPosition = getStringPiece(ptr, 1).find("?");
    
     cgiEnvVector.push_back("QUERY_STRING=" + (questMarkPosition == std::string::npos ? "" : getStringPiece(ptr, 1).substr(questMarkPosition +1)) );
+    cgiEnvVector.push_back("SERVER_PORT=" + std::to_string((master_socket->get_port())));
 
-    path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
+//    (void)master_socket;
+   path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
     cgiEnvVector.push_back("PATH_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
     cgiEnvVector.push_back("SCRIPT_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
     cgiEnvVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
-    while (ptr != NULL)  
-    {  
+    while (ptr != NULL)
+    {
         if (!getStringPiece(ptr, 0).compare("Connection:"))
             connection = getStringPiece(ptr, 1);
         if (!getStringPiece(ptr, 0).compare("content-length:"))

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/10 23:09:25 by max              ###   ########.fr       */
+/*   Updated: 2023/09/11 18:12:09 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ class AServer
 		std::string removeCommentLines(const std::string &input);
 
 		virtual void accepter(ListeningSocket *master_socket) = 0;
-		virtual void handler() = 0;
+		virtual void handler(ListeningSocket *master_socket) = 0;
 		virtual void responder() = 0;
 };
 

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/11 17:48:17 by max              ###   ########.fr       */
+/*   Updated: 2023/09/11 18:08:58 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,14 @@ void TestServer::accepter(ListeningSocket *master_socket)
 // for now, it doesn't receive anything, this function will be used to parse the HTTP request
 // error handling: invalid data in the HTTP request
 // handle CGI scripts?
-void TestServer::handler()
+void TestServer::handler(ListeningSocket *master_socket)
 {
 	std::cout << "###################### Buffer start ######################" << std::endl;
 	std::cout << buffer << std::endl;
 	std::cout << "###################### Buffer end  ######################" << std::endl;
 	std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
 	request.setBuffer(buffer);
-	request.parse();
+	request.parse(master_socket);
 	std::cout << request << std::endl;
 
 	std::cout << "###################### End Parsed Results ######################" << std::endl;
@@ -236,8 +236,8 @@ void TestServer::launch()
 			if (FD_ISSET(master_socket_fd, &readfds))
 			{
 				accepter(get_socket(i));
-				sleep(2);
-				handler();
+				// sleep(2);
+				handler(get_socket(i));
 				responder();
 				std::cout << "count = " << count << std::endl;
 				std::cout << "============= DONE =============" << std::endl;

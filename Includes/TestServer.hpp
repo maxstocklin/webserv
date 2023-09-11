@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/11 11:43:48 by max              ###   ########.fr       */
+/*   Updated: 2023/09/11 18:08:26 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class TestServer : public AServer
 
 		TestServer();
 		void accepter(ListeningSocket *master_socket);
-		void handler();
+		void handler(ListeningSocket *master_socket);
 		void responder();
 		char **env;
 		ParsingRequest request;
