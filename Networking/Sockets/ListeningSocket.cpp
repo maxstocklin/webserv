@@ -3,25 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vfinocie <vfinocie@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/06 13:57:22 by vfinocie         ###   ########.fr       */
+/*   Updated: 2023/09/10 23:07:26 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/ListeningSocket.hpp"
 
-ListeningSocket::ListeningSocket(int domain, int service, int protocol, int port, u_long interface, int bklog) : BindingSocket(domain, service, protocol, port, interface)
+ListeningSocket::ListeningSocket(std::string serverBlock) : BindingSocket(serverBlock)
 {
-	backlog = bklog;
+	backlog = 3; // find an other way
 	start_listening();
 	test_connection(listening);
+
 }
 
 void ListeningSocket::start_listening()
 {
 	listening = listen(get_sock(), backlog);
-	std::cout << "sock = " << get_sock() << std::endl;
+	std::cout << std::endl << GREEN << BOLD << "################################# NEW MASTER SOCKET #################################" << RESET << std::endl;
+	std::cout << "socket fd = " << get_sock() << std::endl;
 	std::cout << "listening = " << listening << std::endl;
+	std::cout << "Endpoint / IP:port comination = " << get_endpoint() << std::endl << std::endl;
+	
 }
+

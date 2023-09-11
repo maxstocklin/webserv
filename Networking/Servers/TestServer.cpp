@@ -3,43 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vfinocie <vfinocie@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/06 13:56:32 by vfinocie         ###   ########.fr       */
+/*   Updated: 2023/09/11 11:55:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/TestServer.hpp"
-#include <cstring>
-#include <iostream>
 
-#include <stdio.h> 
-#include <string.h>   //strlen 
-#include <stdlib.h> 
-#include <errno.h> 
-#include <unistd.h>   //close 
-#include <arpa/inet.h>    //close 
-#include <sys/types.h> 
-#include <sys/socket.h> 
-#include <netinet/in.h> 
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 
-TestServer::TestServer() : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
+TestServer::TestServer(char *config_file) : AServer(config_file)
 {
 	memset(buffer, 0, sizeof(buffer));
+	// TESTING: ADD back when testing the whole program
 	launch();
 }
 
-void TestServer::accepter()
+TestServer::~TestServer()
 {
-	struct sockaddr_in address = get_socket()->get_address();
+	
+}
+
+void TestServer::accepter(ListeningSocket *master_socket)
+{
+	struct sockaddr_in address = master_socket->get_address();
 	int addrlen = sizeof(address);
 
-	//get_socket() returns the main socket instance (ListenSocket class)
+	//master_socket returns the main socket instance (ListenSocket class)
 	//get_sock() returns the main socket FD
-	/*new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);*/
-	if ((new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+	/*new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);*/
+	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
 	{
 		perror("Accept:");
 		exit(EXIT_FAILURE);
@@ -57,6 +51,7 @@ void TestServer::accepter()
 	--> getnextline()
 	2. check for errors (i.e. if bytes_read = -1)
 	*/
+	std::cout << "Socket fd = " << master_socket->get_sock() << " and root loc = " << master_socket->get_rootLocation().root << "___________________________________\n\n\n";
 	int bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
 	buffer[bytes_read] = '\0'; // Null-terminate the buffer
 }
@@ -73,6 +68,29 @@ void TestServer::handler()
 
 void TestServer::responder()
 {
+	char **av;
+	av = (char **)malloc(10 * sizeof( char *));
+	av[0] =(char*)malloc(sizeof(char) * 10);
+	av[1] =(char*)malloc(sizeof(char) * 10);
+	av[2] =(char*)malloc(sizeof(char) * 10);
+	strcpy(av[0], "ls");
+	strcpy(av[1], "-a");
+	av[2] = 0;
+	if (request.path.size() > 5 )
+	{
+		if (!(request.path.substr(request.path.size()-4, request.path.size()).compare(".php")))
+		{	
+			std::cout << "PHP Script found" << std::endl;
+			int i = 0;
+			while (env[i])
+			{
+				std::cout << env[i] << std::endl;
+				i++;
+			}
+			execve("/bin/ls", av, env);
+		}
+	}
+
 	const char *response_headers = 
 	"HTTP/1.1 200 OK\r\n"
 	"Content-Type: text/html\r\n"
@@ -108,7 +126,6 @@ void TestServer::launch()
 {
 	//set of socket descriptors
 	fd_set readfds;
-
 	int client_socket[5];
 	int max_clients = 5;
 	int max_sd;
@@ -116,12 +133,6 @@ void TestServer::launch()
 	int activity;
 	int valread;
 	int i;
-	struct sockaddr_in address;
-
-	//type of socket created
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( 80 );
 
 	//initialise all client_socket[] to 0 so not checked
 	for (i = 0; i < max_clients; i++)
@@ -135,19 +146,33 @@ void TestServer::launch()
 		//clear the socket set
 		FD_ZERO(&readfds);
 
-		//add master socket to set
-		FD_SET(get_socket()->get_sock(), &readfds);
-		max_sd = get_socket()->get_sock();
+		// TODO: ADDED
+		max_sd = -1;
+
+		// TODO: ADDED
+		for (size_t i = 0; i < get_socket_vector().size(); i++)
+		{
+			int socket_fd = get_socket(i)->get_sock();
+			FD_SET(socket_fd, &readfds); // Add each master socket FD to the set
+			
+			if (socket_fd > max_sd)
+				max_sd = socket_fd;
+		}
+
+		// TODO: REMOVED
+		// //add master socket to set
+		// FD_SET(get_socket()->get_sock(), &readfds);
+		// max_sd = get_socket()->get_sock();
 
 		//add child sockets to set
-		for ( i = 0 ; i < max_clients ; i++)
+		for (int j = 0 ; j < max_clients ; j++)
 		{
 			//socket descriptor
-			sd = client_socket[i];
+			sd = client_socket[j];
 				
 			//if valid socket descriptor then add to read list
 			if(sd > 0)
-				FD_SET( sd , &readfds);
+				FD_SET(sd, &readfds);
 				
 			//highest file descriptor number, need it for the select function
 			if(sd > max_sd)
@@ -159,61 +184,67 @@ void TestServer::launch()
 		//so wait indefinitely
 		printf("-------------------------------\nMAX SD = %d\n\n-------------------------------\n\n", max_sd);
 		
-		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		activity = select(max_sd + 1 , &readfds , NULL , NULL , NULL);
 
 		if ((activity < 0) && (errno!=EINTR))
 		{
 			printf("select error && activity = %d\n\n", activity);
 			perror("select");
 		}
-
-		//If something happened on the master socket,
-		//then its an incoming connection
-		if (FD_ISSET(get_socket()->get_sock(), &readfds))
+		// Check activity on each master socket
+		for (size_t i = 0; i < get_socket_vector().size(); i++)
 		{
-			accepter();
-			sleep(2);
-			handler();
-			responder();
-			std::cout << "count = " << count << std::endl;
-			std::cout << "============= DONE =============" << std::endl;
-			count++;
+			int master_socket_fd = get_socket(i)->get_sock();
 
-			//add new socket to array of sockets
-			for (i = 0; i < max_clients; i++)
+			//If something happened on a master socket,
+			//then its an incoming connection
+			if (FD_ISSET(master_socket_fd, &readfds))
 			{
-				//if position is empty
-				if( client_socket[i] == 0 )
+				accepter(get_socket(i));
+				sleep(2);
+				handler();
+				responder();
+				std::cout << "count = " << count << std::endl;
+				std::cout << "============= DONE =============" << std::endl;
+				count++;
+
+				//add new socket to array of sockets
+				for (int j = 0; j < max_clients; j++)
 				{
-					client_socket[i] = new_socket;
-					printf("Adding to list of sockets as %d\n" , i);
-					break;
+					//if position is empty
+					if( client_socket[j] == 0 )
+					{
+						client_socket[j] = new_socket;
+						printf("Adding to list of sockets as %d\n" , j);
+						break;
+					}
 				}
 			}
 		}
-		for (i = 0; i < max_clients; i++)
+		for (int j = 0; j < max_clients; j++)
 		{
-			sd = client_socket[i];
-				
-			if (FD_ISSET( sd , &readfds))
+			sd = client_socket[j];
+
+			if (FD_ISSET(sd, &readfds))
 			{
 				//Check if it was for closing , and also read the
 				//incoming message
 				if ((valread = read( sd , buffer, 1024)) == 0)
 				{
 					/*
-					AFTER THE PARSING:
-					Depending on the HTTP headers (like Connection: keep-alive), 
-					We might keep the connection open for further requests from the same client.
+						AFTER THE PARSING:
+						Depending on the HTTP headers (like Connection: keep-alive), 
+						We might keep the connection open for further requests from the same client.
 					*/
-					//close(new_socket);
-					close(new_socket);
+
+					// close(new_socket); --> ??
+
 					//Close the socket and mark as 0 in list for reuse
-					close( sd );
-					client_socket[i] = 0;
+					close(sd);
+					client_socket[j] = 0;
 					std::cout << "this is closed" << std::endl;
 				}
-					
+
 				//Echo back the message that came in
 				else
 				{

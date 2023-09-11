@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ASocket.hpp                                        :+:      :+:    :+:   */
+/*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/10 23:06:41 by max              ###   ########.fr       */
+/*   Created: 2023/09/08 13:47:04 by mstockli          #+#    #+#             */
+/*   Updated: 2023/09/10 23:03:54 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ASOCKET_HPP
-# define ASOCKET_HPP
+#ifndef SERVERCONFIG_HPP
+# define SERVERCONFIG_HPP
 
 #include "Colors.hpp"
-#include "ServerConfig.hpp"
+
 
 #include <stdio.h>
 #include <iostream>
@@ -28,18 +28,23 @@
 #include <cctype>
 #include <string>
 
-class ASocket
+
+struct Location
+{
+	std::string					route;			// URL path (or name)
+	std::string					root;			// physical path
+	std::string					index;			// default file
+	std::vector<std::string>	allow_methods;	// GET, POST, DELETE
+	bool						autoindex;		// auto look for path
+};
+
+class ServerConfig
 {
 	public:
 		// constructors
-		ASocket(std::string serverBlock);
-		virtual ~ASocket();
+		ServerConfig(std::string serverBlock);
+		~ServerConfig();
 
-		// virtual function to connect to network
-		virtual int					connect_network(int sock, struct sockaddr_in address) = 0;
-
-		// test sockets and connections
-		void						test_connection(int item_to_test);
 
 		// PARSING
 		void						parseServerBlock(std::string serverBlock);
@@ -63,13 +68,7 @@ class ASocket
 		std::vector<std::string>	extractAllow_methods(std::string line);
 		std::string					extractIndex(std::string line, std::string path);
 
-
-
-
 		// getters
-		struct sockaddr_in			get_address();
-		int							get_sock();
-		int							get_connection();
 		int							get_port();
 		int							get_domain();
 		std::string					get_host();
@@ -80,28 +79,37 @@ class ASocket
 		Location					get_rootLocation();
 		std::vector<Location>		get_locations();
 		std::string					get_endpoint();
-		ServerConfig				*get_config();
 		int							get_service();
 		u_long						get_interface();
 		int							get_protocol();
 
-		// setters
-		void						set_connection(int con);
+		// Utils
+		bool						isNumber(const std::string &s);
+		bool						isValidPort(int port);
+		bool						endsWithSemicolon(const std::string &str);
+		bool						isValidHost(const std::string& host);
+		std::string					trimWhiteSpaces(const std::string &str);
+		std::vector<std::string>	splitToVector(const std::string &str);
+
 
 
 	private:
-		ASocket();
 
-		// main socket's fd
-		int							sock_fd;
+		int							port;							// Default to 80
+		int							domain;							// Default to AF_INET ??
+		std::string					host;							// Default to 127.0.0.1
+		std::string					server_name;					// Default to localhost
+		std::string					index;							// Default to index.html
+		std::map<int, std::string>	error_pages;
+		int							client_max_body_size;			// Default to 1MB
 
-		int							connection;		
-		struct sockaddr_in			address;
+		int							service;						// hardcoded
+		int							protocol;						// hardcoded
+		u_long						interface;						// hardcoded
 
-		ServerConfig 				*config;
+		Location					rootLocation;					// Root or default location
+		std::vector<Location>		locations;		
 
 };
-
-
 
 #endif
