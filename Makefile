@@ -10,80 +10,6 @@
 # #                                                                              #
 # # **************************************************************************** #
 
-# ##-----ALIAS-----##
-
-# NAME 	= 	webserv
-# CC 		= 	g++
-# FLAGS 	= 	-Wall -Wextra -Werror -std=c++98
-# RM		= 	rm -rf
-# MKDIR	= 	mkdir -p
-# MKDIR   =   mkdir -p
-
-# ##-----PATHS-----##
-
-# PROJECT_DIR		= 	Networking/
-# HEADERS_DIR 	= 	Includes/
-
-# OBJS_DIR 		= 	obj/
-# DIRS			=	$(OBJS_DIR) \
-# 					$(OBJS_DIR)Networking/ \
-# 					$(OBJS_DIR)Networking/Servers/ \
-# 					$(OBJS_DIR)Networking/Sockets/
-
-# ##-----FILES-----##
-
-# SRC_HEADER      =   AServer.hpp \
-# 					BindingSocket.hpp \
-# 					ListeningSocket.hpp \
-# 					ASocket.hpp \
-# 					ConnectingSocket.hpp \
-# 					TestServer.hpp
-
-# SRC_FILES       =   main.cpp \
-# 					Servers/AServer.cpp \
-# 					Servers/TestServer.cpp \
-# 					Sockets/ASocket.cpp \
-# 					Sockets/BindingSocket.cpp \
-# 					Sockets/ConnectingSocket.cpp \
-# 					Sockets/ListeningSocket.cpp
-
-
-# SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
-
-
-# ##-----SOURCES-----##
-
-# OBJ = $(notdir $(SRCS:.cpp=.o))
-# OBJS = $(addprefix $(OBJS_DIR),$(OBJ))
-# HEADERS			=	$(addprefix $(HEADERS_DIR),$(SRC_HEADER))
-
-# $(OBJS_DIR)%.o : $(PROJECT_DIR)%.cpp $(HEADERS)
-# 	@$(MKDIR) $(OBJS_DIR)
-# 	@$(CC) $(FLAGS) -I$(HEADERS_DIR) -o $@ -c $<
-
-# ##-----RULES-----##
-
-# directories:
-# 	@$(MKDIR) $(DIRS)
-
-# all:						$(NAME)
-
-# $(NAME): $(OBJS)
-# 	@$(CC) $(FLAGS) $(OBJS) -o $(NAME)
-
-# clean:
-# 		@$(RM)  $(OBJS)
-# 		@$(RM) $(OBJS_DIR)
-
-# fclean: clean
-# 		@$(RM) $(NAME)
-
-# re:		fclean all
-
-# .PHONY:	all fclean clean re
-
-
-
 ##-----ALIAS-----##
 
 NAME 	= 	webserv
@@ -93,8 +19,7 @@ RM		= 	rm -rf
 MKDIR	= 	mkdir -p
 AR		=	ar rcs
 
-
-
+ 
 ##-----PATHS-----##
 
 PROJECT_DIR		= 	Networking/
@@ -102,7 +27,9 @@ HEADERS_DIR 	= 	Includes/
 
 DIRS = $(OBJS_DIR) \
        $(OBJS_DIR)Networking/ \
+       $(OBJS_DIR)Networking/Config/ \
        $(OBJS_DIR)Networking/Servers/ \
+       $(OBJS_DIR)Networking/Cgi/ \
        $(OBJS_DIR)Networking/Sockets/
 
 OBJS_DIR 		= 	obj/
@@ -114,15 +41,17 @@ SRC_HEADER      =   AServer.hpp \
 					BindingSocket.hpp \
 					ListeningSocket.hpp \
 					ASocket.hpp \
-					ConnectingSocket.hpp \
+					ServerConfig.hpp \
+					ParsingRequest.hpp \
 					TestServer.hpp
 
 SRC_FILES       =   main.cpp \
+					Config/ServerConfig.cpp \
 					Servers/AServer.cpp \
 					Servers/TestServer.cpp \
+					Servers/ParsingRequest.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
-					Sockets/ConnectingSocket.cpp \
 					Sockets/ListeningSocket.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))

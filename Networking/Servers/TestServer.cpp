@@ -6,101 +6,177 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/08 14:12:12 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/12 16:41:56 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/TestServer.hpp"
-#include <cstring>
-#include <iostream>
 
-#include <stdio.h> 
-#include <string.h>   //strlen 
-#include <stdlib.h> 
-#include <errno.h> 
-#include <unistd.h>   //close 
-#include <arpa/inet.h>    //close 
-#include <sys/types.h> 
-#include <sys/socket.h> 
-#include <netinet/in.h> 
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 
-TestServer::TestServer() : AServer(AF_INET, SOCK_STREAM, 0, 80, INADDR_ANY, 3)
+TestServer::TestServer(char *config_file) : AServer(config_file)
 {
 	memset(buffer, 0, sizeof(buffer));
+	// TESTING: ADD back when testing the whole program
 	launch();
 }
 
-void TestServer::accepter()
+TestServer::~TestServer()
 {
-	struct sockaddr_in address = get_socket()->get_address();
+	
+}
+
+void TestServer::accepter(ListeningSocket *master_socket)
+{
+	struct sockaddr_in address = master_socket->get_address();
 	int addrlen = sizeof(address);
 
-	//get_socket() returns the main socket instance (ListenSocket class)
-	//get_sock() returns the main socket FD
-	/*new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t *)&addrlen);*/
-	if ((new_socket = accept(get_socket()->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 	{
-		perror("Accept:");
+		perror("Accept: ");
 		exit(EXIT_FAILURE);
 	}
 
-	//inform user of socket number - used in send and receive commands
-	printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
-		(address.sin_port));
-
-	
 	memset(buffer, 0, sizeof(buffer));
 
-	/*
-	1. Ensure that the server handles partial reads and writes if the data is large for one call
-	--> getnextline()
-	2. check for errors (i.e. if bytes_read = -1)
-	*/
+	std::cout << "Socket fd = " << master_socket->get_sock() << " and root loc = " << master_socket->get_rootLocation().root << "___________________________________\n\n\n";
 	int bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
+	if (bytes_read == -1)
+	{
+		perror("buff -1 3");
+		exit(1);
+	}
 	buffer[bytes_read] = '\0'; // Null-terminate the buffer
 }
 
-// for now, it doesn't receive anything, this function will be used to parse the HTTP request
-// error handling: invalid data in the HTTP request
-// handle CGI scripts?
-void TestServer::handler()
+void TestServer::handler(ListeningSocket *master_socket)
 {
-	std::cout << "HERE COMES THE BUFFER" << std::endl;
+	std::cout << "###################### Buffer start ######################" << std::endl;
 	std::cout << buffer << std::endl;
-	std::cout << "THERE LEAVES THE BUFFER" << std::endl;
+	std::cout << "###################### Buffer end  ######################" << std::endl;
+	std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
+	request.setBuffer(buffer);
+	request.parse(master_socket);
+	std::cout << request << std::endl;
+
+	std::cout << "###################### End Parsed Results ######################" << std::endl;
+
 }
 
-void TestServer::responder()
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+void TestServer::responder(ListeningSocket *master_socket)
 {
+	(void)master_socket;
+	if (request.path.size() > 5 )
+	{
+		if (!(request.path.substr(request.path.size()-4, request.path.size()).compare(".php")))
+		{	
+			std::cout << "PHP Script found" << std::endl;
+			int i = 0;
+			while (env[i])
+			{
+				std::cout << env[i] << std::endl;
+				i++;
+			}
+		}
+	}
+
+
+	int pipefd[2];
+    pipe(pipefd);
+
+
+	pid_t pid = fork();
+	if (pid == 0) {
+
+        close(pipefd[0]);
+        int errdup = dup2(pipefd[1], STDOUT_FILENO);
+
+		if (pipefd[1] == -1 || errdup == -1)
+		{
+			perror("error man");
+			exit(0);
+		}
+		char *argv[] =
+		{
+			const_cast<char*>("/usr/bin/php"), 
+			const_cast<char*>("/Users/mstockli/cursus/webss/Networking/Cgi/index.php"), 
+			NULL
+		};
+		if (request.cgiEnv.empty() || request.cgiEnv.back() != nullptr)
+		{
+			request.cgiEnv.push_back(nullptr); 
+		}
+
+        execve("/usr/bin/php", argv, request.cgiEnv.data());
+		perror("execve failed");
+
+        exit(0);
+	}
+	else
+	{
+		waitpid(pid, NULL, 0);  // Wait for child to finish
+		// Parent process code to read from pipe...
+	}
+
+
+    close(pipefd[1]);
+
+    char html_content[4096];
+	memset(html_content, 0, sizeof(html_content));
+
+	int readbytes2;
+	if (request.path != "/")
+	{
+		int op = open("error_pages/404.html",O_RDONLY);
+		if (op == -1)
+		{
+			perror("buff -1 12");
+			exit(1);
+		}
+		readbytes2 = read(op, html_content, sizeof(html_content));
+		if (readbytes2 == -1)
+		{
+			perror("buff -1 15");
+			exit(1);
+		}
+
+	}
+	else
+	{
+
+		readbytes2 = read(pipefd[0], html_content, sizeof(html_content));
+		if (readbytes2 == -1)
+		{
+			perror("buff -1 1");
+			exit(1);
+		}
+
+	}
+	html_content[readbytes2] = 0;
+
 	const char *response_headers = 
-	"HTTP/1.1 200 OK\r\n"
+	"HTTP/1.1 404 OK\r\n"
 	"Content-Type: text/html\r\n"
 	"Connection: close\r\n";
 
-	const char *html_content = 
-	"<!DOCTYPE html>\r\n"
-	"<html>\r\n"
-	"<head><title>My Page</title></head>\r\n"
-	"<body>\r\n"
-	"<h1>Hello, my name is Jeff!</h1>\r\n"
-	"<p>I'm a web developer with a passion for learning new things.</p>\r\n"
-	"<h2>Some of my hobbies:</h2>\r\n"
-	"<ul>\r\n"
-	"    <li>Coding</li>\r\n"
-	"    <li>Photography</li>\r\n"
-	"    <li>Traveling</li>\r\n"
-	"</ul>\r\n"
-	"</body>\r\n"
-	"</html>";
+	char response[20048];
 
-	char response[2048]; // Make sure the size is enough to contain both headers and content
-	// sprintf(response, "%s%s", response_headers, html_content);
 	int content_length = strlen(html_content);
-	snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
 
-	// later, this function will, instead of 'response,' use the parsed buffer from the read function
-	write(new_socket, response, strlen(response));
+	snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
+	std::cout << "---resp\n" << response << "----\n";
+
+	if (write(new_socket, response, strlen(response)) == -1)
+	{
+		perror("buff -1 2");
+		exit(1);
+	}
+
 }
 
 
@@ -115,49 +191,37 @@ void TestServer::launch()
 	int activity;
 	int valread;
 	int i;
-	struct sockaddr_in address;
-
-	//type of socket created
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( 80 );
 
 	//initialise all client_socket[] to 0 so not checked
 	for (i = 0; i < max_clients; i++)
-	{
 		client_socket[i] = 0;
-	}
 
 	int count = 0;
 	while (1)
 	{
-		//clear the socket set
 		FD_ZERO(&readfds);
+		max_sd = -1;
 
-		//add master socket to set
-		FD_SET(get_socket()->get_sock(), &readfds);
-		max_sd = get_socket()->get_sock();
-
-		//add child sockets to set
-		for ( i = 0 ; i < max_clients ; i++)
+		for (size_t i = 0; i < get_socket_vector().size(); i++)
 		{
-			//socket descriptor
-			sd = client_socket[i];
-				
-			//if valid socket descriptor then add to read list
+			int socket_fd = get_socket(i)->get_sock();
+			FD_SET(socket_fd, &readfds); // Add each master socket FD to the set
+			
+			if (socket_fd > max_sd)
+				max_sd = socket_fd;
+		}
+
+		for (int j = 0 ; j < max_clients ; j++)
+		{
+			sd = client_socket[j];
 			if(sd > 0)
-				FD_SET( sd , &readfds);
-				
-			//highest file descriptor number, need it for the select function
+				FD_SET(sd, &readfds);
 			if(sd > max_sd)
 				max_sd = sd;
 		}
+
 		std::cout << "============= WAITING FOR NEXT CONNECT =============" << std::endl;
 
-		//wait for an activity on one of the sockets , timeout is NULL ,
-		//so wait indefinitely
-		printf("-------------------------------\nMAX SD = %d\n\n-------------------------------\n\n", max_sd);
-		
 		activity = select(max_sd + 1 , &readfds , NULL , NULL , NULL);
 
 		if ((activity < 0) && (errno!=EINTR))
@@ -165,54 +229,50 @@ void TestServer::launch()
 			printf("select error && activity = %d\n\n", activity);
 			perror("select");
 		}
-
-		//If something happened on the master socket,
-		//then its an incoming connection
-		if (FD_ISSET(get_socket()->get_sock(), &readfds))
+		// Check activity on each master socket
+		for (size_t i = 0; i < get_socket_vector().size(); i++)
 		{
-			accepter();
-			sleep(2);
-			handler();
-			responder();
-			std::cout << "count = " << count << std::endl;
-			std::cout << "============= DONE =============" << std::endl;
-			count++;
+			int master_socket_fd = get_socket(i)->get_sock();
 
-			//add new socket to array of sockets
-			for (i = 0; i < max_clients; i++)
+			if (FD_ISSET(master_socket_fd, &readfds))
 			{
-				//if position is empty
-				if( client_socket[i] == 0 )
+				accepter(get_socket(i));
+				handler(get_socket(i));
+				responder(get_socket(i));
+				std::cout << "count = " << count << std::endl;
+				std::cout << "============= DONE =============" << std::endl;
+				count++;
+
+				//add new socket to array of sockets
+				for (int j = 0; j < max_clients; j++)
 				{
-					client_socket[i] = new_socket;
-					printf("Adding to list of sockets as %d\n" , i);
-					break;
+					//if position is empty
+					if( client_socket[j] == 0 )
+					{
+						client_socket[j] = new_socket;
+						printf("Adding to list of sockets as %d\n" , j);
+						break;
+					}
 				}
 			}
 		}
-		for (i = 0; i < max_clients; i++)
+		for (int j = 0; j < max_clients; j++)
 		{
-			sd = client_socket[i];
-				
-			if (FD_ISSET( sd , &readfds))
+			sd = client_socket[j];
+
+			if (FD_ISSET(sd, &readfds))
 			{
 				//Check if it was for closing , and also read the
 				//incoming message
-				if ((valread = read( sd , buffer, 1024)) == 0)
+				memset(buffer, 0, sizeof(buffer));
+				if ((valread = read( sd , buffer, sizeof(buffer))) == 0)
 				{
-					/*
-					AFTER THE PARSING:
-					Depending on the HTTP headers (like Connection: keep-alive), 
-					We might keep the connection open for further requests from the same client.
-					*/
-					//close(new_socket);
-					close(new_socket);
-					//Close the socket and mark as 0 in list for reuse
-					close( sd );
-					client_socket[i] = 0;
+
+					close(sd);
+					client_socket[j] = 0;
 					std::cout << "this is closed" << std::endl;
 				}
-					
+
 				//Echo back the message that came in
 				else
 				{
@@ -223,7 +283,7 @@ void TestServer::launch()
 					std::cout << "this is open" << std::endl;
 				}
 			}
-		}	
+		}
 	}
 	// close(server_fd);
 }

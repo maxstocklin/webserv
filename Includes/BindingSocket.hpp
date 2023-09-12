@@ -6,14 +6,14 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/05 21:43:57 by max              ###   ########.fr       */
+/*   Updated: 2023/09/10 23:07:03 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BINDINGSOCKET_HPP
 # define BINDINGSOCKET_HPP
 
-# define PORT 8080
+#include "Colors.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -26,7 +26,7 @@ class BindingSocket : public ASocket
 {
 	public:
 		// constructors
-		BindingSocket(int domain, int service, int protocol, int port, u_long interface);
+		BindingSocket(std::string serverBlock);
 
 		// virtual function to connect to network
 		int connect_network(int Sock_fd, struct sockaddr_in address);  // todo --> sock??
