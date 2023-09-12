@@ -35,5 +35,4 @@ int main(int ac, char **av, char **env)
 		std::cerr << std::endl << RED << BOLD << "################################# ERROR #################################" << RESET << std::endl;
 		std::cerr << "Caught an unknown exception!" << std::endl;
 	}
-	// TestServer test(av[1], env);
 }
