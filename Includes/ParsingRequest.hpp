@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParsingRequest.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/11 18:10:41 by max              ###   ########.fr       */
+/*   Updated: 2023/09/12 16:08:52 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,10 @@ class ParsingRequest {
         
         ParsingRequest();
         ~ParsingRequest();
-        void parse(ListeningSocket *master_socket);
+        void parse(ListeningSocket *master_socket, char **env);
         void setBuffer(char * buffer);
         std::map<std::string, std::string> getParameters(std::string params);
         char _buffer[30000];
-        std::map<std::string, std::string> urlParams;
-        std::map<std::string, std::string> bodyParams;
         std::string method;
         std::string path;
         std::string query_string;

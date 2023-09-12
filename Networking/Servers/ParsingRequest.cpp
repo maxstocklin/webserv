@@ -46,10 +46,9 @@ std::map<std::string, std::string> ParsingRequest::getParameters(std::string par
     return (paramMap);
 };
 
-void ParsingRequest::parse(ListeningSocket *master_socket)
+void ParsingRequest::parse(ListeningSocket *master_socket, char **env)
 {
-    urlParams.clear();
-    bodyParams.clear();
+
     cgiEnvVector.clear();
     cgiEnv.clear();
     char *ptr;
@@ -63,9 +62,21 @@ void ParsingRequest::parse(ListeningSocket *master_socket)
    
     cgiEnvVector.push_back("QUERY_STRING=" + (questMarkPosition == std::string::npos ? "" : getStringPiece(ptr, 1).substr(questMarkPosition +1)) );
     cgiEnvVector.push_back("SERVER_PORT=" + std::to_string((master_socket->get_port())));
+    std::string tmp;
+    while (*env)
+    {
+        tmp = (*env);
+        // printf("%s\n", *env);
+        if (!strncmp(*env, "PATH=", 5))
+            cgiEnvVector.push_back(tmp);
+        env++;
+    }
+
+    (void)env;
+    // cgiEnvVector.push_back("PATH=" + env["PATH"]);
 
 //    (void)master_socket;
-   path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
+    path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
     cgiEnvVector.push_back("PATH_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
     cgiEnvVector.push_back("SCRIPT_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
     cgiEnvVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
@@ -76,13 +87,8 @@ void ParsingRequest::parse(ListeningSocket *master_socket)
         if (!getStringPiece(ptr, 0).compare("content-length:"))
         {
             contentLength = stoi(getStringPiece(ptr, 1));
-            // cgiEnvVector.push_back("CONTENT_LENGTH: "+ getStringPiece(ptr, 1));
+            cgiEnvVector.push_back("CONTENT_LENGTH="+ getStringPiece(ptr, 1));
         }
-        if (getStringPiece(ptr, 0).find_first_of(":") > getStringPiece(ptr, 0).size())
-        {
-           bodyParams =  getParameters(getStringPiece(ptr, 0));
-        }
-
         ptr = strtok (NULL, "\n");  
     }  
 

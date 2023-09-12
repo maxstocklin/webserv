@@ -11,7 +11,7 @@ int main(int ac, char **av, char **env)
 
 	try
 	{
-		TestServer serv(av[1]);
+		TestServer serv(av[1], env);
 		(void)env;
 	}
 
