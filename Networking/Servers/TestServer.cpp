@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/12 15:04:44 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:08:47 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,18 +30,12 @@ void TestServer::accepter(ListeningSocket *master_socket)
 	struct sockaddr_in address = master_socket->get_address();
 	int addrlen = sizeof(address);
 
-
-	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 	{
 		perror("Accept: ");
 		exit(EXIT_FAILURE);
 	}
 
-	//inform user of socket number - used in send and receive commands
-	// printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs
-	// 	(address.sin_port));
-
-	
 	memset(buffer, 0, sizeof(buffer));
 
 	std::cout << "Socket fd = " << master_socket->get_sock() << " and root loc = " << master_socket->get_rootLocation().root << "___________________________________\n\n\n";
@@ -62,7 +56,6 @@ void TestServer::handler(ListeningSocket *master_socket)
 	// std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
 	request.setBuffer(buffer);
 	request.parse(master_socket);
-	(void)master_socket;
 	// std::cout << request << std::endl;
 
 	// std::cout << "###################### End Parsed Results ######################" << std::endl;
@@ -116,9 +109,8 @@ void TestServer::responder()
 		{
 			request.cgiEnv.push_back(nullptr); 
 		}
-		char *envp[] = { const_cast<char*>("QUERY_STRING=value"), NULL };
 
-        execve("/usr/bin/php", argv, envp);
+        execve("/usr/bin/php", argv, request.cgiEnv.data());
 		perror("execve failed");
 
         exit(0);
