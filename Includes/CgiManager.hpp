@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiManager.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 16:11:53 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/13 17:28:01 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/13 21:22:00 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,14 @@
 
 class Handler;
 
-class CgiManager {
+class CgiManager
+{
     public:
         
-        static void dispatchResponse(int new_socket, Handler &request, std::string usePath);
-        static void phpResponder(int new_socket, Handler &request, std::string usePath);
-
+        static void dispatchResponse(Handler &request, std::string usePath, std::string mimeType);
+        static void phpResponder(Handler &request, std::string usePath);
+        static void htmlResponder(Handler &request, std::string usePath, std::string mimeType);
+        static void lsResponder(Handler &request, std::string usePath);
 
 };
 

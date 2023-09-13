@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/12 12:56:37 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/13 21:14:20 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,3 +52,16 @@ int main(int ac, char **av, char **env)
     }
 }
 
+
+
+
+
+/*
+- add more error codes and pages
+- add ls command
+- add post and delete
+- change request by handler
+- make the program able to receive jpeg png, txt, html
+- change he structure from contentResponse to contentBody
+
+*/image

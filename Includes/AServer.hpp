@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AServer.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/11 18:12:09 by max              ###   ########.fr       */
+/*   Updated: 2023/09/13 17:38:09 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ class AServer
 
 		virtual void accepter(ListeningSocket *master_socket) = 0;
 		virtual void handler(ListeningSocket *master_socket) = 0;
-		virtual void responder() = 0;
+		virtual void responder(ListeningSocket *master_socket) = 0;
 };
 
 #endif
