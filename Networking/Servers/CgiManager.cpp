@@ -1,10 +1,20 @@
 #include "../../Includes/CgiManager.hpp"
 
-void CgiManager::phpResponder(int new_socket, ParsingRequest request)
+void CgiManager::dispatchResponse(int new_socket, Handler &request, std::string usePath)
 {
+	if ((usePath.size() > 4 && !usePath.substr(usePath.size() - 4).compare(".php")))
+	{
+			std::cout << "found .php " << std::endl;
+		phpResponder(new_socket, request, usePath);
+	}
 
+};
 
+void CgiManager::phpResponder(int new_socket, Handler &request, std::string usePath)
 
+{
+	std::cout << "in php responder " << std::endl;
+	request.getExecutablePath("php");
     int pipefd[2];
     pipe(pipefd);
 
@@ -19,10 +29,11 @@ void CgiManager::phpResponder(int new_socket, ParsingRequest request)
 			perror("error man");
 			exit(0);
 		}
+		
 		char *argv[] =
 		{
-			const_cast<char*>("/usr/bin/php"), 
-			const_cast<char*>("/Users/srapopor/webserv/Networking/Cgi/index.php"), 
+			const_cast<char*>(request.exec_info.path.c_str()), 
+			const_cast<char*>(usePath.c_str()), 
 			NULL
 		};
 		if (request.cgiEnv.empty() || request.cgiEnv.back() != nullptr)
@@ -30,7 +41,7 @@ void CgiManager::phpResponder(int new_socket, ParsingRequest request)
 			request.cgiEnv.push_back(nullptr); 
 		}
 
-        execve("/usr/bin/php", argv, request.cgiEnv.data());
+        execve(request.exec_info.path.c_str(), argv, request.cgiEnv.data());
 		perror("execve failed");
 
         exit(0);
@@ -55,23 +66,27 @@ void CgiManager::phpResponder(int new_socket, ParsingRequest request)
 	}
 
 	html_content[readbytes2] = 0;
+	request.handler_response.statusCode = 200;
+	request.handler_response.htmlResponse = html_content;
+	request.handler_response.htmlContentType = "text/html";
+	request.handler_response.keepAlive = false; // TODO
 
-	const char *response_headers = 
-	"HTTP/1.1 200 OK\r\n"
-	"Content-Type: text/html\r\n"
-	"Connection: close\r\n";
+	// const char *response_headers = 
+	// "HTTP/1.1 200 OK\r\n"
+	// "Content-Type: text/html\r\n"
+	// "Connection: close\r\n";
 
-	char response[2048];
+	// char response[2048];
 
-	int content_length = strlen(html_content);
+	// int content_length = strlen(html_content);
 
-	snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
-	std::cout << "---resp\n" << response << "----\n";
+	// snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
+	// std::cout << "---resp\n" << response << "----\n";
 
-	if (write(new_socket, response, strlen(response)) == -1)
-	{
-		perror("buff -1 2");
-		exit(1);
-	}
+	// if (write(new_socket, response, strlen(response)) == -1)
+	// {
+	// 	perror("buff -1 2");
+	// 	exit(1);
+	// }
 
 };

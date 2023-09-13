@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/12 15:04:50 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/13 11:03:17 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "AServer.hpp"
 #include "Colors.hpp"
-#include "ParsingRequest.hpp"
+#include "Handler.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -49,7 +49,7 @@ class TestServer : public AServer
 		void handler(ListeningSocket *master_socket);
 		void responder();
 		char **env;
-		ParsingRequest request;
+		Handler request;
 
 };
 

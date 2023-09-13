@@ -6,13 +6,13 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/12 16:43:43 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/13 16:49:28 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/TestServer.hpp"
 #include "../../Includes/CgiManager.hpp"
-#include "../../Includes/ParsingRequest.hpp"
+#include "../../Includes/Handler.hpp"
 
 
 TestServer::TestServer(char *config_file) : AServer(config_file)
@@ -64,7 +64,9 @@ void TestServer::handler(ListeningSocket *master_socket)
 	// std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
 	request.setBuffer(buffer);
 	request.parse(master_socket, env);
-	std::cout << request << std::endl;
+	// std::cout << request << std::endl;
+	request.makeFullLocalPath(master_socket);
+	request.getPathResponse(master_socket, new_socket);
 
 	// std::cout << "###################### End Parsed Results ######################" << std::endl;
 
@@ -78,7 +80,7 @@ void TestServer::handler(ListeningSocket *master_socket)
 
 void TestServer::responder()
 {
-	 CgiManager::phpResponder(new_socket, request);
+	//  CgiManager::phpResponder(new_socket, request);
 }
 
 

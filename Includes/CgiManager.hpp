@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 16:11:53 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/12 16:32:52 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/13 17:28:01 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,16 @@
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
-#include "./ParsingRequest.hpp"
+#include "./Handler.hpp"
+
+class Handler;
 
 class CgiManager {
     public:
         
-        static void phpResponder(int new_socket, ParsingRequest request);
+        static void dispatchResponse(int new_socket, Handler &request, std::string usePath);
+        static void phpResponder(int new_socket, Handler &request, std::string usePath);
+
 
 };
 
