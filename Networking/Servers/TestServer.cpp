@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/12 16:41:56 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/13 12:32:46 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void TestServer::handler(ListeningSocket *master_socket)
 void TestServer::responder(ListeningSocket *master_socket)
 {
 	(void)master_socket;
-	if (request.path.size() > 5 )
+	if (request.path.size() > 5)
 	{
 		if (!(request.path.substr(request.path.size()-4, request.path.size()).compare(".php")))
 		{	

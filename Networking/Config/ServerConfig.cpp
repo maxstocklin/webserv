@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/11 11:59:16 by max              ###   ########.fr       */
+/*   Updated: 2023/09/13 11:15:48 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ ServerConfig::ServerConfig(std::string serverBlock)
 	server_name = "localhost";
 	client_max_body_size = 1 * 1024 * 1024;
 
+	// TODO: Check file access
 	// Set other error pages, now they don't exist
-	error_pages[404] = "/path/to/404_page.html";
-	error_pages[500] = "/path/to/500_page.html";
+	error_pages[0] = "/Users/mstockli/cursus/maxserv/error_pages/default_error.html";
 
 	// Default methods
 	rootLocation.allow_methods.push_back("GET");
