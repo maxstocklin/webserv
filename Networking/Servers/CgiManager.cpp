@@ -1,19 +1,25 @@
 #include "../../Includes/CgiManager.hpp"
 
-void CgiManager::dispatchResponse(int new_socket, Handler &request, std::string usePath)
+void CgiManager::dispatchResponse(Handler &request, std::string usePath, std::string mimeType)
 {
 	if ((usePath.size() > 4 && !usePath.substr(usePath.size() - 4).compare(".php")))
 	{
-			std::cout << "found .php " << std::endl;
-		phpResponder(new_socket, request, usePath);
+		phpResponder(request, usePath);
 	}
-
+	
+	else if (request.isFile(usePath))
+	{
+		htmlResponder(request, usePath, mimeType);
+	}
+	else
+	{
+		lsResponder(request, usePath);
+	}
 };
 
-void CgiManager::phpResponder(int new_socket, Handler &request, std::string usePath)
+void CgiManager::phpResponder(Handler &request, std::string usePath)
 
 {
-	std::cout << "in php responder " << std::endl;
 	request.getExecutablePath("php");
     int pipefd[2];
     pipe(pipefd);
@@ -71,22 +77,86 @@ void CgiManager::phpResponder(int new_socket, Handler &request, std::string useP
 	request.handler_response.htmlContentType = "text/html";
 	request.handler_response.keepAlive = false; // TODO
 
-	// const char *response_headers = 
-	// "HTTP/1.1 200 OK\r\n"
-	// "Content-Type: text/html\r\n"
-	// "Connection: close\r\n";
 
-	// char response[2048];
+};
 
-	// int content_length = strlen(html_content);
+void CgiManager::htmlResponder(Handler &request, std::string usePath, std::string mimeType)
+{
+    int op = 0;
+    ssize_t readbytes = 0;
+    char buffer[100000]; // consider using a dynamic approach or a larger buffer
 
-	// snprintf(response, sizeof(response), "%sContent-Length: %d\r\n\r\n%s", response_headers, content_length, html_content);
-	// std::cout << "---resp\n" << response << "----\n";
+    op = open(usePath.c_str(), O_RDONLY);
+    if (op < 0) {
+        request.handler_response.statusCode = 404;
+        return;
+    }
 
-	// if (write(new_socket, response, strlen(response)) == -1)
-	// {
-	// 	perror("buff -1 2");
-	// 	exit(1);
-	// }
+    readbytes = read(op, buffer, sizeof(buffer));
+    close(op); // Always close the file
+
+    if (readbytes < 0) {
+        request.handler_response.statusCode = 500; // 500 Internal Server Error might be more appropriate than 404
+        return;
+    }
+
+    // Use the buffer directly without adding a null terminator
+    std::string imageData(buffer, readbytes);
+
+    request.handler_response.statusCode = 200;
+    request.handler_response.htmlResponse = imageData;
+    request.handler_response.htmlContentType = mimeType;
+    request.handler_response.keepAlive = false;
+};
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sys/types.h>
+#include <dirent.h>
+
+void CgiManager::lsResponder(Handler &request, std::string usePath)
+{
+
+    std::vector<std::string> result;
+    DIR* dir = opendir(usePath.c_str());
+
+    if (dir) {
+        struct dirent* ent;
+        while ((ent = readdir(dir)) != NULL) {
+            result.push_back(ent->d_name);
+        }
+        closedir(dir);
+    } else {
+        // Handle error
+        std::cerr << "Could not open usePath: " << usePath << std::endl;
+    }
+
+	request.handler_response.statusCode = 200;
+	// request.handler_response.htmlResponse = html_content;
+	request.handler_response.htmlContentType = "text/html";
+	request.handler_response.keepAlive = false; // TODO
+
+
+    std::string html;
+
+    html += "<html><head><title>Directory Listing</title></head><body>";
+    html += "<h1>Directory Listing</h1>";
+    html += "<ul>";
+
+
+	for (std::vector<std::string>::const_iterator it = result.begin(); it != result.end(); ++it) {
+		const std::string& file = *it;
+		html += "<li>" + file + "</li>";
+	}
+
+    html += "</ul></body></html>";
+
+
+	request.handler_response.statusCode = 200;
+	request.handler_response.htmlResponse = html;
+	request.handler_response.htmlContentType = "text/html";
+	request.handler_response.keepAlive = false; // TODO
+
 
 };

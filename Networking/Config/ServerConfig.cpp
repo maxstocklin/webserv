@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 14:23:59 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/13 18:11:50 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,7 @@ ServerConfig::ServerConfig(std::string serverBlock)
 	client_max_body_size = 1 * 1024 * 1024;
 
 	// Set other error pages, now they don't exist
-	error_pages[404] = "/path/to/404_page.html";
-	error_pages[500] = "/path/to/500_page.html";
+	error_pages[0] = "/Users/mstockli/cursus/maxserv/error_pages/default_error.html";
 
 	// Default methods
 	rootLocation.allow_methods.push_back("GET");

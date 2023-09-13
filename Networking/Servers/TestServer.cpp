@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 16:49:28 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/13 17:47:54 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ void TestServer::handler(ListeningSocket *master_socket)
 	request.makeFullLocalPath(master_socket);
 	request.getPathResponse(master_socket, new_socket);
 
+
 	// std::cout << "###################### End Parsed Results ######################" << std::endl;
 
 }
@@ -78,8 +79,9 @@ void TestServer::handler(ListeningSocket *master_socket)
 #include <fcntl.h>
 #include <unistd.h>
 
-void TestServer::responder()
+void TestServer::responder(ListeningSocket *master_socket)
 {
+	Responder resp(request, master_socket->get_error_pages(), new_socket);
 	//  CgiManager::phpResponder(new_socket, request);
 }
 
@@ -142,7 +144,7 @@ void TestServer::launch()
 			{
 				accepter(get_socket(i));
 				handler(get_socket(i));
-				responder();
+				responder(get_socket(i));
 				std::cout << "count = " << count << std::endl;
 				std::cout << "============= DONE =============" << std::endl;
 				count++;

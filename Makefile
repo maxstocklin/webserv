@@ -29,6 +29,7 @@ DIRS = $(OBJS_DIR) \
        $(OBJS_DIR)Networking/ \
        $(OBJS_DIR)Networking/Config/ \
        $(OBJS_DIR)Networking/Servers/ \
+       $(OBJS_DIR)Networking/Errors/ \
        $(OBJS_DIR)Networking/Cgi/ \
        $(OBJS_DIR)Networking/Sockets/
 
@@ -44,6 +45,7 @@ SRC_HEADER      =   AServer.hpp \
 					ServerConfig.hpp \
 					Handler.hpp \
 					TestServer.hpp \
+					Responder.hpp \
 					CgiManager.hpp
 
 SRC_FILES       =   main.cpp \
@@ -54,6 +56,7 @@ SRC_FILES       =   main.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
 					Sockets/ListeningSocket.cpp \
+					Servers/Responder.cpp \
 					Servers/CgiManager.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))

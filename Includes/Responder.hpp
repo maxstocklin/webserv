@@ -1,56 +1,54 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   TestServer.hpp                                     :+:      :+:    :+:   */
+/*   Responder.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 17:38:02 by mstockli         ###   ########.fr       */
+/*   Created: 2023/09/12 15:30:23 by mstockli          #+#    #+#             */
+/*   Updated: 2023/09/13 13:57:18 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TESTSEVER_HPP
-# define TESTSEVER_HPP
-
-#include "AServer.hpp"
-#include "Colors.hpp"
-#include "Handler.hpp"
-#include "Responder.hpp"
+#ifndef RESPONDER_HPP
+# define RESPONDER_HPP
 
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
 
 #include <stdio.h> 
-#include <string.h>   //strlen 
+#include <map>
 #include <stdlib.h> 
 #include <errno.h> 
-#include <unistd.h>   //close 
-#include <arpa/inet.h>    //close 
+#include <unistd.h>
+#include <arpa/inet.h>
 #include <sys/types.h> 
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
+#include <fcntl.h>
+#include "Handler.hpp"
 
-class TestServer : public AServer
+
+class Responder
 {
 	public:
-		TestServer(char *config_file);
-		TestServer(char *config_file, char **env);
-		~TestServer();
-		void launch();
+		Responder(Handler &request, std::map<int, std::string> errorMap, int new_socket);
+		~Responder();
+
+		void respond(Handler &request);
+		std::string createResponseHeader(Handler &request);
+		void sendChunkedResponse(int socket, const std::string& content);
+
+		std::string get_error_content(int statusCode);
+		std::string loadFile(std::string errorFile);
 
 	private:
-		char buffer[30000];
-		int new_socket;
+		std::map<int, std::string> errorMap;
+		std::map<int, std::string> statusMessage;
 
-		TestServer();
-		void accepter(ListeningSocket *master_socket);
-		void handler(ListeningSocket *master_socket);
-		void responder(ListeningSocket *master_socket);
-		char **env;
-		Handler request;
+		int new_socket;
 
 };
 

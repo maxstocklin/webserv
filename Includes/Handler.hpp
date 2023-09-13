@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handler.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/13 16:27:29 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/13 21:25:25 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string>
+#include <algorithm>
 
 class Handler {
 
@@ -47,6 +49,12 @@ class Handler {
         void getExecutablePath(std::string command);
         void makeFullLocalPath(ListeningSocket *master_socket);
         void getPathResponse(ListeningSocket *master_socket, int new_socket);
+        std::string getFileExtension(const std::string& filename);
+        std::string getMimeType(const std::string& filePath);
+        std::map<std::string, std::string> getMimeTypes();
+
+ 
+ 
         struct exec_info_t {
             std::string path ;
             bool found;
@@ -59,6 +67,9 @@ class Handler {
             std::string htmlContentType;
         } handler_response;
 
+
+        bool isDirectory(const std::string& path);
+        bool isFile(const std::string& path);
     private:
 
 };
