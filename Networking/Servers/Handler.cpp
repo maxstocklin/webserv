@@ -1,17 +1,21 @@
 #include "../../Includes/Handler.hpp"
 
 
-Handler::Handler(){
+Handler::Handler()
+{
+	handler_response.statusCode = 0;
+	
+}
 
-};
-Handler::~Handler(){
+Handler::~Handler()
+{
 
-};
+}
 
 void Handler::setBuffer(char * buffer) 
 {
 	strcpy(_buffer, buffer);
-};
+}
 
 std::string getStringPiece(std::string line, int part)
 {
@@ -79,6 +83,7 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 	std::vector<Location> locationVector = master_socket->get_locations();
 
 	std::cout << "request path : " << path << std::endl;
+	
 	std::string basePath;
 	int secondBackslashPos = path.substr(1).find("/");
 	if (secondBackslashPos != -1 || (secondBackslashPos == -1 && path.size() > 1))
@@ -96,6 +101,18 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 		if (!locationVector[i].route.compare("/" + basePath))
 		{
 			found_loc = true;
+			int meth = 0;
+			for (size_t j = 0; j < locationVector[i].allow_methods.size(); j++)
+			{
+				if (locationVector[i].allow_methods[j] == method)
+					meth = 1;
+			}
+			if (meth == 0)
+			{
+				handler_response.statusCode = 405;
+			}
+			
+
 			std::string first = locationVector[i].root;
 			std::string sec = path.substr(basePath.length() + 1);
 			
@@ -115,7 +132,17 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 	if (found_loc == false)
 	{
 			std::string first = master_socket->get_rootLocation().root;
-			
+
+			int meth = 0;
+			for (size_t j = 0; j < master_socket->get_rootLocation().allow_methods.size(); j++)
+			{
+				if (master_socket->get_rootLocation().allow_methods[j] == method)
+					meth = 1;
+			}
+			if (meth == 0)
+			{
+				handler_response.statusCode = 405;
+			}
 			if (!first.empty() && first[first.size() - 1] == '/' && !path.empty() && path[0] == '/')
 				first.pop_back();
 
@@ -132,47 +159,50 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 
 
 bool Handler::isDirectory(const std::string& path) {
-    struct stat s;
-    if (stat(path.c_str(), &s) == 0) {
-        if (S_ISDIR(s.st_mode)) {
-            return true;
-        }
-    }
-    return false;
+	struct stat s;
+	if (stat(path.c_str(), &s) == 0) {
+		if (S_ISDIR(s.st_mode)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Handler::isFile(const std::string& path) {
-    struct stat s;
-    if (stat(path.c_str(), &s) == 0) {
-        if (S_ISREG(s.st_mode)) {
-            return true;
-        }
-    }
-    return false;
+	struct stat s;
+	if (stat(path.c_str(), &s) == 0) {
+		if (S_ISREG(s.st_mode)) {
+			return true;
+		}
+	}
+	return false;
 }
-void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket) {
+void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
+{
 
 	std::string pathToCheck;
 
 	(void)new_socket;
+	// TODO: create a checker function
+	if (handler_response.statusCode != 0)
+	{
+		handler_response.htmlContentType = "text/html";
+		return;
+	}
 	if (access(fullLocalPath.c_str(), F_OK) != 0)
 	{
-		 handler_response.statusCode = 404;
-		 return;
+		handler_response.htmlContentType = "text/html";
+		handler_response.statusCode = 404;
+		return;
 	}
-
-	if (isDirectory(fullLocalPath)) {
+	std::cout << "\n\n\n DIR? \n\n\n" << fullLocalPath << "\n\n\n\n\n";
+	if (isDirectory(fullLocalPath))
 		std::cout << fullLocalPath << " is a directory." << std::endl;
-	} else if (isFile(fullLocalPath)) {
+	else if (isFile(fullLocalPath))
 		std::cout << fullLocalPath << " is a file." << std::endl;
-	} else {
+	else
 		std::cout << "Unknown type or does not exist." << std::endl;
-	}
 
-	// if (!((fullLocalPath.size() > 4 && !fullLocalPath.substr(fullLocalPath.size() - 4).compare(".php"))||
-	// 	(fullLocalPath.size() > 5 && !fullLocalPath.substr(fullLocalPath.size() - 5).compare(".html"))
-	// 	))
-	
 	if (!isFile(fullLocalPath))
 	{
 		std::cout << "appending index.html" << std::endl;
@@ -182,85 +212,72 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket) {
 
 		// if the default file doesnt exist and the auto index is off
 		if (access(append_index.c_str(), F_OK) != 0 && !master_socket->get_rootLocation().autoindex)
-		{
 		   handler_response.statusCode = 404;
-		}
 
 		// if the default file doesnt exist and the auto index is on
 		else if (access(append_index.c_str(), F_OK) != 0 && master_socket->get_rootLocation().autoindex)
-		{
 			CgiManager::dispatchResponse(*this, fullLocalPath, "none");
-		}
+
 		// if the default file exists
 		else
-		{
 			CgiManager::dispatchResponse(*this, append_index, "none");
-		}
 
 	}
 	// if we received a file
 	else
 	{
 		std::string mimeType = getMimeType(fullLocalPath);
-		std::cout << "\n\n\n MIME TYPE \n\n\n" << mimeType << "\n\n\n\n\n";
+		std::cout << "\n\n\n mimeType \n\n\n" << mimeType << "\n\n\n\n\n";
 		if (mimeType == "what the fuck")
-			handler_response.statusCode = 404;
+		{
+			handler_response.htmlContentType = "text/html";
+			handler_response.statusCode = 501; // todo: add 501 error page
+		}
 		else
 			CgiManager::dispatchResponse(*this, fullLocalPath, mimeType);
 
 	}
-
-
 }
 
-
-
-	
-#include <string>
-#include <map>
-#include <algorithm>
-
 // Function to extract the file extension
-std::string Handler::getFileExtension(const std::string& filename) {
-    size_t dotPos = filename.find_last_of(".");
-    if (dotPos == std::string::npos) {
-        return "";  // No extension found
-    }
-    return filename.substr(dotPos);
+std::string Handler::getFileExtension(const std::string& filename)
+{
+	size_t dotPos = filename.find_last_of(".");
+	if (dotPos == std::string::npos) {
+		return "";  // No extension found
+	}
+	return filename.substr(dotPos);
 }
 
 
 std::map<std::string, std::string> Handler::getMimeTypes()
  {
-    std::map<std::string, std::string> mimeTypes;
+	std::map<std::string, std::string> mimeTypes;
 
-    mimeTypes[".jpeg"] = "image/jpeg";
-    mimeTypes[".jpg"] = "image/jpeg";
-    mimeTypes[".png"] = "image/png";
-    mimeTypes[".txt"] = "text/plain";
-    mimeTypes[".html"] = "text/html";
-    mimeTypes[".htm"] = "text/html";
+	mimeTypes[".jpeg"] = "image/jpeg";
+	mimeTypes[".jpg"] = "image/jpeg";
+	mimeTypes[".png"] = "image/png";
+	mimeTypes[".txt"] = "text/plain";
+	mimeTypes[".html"] = "text/html";
+	mimeTypes[".htm"] = "text/html";
 
-    return mimeTypes;
+	return mimeTypes;
 }
 
 std::string Handler::getMimeType(const std::string& filePath)
 {
-    static const std::map<std::string, std::string> mimeTypes = getMimeTypes();
+	static const std::map<std::string, std::string> mimeTypes = getMimeTypes();
 
-			std::cout << "\n\n\n filePath \n\n\n" << filePath << "\n\n\n\n\n";
+	std::string ext = getFileExtension(filePath);
 
-    std::string ext = getFileExtension(filePath);
-			std::cout << "\n\n\n ext \n\n\n" << ext << "\n\n\n\n\n";
+	std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);  // Convert to lowercase
 
-    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);  // Convert to lowercase
+	std::map<std::string, std::string>::const_iterator it = mimeTypes.find(ext);
+	if (it != mimeTypes.end()) {
+		return it->second;
+	}
 
-    std::map<std::string, std::string>::const_iterator it = mimeTypes.find(ext);
-    if (it != mimeTypes.end()) {
-        return it->second;
-    }
-
-    return "what the fuck";  // default MIME type for unknown extensions
+	return "what the fuck";  // default MIME type for unknown extensions
 }
 
 

@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 21:13:28 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/13 22:23:48 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Responder::Responder(Handler &request, std::map<int, std::string> errorMap, int 
 	statusMessage[410] = "Gone";   						// This response is sent when the requested content has been permanently deleted from the server, with no forwarding address.
 	statusMessage[413] = "Payload Too Large";  			// The request is larger than the server is willing or able to process.
 	statusMessage[500] = "Internal Server Error";  		// The server encountered an unexpected condition that prevented it from fulfilling the request.}
+	statusMessage[501] = "Internal Server Error";  		// The server does not support the functionality required to fulfill the request.
 
 	respond(request);
 }

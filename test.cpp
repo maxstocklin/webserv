@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/13 21:14:20 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/13 22:48:33 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,20 @@ int main(int ac, char **av, char **env)
 - make the program able to receive jpeg png, txt, html
 - change he structure from contentResponse to contentBody
 
-*/image
+*/
+
+#include <cerrno> // for errno
+#include <fcntl.h> // for open
+#include <cstring> // for strerror
+
+int fd = open("somepath", O_RDONLY);
+if (fd == -1) {
+    if (errno == ENOENT) {
+        // Handle "Not Found" scenario (e.g., return 404 status)
+    } else if (errno == EACCES) {
+        // Handle "Permission Denied" scenario (e.g., return 403 status)
+    } else {
+        // Handle other errors (e.g., return 500 status)
+        // Optionally, you can use strerror(errno) to get a human-readable error message.
+    }
+}
