@@ -42,17 +42,19 @@ SRC_HEADER      =   AServer.hpp \
 					ListeningSocket.hpp \
 					ASocket.hpp \
 					ServerConfig.hpp \
-					ParsingRequest.hpp \
-					TestServer.hpp
+					Handler.hpp \
+					TestServer.hpp \
+					CgiManager.hpp
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
 					Servers/AServer.cpp \
 					Servers/TestServer.cpp \
-					Servers/ParsingRequest.cpp \
+					Servers/Handler.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
-					Sockets/ListeningSocket.cpp
+					Sockets/ListeningSocket.cpp \
+					Servers/CgiManager.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
 

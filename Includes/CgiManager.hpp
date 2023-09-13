@@ -1,22 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   TestServer.hpp                                     :+:      :+:    :+:   */
+/*   CgiManager.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 11:03:17 by srapopor         ###   ########.fr       */
+/*   Created: 2023/09/12 16:11:53 by srapopor          #+#    #+#             */
+/*   Updated: 2023/09/13 17:28:01 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TESTSEVER_HPP
-# define TESTSEVER_HPP
-
-#include "AServer.hpp"
-#include "Colors.hpp"
-#include "Handler.hpp"
-
+#ifndef CGIMANAGER_HPP
+# define CGIMANAGER_HPP
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
@@ -31,25 +30,16 @@
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
+#include "./Handler.hpp"
 
-class TestServer : public AServer
-{
-	public:
-		TestServer(char *config_file);
-		TestServer(char *config_file, char **env);
-		~TestServer();
-		void launch();
+class Handler;
 
-	private:
-		char buffer[30000];
-		int new_socket;
+class CgiManager {
+    public:
+        
+        static void dispatchResponse(int new_socket, Handler &request, std::string usePath);
+        static void phpResponder(int new_socket, Handler &request, std::string usePath);
 
-		TestServer();
-		void accepter(ListeningSocket *master_socket);
-		void handler(ListeningSocket *master_socket);
-		void responder();
-		char **env;
-		Handler request;
 
 };
 

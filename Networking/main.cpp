@@ -11,7 +11,7 @@ int main(int ac, char **av, char **env)
 
 	try
 	{
-		TestServer serv(av[1]);
+		TestServer serv(av[1], env);
 		(void)env;
 	}
 
@@ -35,5 +35,4 @@ int main(int ac, char **av, char **env)
 		std::cerr << std::endl << RED << BOLD << "################################# ERROR #################################" << RESET << std::endl;
 		std::cerr << "Caught an unknown exception!" << std::endl;
 	}
-	// TestServer test(av[1], env);
 }
