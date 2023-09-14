@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/14 04:10:17 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 04:11:48 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int ac, char **av, char **env)
 
 		char *argv[] = {
 			const_cast<char*>("/usr/bin/php"),  // Path to PHP interpreter
-			const_cast<char*>("/Users/mstockli/cursus/webss/Networking/Cgi/index.php"),  // Path to your PHP script
+			const_cast<char*>("Networking/Cgi/index.php"),  // Path to your PHP script
 			NULL
 		};
 		char *envp[] = { const_cast<char*>("QUERY_STRING=value"), NULL };

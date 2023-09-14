@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 03:43:31 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 04:14:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,8 @@ std::string Responder::loadFile(std::string errorFile)
 	std::cout << "err file = " << errorFile << std::endl;
 
 	// TODO: What to do when even the error files won't open or read?
-	op = open(errorFile.c_str(), O_RDONLY);
+	std::cout << errorFile << std::endl;
+	if ((op = open(errorFile.c_str(), O_RDONLY)) < 0)
 		throw std::runtime_error("ERROR: Error with error file OPEN.");
 	if ((readbytes = read(op, buffer, sizeof(buffer))) < 0)
 		throw std::runtime_error("ERROR: Error with error file READ.");

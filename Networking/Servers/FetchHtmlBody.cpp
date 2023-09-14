@@ -21,6 +21,7 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 
 		// Log the error for diagnostics
 		// Return an HTTP 500 error to the client
+		std::cout << "DA ERROR 1" << std::endl;
 		handler.handler_response.statusCode = 500;
 		handler.handler_response.htmlContentType = "text/html";
 		return;
@@ -79,6 +80,7 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	int readbytes = read(pipefd[0], html_content, sizeof(html_content));
 	if (readbytes == -1)
 	{
+		std::cout << "DA ERROR 2" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;
@@ -103,7 +105,7 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	if (op == -1)
 	{
 		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-
+		std::cout << "DA ERROR 4" << std::endl;
 		if (errno == ENOENT)
 			handler.handler_response.statusCode = 404;  // Not Found
 		else if (errno == EACCES)
@@ -113,12 +115,11 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 		handler.handler_response.htmlContentType = "text/html";
 		return;
 	}
-	else
-		close(op);
 
 	readbytes = read(op, buffer, sizeof(buffer));
 	if (readbytes == -1)
 	{
+		std::cout << "DA ERROR 22" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;
@@ -157,6 +158,7 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 	else 
 	{
 		// std::cerr << "Could not open usePath: " << usePath << std::endl;
+		std::cout << "DA ERROR 33" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;

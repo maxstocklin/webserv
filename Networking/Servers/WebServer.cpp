@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 03:45:23 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 15:49:08 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void WebServer::accepter(ListeningSocket *master_socket)
 	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 	{
 		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-
+		std::cout << "DA ERROR 1212" << std::endl;
 		if (errno == ENOENT)
 			handler.handler_response.statusCode = 404;  // Not Found
 		else if (errno == EACCES)
@@ -59,6 +59,7 @@ void WebServer::accepter(ListeningSocket *master_socket)
 	int bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
 	if (bytes_read == -1)
 	{
+		std::cout << "DA ERROR 22222221111" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;
@@ -153,6 +154,7 @@ void WebServer::launch()
 
 			if (FD_ISSET(master_socket_fd, &readfds))
 			{
+				handler.handler_response.statusCode = 0;
 				accepter(get_socket(i));
 				handle(get_socket(i));
 				responder(get_socket(i));
