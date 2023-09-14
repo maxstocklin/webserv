@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/14 03:36:01 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 04:10:17 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,16 +57,10 @@ int main(int ac, char **av, char **env)
 
 
 /*
-- add more error codes and pages
-    - read()
-    - write()
-    - open()
-    - access()
-    - execve()
-    
-
 
 - add post and delete
+- add keep alive
+- finish adding chunks
 
 */
 

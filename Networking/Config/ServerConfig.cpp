@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 03:44:39 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 03:52:48 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,9 @@ ServerConfig::ServerConfig(std::string serverBlock)
 	server_name = "localhost";
 	client_max_body_size = 1 * 1024 * 1024;
 
+	// TODO: check that error pages are .html files
 	// Set other error pages, now they don't exist
-	error_pages[0] = "/Users/mstockli/cursus/maxserv/error_pages/default_error.html";
+	error_pages[0] = "./error_pages/default_error.html";
 
 	// Default methods
 	rootLocation.allow_methods.push_back("GET");
