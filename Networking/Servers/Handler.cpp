@@ -191,8 +191,15 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 	}
 	if (access(fullLocalPath.c_str(), F_OK) != 0)
 	{
+		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
+
+		if (errno == ENOENT)
+			handler_response.statusCode = 404;  // Not Found
+		else if (errno == EACCES)
+			handler_response.statusCode = 403;  // Forbidden
+		else
+			handler_response.statusCode = 500;  // Internal Server Error
 		handler_response.htmlContentType = "text/html";
-		handler_response.statusCode = 404;
 		return;
 	}
 	std::cout << "\n\n\n DIR? \n\n\n" << fullLocalPath << "\n\n\n\n\n";
@@ -212,7 +219,18 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 		// if the default file doesnt exist and the auto index is off
 		if (access(append_index.c_str(), F_OK) != 0 && !master_socket->get_rootLocation().autoindex)
-		   handler_response.statusCode = 404;
+		{
+			const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
+
+			if (errno == ENOENT)
+				handler_response.statusCode = 404;  // Not Found
+			else if (errno == EACCES)
+				handler_response.statusCode = 403;  // Forbidden
+			else
+				handler_response.statusCode = 500;  // Internal Server Error
+			handler_response.htmlContentType = "text/html";
+			return;
+		}
 
 		// if the default file doesnt exist and the auto index is on
 		else if (access(append_index.c_str(), F_OK) != 0 && master_socket->get_rootLocation().autoindex)

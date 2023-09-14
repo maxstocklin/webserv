@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/13 22:48:33 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/14 03:36:01 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,11 +58,15 @@ int main(int ac, char **av, char **env)
 
 /*
 - add more error codes and pages
-- add ls command
+    - read()
+    - write()
+    - open()
+    - access()
+    - execve()
+    
+
+
 - add post and delete
-- change request by handler
-- make the program able to receive jpeg png, txt, html
-- change he structure from contentResponse to contentBody
 
 */
 

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/14 02:57:46 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 03:10:34 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ class Handler {
         
         struct handler_response_t {
             int statusCode;
-            std::string htmlResponse;
+            std::string htmlBody;
             bool keepAlive;
             std::string htmlContentType;
         } handler_response;

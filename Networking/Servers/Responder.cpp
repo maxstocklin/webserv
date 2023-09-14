@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 03:01:28 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 03:43:31 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Responder::Responder(Handler &handler, std::map<int, std::string> errorMap, int 
 	statusMessage[410] = "Gone";   						// This response is sent when the requested content has been permanently deleted from the server, with no forwarding address.
 	statusMessage[413] = "Payload Too Large";  			// The request is larger than the server is willing or able to process.
 	statusMessage[500] = "Internal Server Error";  		// The server encountered an unexpected condition that prevented it from fulfilling the request.}
-	statusMessage[501] = "Internal Server Error";  		// The server does not support the functionality required to fulfill the request.
+	statusMessage[501] = "Not Implemented";  		// The server does not support the functionality required to fulfill the request.
 
 	respond(handler);
 }
@@ -47,19 +47,18 @@ void Responder::respond(Handler &handler)
 	response_headers = createResponseHeader(handler);
 
 	if (handler.handler_response.statusCode != 200)
-		handler.handler_response.htmlResponse = get_error_content(handler.handler_response.statusCode);
+		handler.handler_response.htmlBody = get_error_content(handler.handler_response.statusCode);
 
 	// 1. Build the headers including the content length
-	std::string headers = response_headers + "Content-Length: " + std::to_string(handler.handler_response.htmlResponse.size()) + "\r\n\r\n";
+	std::string headers = response_headers + "Content-Length: " + std::to_string(handler.handler_response.htmlBody.size()) + "\r\n\r\n";
 
 	// 2. Combine headers and content
-	std::string fullResponse = headers + handler.handler_response.htmlResponse;
+	std::string fullResponse = headers + handler.handler_response.htmlBody;
 
 	// 3. Send the response
 	ssize_t bytesSent = write(this->new_socket, fullResponse.data(), fullResponse.size());
-	if (bytesSent == -1) {
+	if (bytesSent == -1)
 		throw std::runtime_error("ERROR: Error with write.");
-	}
 
 	// TODO: test for chunked data:
 	// sendChunkedResponse(this->new_socket, fullResponse)
@@ -150,7 +149,8 @@ std::string Responder::loadFile(std::string errorFile)
 	memset(buffer, 0, sizeof(buffer));
 	std::cout << "err file = " << errorFile << std::endl;
 
-	if ((op = open(errorFile.c_str(), O_RDONLY)) < 0)
+	// TODO: What to do when even the error files won't open or read?
+	op = open(errorFile.c_str(), O_RDONLY);
 		throw std::runtime_error("ERROR: Error with error file OPEN.");
 	if ((readbytes = read(op, buffer, sizeof(buffer))) < 0)
 		throw std::runtime_error("ERROR: Error with error file READ.");
