@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handler.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/13 21:25:25 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/14 02:57:46 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <vector>
 #include <iostream>
 #include "ListeningSocket.hpp"
-#include "CgiManager.hpp"
+#include "FetchHtmlBody.hpp"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

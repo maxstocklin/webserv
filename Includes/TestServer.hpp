@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   TestServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 17:38:02 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/14 03:02:32 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,10 @@ class TestServer : public AServer
 
 		TestServer();
 		void accepter(ListeningSocket *master_socket);
-		void handler(ListeningSocket *master_socket);
+		void handle(ListeningSocket *master_socket);
 		void responder(ListeningSocket *master_socket);
 		char **env;
-		Handler request;
+		Handler handler;
 
 };
 

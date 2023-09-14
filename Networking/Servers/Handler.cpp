@@ -216,11 +216,11 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 		// if the default file doesnt exist and the auto index is on
 		else if (access(append_index.c_str(), F_OK) != 0 && master_socket->get_rootLocation().autoindex)
-			CgiManager::dispatchResponse(*this, fullLocalPath, "none");
+			FetchHtmlBody::dispatchResponse(*this, fullLocalPath, "none");
 
 		// if the default file exists
 		else
-			CgiManager::dispatchResponse(*this, append_index, "none");
+			FetchHtmlBody::dispatchResponse(*this, append_index, "none");
 
 	}
 	// if we received a file
@@ -234,7 +234,7 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 			handler_response.statusCode = 501; // todo: add 501 error page
 		}
 		else
-			CgiManager::dispatchResponse(*this, fullLocalPath, mimeType);
+			FetchHtmlBody::dispatchResponse(*this, fullLocalPath, mimeType);
 
 	}
 }
@@ -337,15 +337,15 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 
 }
 
-std::ostream &operator << (std::ostream &o, Handler  & request )
+std::ostream &operator << (std::ostream &o, Handler  & handler )
 {
-	o << "Method: " << request.method << std::endl;
-	o << "Path: " << request.path << std::endl;
-	o << "content-length: " << request.contentLength << std::endl;
-	o << "Connection: " << request.connection << std::endl;
-	for(unsigned int i = 0; i < request.cgiEnv.size(); i++)
+	o << "Method: " << handler.method << std::endl;
+	o << "Path: " << handler.path << std::endl;
+	o << "content-length: " << handler.contentLength << std::endl;
+	o << "Connection: " << handler.connection << std::endl;
+	for(unsigned int i = 0; i < handler.cgiEnv.size(); i++)
 	{
-		std::cout <<"env const char *variable " << request.cgiEnv[i] << " " << std::endl;
+		std::cout <<"env const char *variable " << handler.cgiEnv[i] << " " << std::endl;
 	}
 
 	

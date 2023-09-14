@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Responder.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 22:23:48 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/14 03:01:28 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Responder.hpp"
 
-Responder::Responder(Handler &request, std::map<int, std::string> errorMap, int new_socket) : errorMap(errorMap), new_socket(new_socket)
+Responder::Responder(Handler &handler, std::map<int, std::string> errorMap, int new_socket) : errorMap(errorMap), new_socket(new_socket)
 {
 	std::cout << "\n\n1. In Responder\n\n";
 	statusMessage[200] = "OK";							// The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
@@ -25,7 +25,7 @@ Responder::Responder(Handler &request, std::map<int, std::string> errorMap, int 
 	statusMessage[500] = "Internal Server Error";  		// The server encountered an unexpected condition that prevented it from fulfilling the request.}
 	statusMessage[501] = "Internal Server Error";  		// The server does not support the functionality required to fulfill the request.
 
-	respond(request);
+	respond(handler);
 }
 
 Responder::~Responder()
@@ -34,7 +34,7 @@ Responder::~Responder()
 }
 
 
-void Responder::respond(Handler &request)
+void Responder::respond(Handler &handler)
 {
 	char		html_content[20048];
 	char		html_response[20048];
@@ -44,16 +44,16 @@ void Responder::respond(Handler &request)
 	memset(html_response, 0, sizeof(html_response));
 
 
-	response_headers = createResponseHeader(request);
+	response_headers = createResponseHeader(handler);
 
-	if (request.handler_response.statusCode != 200)
-		request.handler_response.htmlResponse = get_error_content(request.handler_response.statusCode);
+	if (handler.handler_response.statusCode != 200)
+		handler.handler_response.htmlResponse = get_error_content(handler.handler_response.statusCode);
 
 	// 1. Build the headers including the content length
-	std::string headers = response_headers + "Content-Length: " + std::to_string(request.handler_response.htmlResponse.size()) + "\r\n\r\n";
+	std::string headers = response_headers + "Content-Length: " + std::to_string(handler.handler_response.htmlResponse.size()) + "\r\n\r\n";
 
 	// 2. Combine headers and content
-	std::string fullResponse = headers + request.handler_response.htmlResponse;
+	std::string fullResponse = headers + handler.handler_response.htmlResponse;
 
 	// 3. Send the response
 	ssize_t bytesSent = write(this->new_socket, fullResponse.data(), fullResponse.size());
@@ -96,25 +96,25 @@ void Responder::sendChunkedResponse(int socket, const std::string& content)
 
 
 
-std::string Responder::createResponseHeader(Handler &request)
+std::string Responder::createResponseHeader(Handler &handler)
 {
 	std::string response_headers;
 
 	// Add the HTTP version and status code
 	response_headers += "HTTP/1.1 ";
 
-	if (statusMessage.find(request.handler_response.statusCode) != statusMessage.end())
-		response_headers += std::to_string(request.handler_response.statusCode) + " " + statusMessage[request.handler_response.statusCode];
+	if (statusMessage.find(handler.handler_response.statusCode) != statusMessage.end())
+		response_headers += std::to_string(handler.handler_response.statusCode) + " " + statusMessage[handler.handler_response.statusCode];
 	else
 		response_headers += std::to_string(404) + " " + statusMessage[404]; // Default to 404 for unkown codes
 
 	response_headers += "\r\n";
 
 	// Add the Content-Type
-	response_headers += "Content-Type: " + request.handler_response.htmlContentType + "\r\n";
+	response_headers += "Content-Type: " + handler.handler_response.htmlContentType + "\r\n";
 
 	// Add the keepAlive flag
-	if (request.handler_response.keepAlive)
+	if (handler.handler_response.keepAlive)
 		response_headers += "Connection: keep-alive\r\n";
 	else
 		response_headers += "Connection: close\r\n";

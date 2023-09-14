@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CgiManager.hpp                                     :+:      :+:    :+:   */
+/*   FetchHtmlBody.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CGIMANAGER_HPP
-# define CGIMANAGER_HPP
+#ifndef FETCHHTMLBODY_HPP
+# define FETCHHTMLBODY_HPP
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -34,14 +34,14 @@
 
 class Handler;
 
-class CgiManager
+class FetchHtmlBody
 {
     public:
         
-        static void dispatchResponse(Handler &request, std::string usePath, std::string mimeType);
-        static void phpResponder(Handler &request, std::string usePath);
-        static void htmlResponder(Handler &request, std::string usePath, std::string mimeType);
-        static void lsResponder(Handler &request, std::string usePath);
+        static void dispatchResponse(Handler &handler, std::string usePath, std::string mimeType);
+        static void phpResponder(Handler &handler, std::string usePath);
+        static void htmlResponder(Handler &handler, std::string usePath, std::string mimeType);
+        static void lsResponder(Handler &handler, std::string usePath);
 
 };
 

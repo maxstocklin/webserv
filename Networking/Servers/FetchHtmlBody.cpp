@@ -1,26 +1,26 @@
-#include "../../Includes/CgiManager.hpp"
+#include "../../Includes/FetchHtmlBody.hpp"
 
-void CgiManager::dispatchResponse(Handler &request, std::string usePath, std::string mimeType)
+void FetchHtmlBody::dispatchResponse(Handler &handler, std::string usePath, std::string mimeType)
 {
 	if ((usePath.size() > 4 && !usePath.substr(usePath.size() - 4).compare(".php")))
 	{
-		phpResponder(request, usePath);
+		phpResponder(handler, usePath);
 	}
 	
-	else if (request.isFile(usePath))
+	else if (handler.isFile(usePath))
 	{
-		htmlResponder(request, usePath, mimeType);
+		htmlResponder(handler, usePath, mimeType);
 	}
 	else
 	{
-		lsResponder(request, usePath);
+		lsResponder(handler, usePath);
 	}
 };
 
-void CgiManager::phpResponder(Handler &request, std::string usePath)
+void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 
 {
-	request.getExecutablePath("php");
+	handler.getExecutablePath("php");
     int pipefd[2];
     pipe(pipefd);
 
@@ -38,16 +38,16 @@ void CgiManager::phpResponder(Handler &request, std::string usePath)
 		
 		char *argv[] =
 		{
-			const_cast<char*>(request.exec_info.path.c_str()), 
+			const_cast<char*>(handler.exec_info.path.c_str()), 
 			const_cast<char*>(usePath.c_str()), 
 			NULL
 		};
-		if (request.cgiEnv.empty() || request.cgiEnv.back() != nullptr)
+		if (handler.cgiEnv.empty() || handler.cgiEnv.back() != nullptr)
 		{
-			request.cgiEnv.push_back(nullptr); 
+			handler.cgiEnv.push_back(nullptr); 
 		}
 
-        execve(request.exec_info.path.c_str(), argv, request.cgiEnv.data());
+        execve(handler.exec_info.path.c_str(), argv, handler.cgiEnv.data());
 		perror("execve failed");
 
         exit(0);
@@ -72,15 +72,15 @@ void CgiManager::phpResponder(Handler &request, std::string usePath)
 	}
 
 	html_content[readbytes2] = 0;
-	request.handler_response.statusCode = 200;
-	request.handler_response.htmlResponse = html_content;
-	request.handler_response.htmlContentType = "text/html";
-	request.handler_response.keepAlive = false; // TODO
+	handler.handler_response.statusCode = 200;
+	handler.handler_response.htmlResponse = html_content;
+	handler.handler_response.htmlContentType = "text/html";
+	handler.handler_response.keepAlive = false; // TODO
 
 
 };
 
-void CgiManager::htmlResponder(Handler &request, std::string usePath, std::string mimeType)
+void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::string mimeType)
 {
     int op = 0;
     ssize_t readbytes = 0;
@@ -88,7 +88,7 @@ void CgiManager::htmlResponder(Handler &request, std::string usePath, std::strin
 
     op = open(usePath.c_str(), O_RDONLY);
     if (op < 0) {
-        request.handler_response.statusCode = 404;
+        handler.handler_response.statusCode = 404;
         return;
     }
 
@@ -96,17 +96,17 @@ void CgiManager::htmlResponder(Handler &request, std::string usePath, std::strin
     close(op); // Always close the file
 
     if (readbytes < 0) {
-        request.handler_response.statusCode = 500; // 500 Internal Server Error might be more appropriate than 404
+        handler.handler_response.statusCode = 500; // 500 Internal Server Error might be more appropriate than 404
         return;
     }
 
     // Use the buffer directly without adding a null terminator
     std::string imageData(buffer, readbytes);
 
-    request.handler_response.statusCode = 200;
-    request.handler_response.htmlResponse = imageData;
-    request.handler_response.htmlContentType = mimeType;
-    request.handler_response.keepAlive = false;
+    handler.handler_response.statusCode = 200;
+    handler.handler_response.htmlResponse = imageData;
+    handler.handler_response.htmlContentType = mimeType;
+    handler.handler_response.keepAlive = false;
 };
 
 #include <iostream>
@@ -115,7 +115,7 @@ void CgiManager::htmlResponder(Handler &request, std::string usePath, std::strin
 #include <sys/types.h>
 #include <dirent.h>
 
-void CgiManager::lsResponder(Handler &request, std::string usePath)
+void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 {
 
     std::vector<std::string> result;
@@ -132,10 +132,10 @@ void CgiManager::lsResponder(Handler &request, std::string usePath)
         std::cerr << "Could not open usePath: " << usePath << std::endl;
     }
 
-	request.handler_response.statusCode = 200;
-	// request.handler_response.htmlResponse = html_content;
-	request.handler_response.htmlContentType = "text/html";
-	request.handler_response.keepAlive = false; // TODO
+	handler.handler_response.statusCode = 200;
+	// handler.handler_response.htmlResponse = html_content;
+	handler.handler_response.htmlContentType = "text/html";
+	handler.handler_response.keepAlive = false; // TODO
 
 
     std::string html;
@@ -153,10 +153,10 @@ void CgiManager::lsResponder(Handler &request, std::string usePath)
     html += "</ul></body></html>";
 
 
-	request.handler_response.statusCode = 200;
-	request.handler_response.htmlResponse = html;
-	request.handler_response.htmlContentType = "text/html";
-	request.handler_response.keepAlive = false; // TODO
+	handler.handler_response.statusCode = 200;
+	handler.handler_response.htmlResponse = html;
+	handler.handler_response.htmlContentType = "text/html";
+	handler.handler_response.keepAlive = false; // TODO
 
 
 };

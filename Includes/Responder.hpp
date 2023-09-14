@@ -34,11 +34,11 @@
 class Responder
 {
 	public:
-		Responder(Handler &request, std::map<int, std::string> errorMap, int new_socket);
+		Responder(Handler &handler, std::map<int, std::string> errorMap, int new_socket);
 		~Responder();
 
-		void respond(Handler &request);
-		std::string createResponseHeader(Handler &request);
+		void respond(Handler &handler);
+		std::string createResponseHeader(Handler &handler);
 		void sendChunkedResponse(int socket, const std::string& content);
 
 		std::string get_error_content(int statusCode);

@@ -46,7 +46,7 @@ SRC_HEADER      =   AServer.hpp \
 					Handler.hpp \
 					TestServer.hpp \
 					Responder.hpp \
-					CgiManager.hpp
+					FetchHtmlBody.hpp
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
@@ -57,7 +57,7 @@ SRC_FILES       =   main.cpp \
 					Sockets/BindingSocket.cpp \
 					Sockets/ListeningSocket.cpp \
 					Servers/Responder.cpp \
-					Servers/CgiManager.cpp
+					Servers/FetchHtmlBody.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
 
