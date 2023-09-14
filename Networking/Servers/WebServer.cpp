@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 15:49:08 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 16:33:53 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,16 +162,23 @@ void WebServer::launch()
 				std::cout << "============= DONE =============" << std::endl;
 				count++;
 
-				//add new socket to array of sockets
-				for (int j = 0; j < max_clients; j++)
+				if (handler.connection == "keep-alive")
 				{
-					//if position is empty
-					if( client_socket[j] == 0 )
+					//add new socket to array of sockets
+					for (int j = 0; j < max_clients; j++)
 					{
-						client_socket[j] = new_socket;
-						printf("Adding to list of sockets as %d\n" , j);
-						break;
+						//if position is empty
+						if( client_socket[j] == 0 )
+						{
+							client_socket[j] = new_socket;
+							printf("Adding to list of sockets as %d\n" , j);
+							break;
+						}
 					}
+				}
+				else
+				{
+					close(new_socket);
 				}
 			}
 		}

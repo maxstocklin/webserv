@@ -282,6 +282,7 @@ std::map<std::string, std::string> Handler::getMimeTypes()
 	mimeTypes[".txt"] = "text/plain";
 	mimeTypes[".html"] = "text/html";
 	mimeTypes[".htm"] = "text/html";
+	mimeTypes[".php"] = "text/html";
 
 	return mimeTypes;
 }
