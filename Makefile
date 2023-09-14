@@ -44,14 +44,14 @@ SRC_HEADER      =   AServer.hpp \
 					ASocket.hpp \
 					ServerConfig.hpp \
 					Handler.hpp \
-					TestServer.hpp \
+					WebServer.hpp \
 					Responder.hpp \
 					FetchHtmlBody.hpp
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
 					Servers/AServer.cpp \
-					Servers/TestServer.cpp \
+					Servers/WebServer.cpp \
 					Servers/Handler.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
