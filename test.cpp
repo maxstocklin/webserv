@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/14 04:11:48 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 16:39:45 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,23 +59,8 @@ int main(int ac, char **av, char **env)
 /*
 
 - add post and delete
-- add keep alive
+- add keep alive // almost done
 - finish adding chunks
 
 */
 
-#include <cerrno> // for errno
-#include <fcntl.h> // for open
-#include <cstring> // for strerror
-
-int fd = open("somepath", O_RDONLY);
-if (fd == -1) {
-    if (errno == ENOENT) {
-        // Handle "Not Found" scenario (e.g., return 404 status)
-    } else if (errno == EACCES) {
-        // Handle "Permission Denied" scenario (e.g., return 403 status)
-    } else {
-        // Handle other errors (e.g., return 500 status)
-        // Optionally, you can use strerror(errno) to get a human-readable error message.
-    }
-}
