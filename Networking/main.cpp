@@ -1,4 +1,4 @@
-#include "../Includes/TestServer.hpp"
+#include "../Includes/WebServer.hpp"
 
 int main(int ac, char **av, char **env)
 {
@@ -11,7 +11,7 @@ int main(int ac, char **av, char **env)
 
 	try
 	{
-		TestServer serv(av[1], env);
+		WebServer serv(av[1], env);
 		(void)env;
 	}
 

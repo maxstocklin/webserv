@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   TestServer.hpp                                     :+:      :+:    :+:   */
+/*   WebServer.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TESTSEVER_HPP
-# define TESTSEVER_HPP
+#ifndef WEBSERVER_HPP
+# define WEBSERVER_HPP
 
 #include "AServer.hpp"
 #include "Colors.hpp"
@@ -33,19 +33,19 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 
-class TestServer : public AServer
+class WebServer : public AServer
 {
 	public:
-		TestServer(char *config_file);
-		TestServer(char *config_file, char **env);
-		~TestServer();
+		WebServer(char *config_file);
+		WebServer(char *config_file, char **env);
+		~WebServer();
 		void launch();
 
 	private:
 		char buffer[30000];
 		int new_socket;
 
-		TestServer();
+		WebServer();
 		void accepter(ListeningSocket *master_socket);
 		void handle(ListeningSocket *master_socket);
 		void responder(ListeningSocket *master_socket);

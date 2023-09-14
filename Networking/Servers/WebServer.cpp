@@ -1,39 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   TestServer.cpp                                     :+:      :+:    :+:   */
+/*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 03:03:02 by max              ###   ########.fr       */
+/*   Updated: 2023/09/14 03:07:01 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Includes/TestServer.hpp"
+#include "../../Includes/WebServer.hpp"
 #include "../../Includes/FetchHtmlBody.hpp"
 #include "../../Includes/Handler.hpp"
 
 
-TestServer::TestServer(char *config_file) : AServer(config_file)
+WebServer::WebServer(char *config_file) : AServer(config_file)
 {
 	memset(buffer, 0, sizeof(buffer));
 	// TESTING: ADD back when testing the whole program
 	launch();
 }
-TestServer::TestServer(char *config_file, char **env) : AServer(config_file), env(env)
+WebServer::WebServer(char *config_file, char **env) : AServer(config_file), env(env)
 {
 	memset(buffer, 0, sizeof(buffer));
 	// TESTING: ADD back when testing the whole program
 	launch();
 }
 
-TestServer::~TestServer()
+WebServer::~WebServer()
 {
 	
 }
 
-void TestServer::accepter(ListeningSocket *master_socket)
+void WebServer::accepter(ListeningSocket *master_socket)
 {
 	struct sockaddr_in address = master_socket->get_address();
 	int addrlen = sizeof(address);
@@ -56,7 +56,7 @@ void TestServer::accepter(ListeningSocket *master_socket)
 	buffer[bytes_read] = '\0'; // Null-terminate the buffer
 }
 
-void TestServer::handle(ListeningSocket *master_socket)
+void WebServer::handle(ListeningSocket *master_socket)
 {
 	std::cout << "###################### Buffer start ######################" << std::endl;
 	std::cout << buffer << std::endl;
@@ -79,14 +79,14 @@ void TestServer::handle(ListeningSocket *master_socket)
 #include <fcntl.h>
 #include <unistd.h>
 
-void TestServer::responder(ListeningSocket *master_socket)
+void WebServer::responder(ListeningSocket *master_socket)
 {
 	Responder resp(handler, master_socket->get_error_pages(), new_socket);
 	//  FetchHtmlBody::phpResponder(new_socket, handler);
 }
 
 
-void TestServer::launch()
+void WebServer::launch()
 {
 	//set of socket descriptors
 	fd_set readfds;
