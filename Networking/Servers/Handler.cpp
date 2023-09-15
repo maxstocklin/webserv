@@ -189,14 +189,12 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 	if (handler_response.statusCode != 0)
 	{
-		std::cout << "DA ERROR here: " << handler_response.statusCode << std::endl;
 		handler_response.htmlContentType = "text/html";
 		return;
 	}
 
 	if (access(fullLocalPath.c_str(), F_OK) != 0)
 	{
-		std::cout << "DA ERROR there" << std::endl;
 		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
 
 		if (errno == ENOENT)
@@ -224,7 +222,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		// if the default file doesnt exist and the auto index is off
 		if (access(append_index.c_str(), F_OK) != 0 && !master_socket->get_rootLocation().autoindex)
 		{
-			std::cout << "DA ERROR " << std::endl;
 			const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
 
 			if (errno == ENOENT)
@@ -259,7 +256,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		std::string mimeType = getMimeType(fullLocalPath);
 		if (mimeType == "what the fuck")
 		{
-			std::cout << "DA ERROR " << std::endl;
 			handler_response.htmlContentType = "text/html";
 			handler_response.statusCode = 501; // todo: add 501 error page
 		}

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 16:47:15 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 17:07:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,25 +286,9 @@ struct Location ServerConfig::createLocation(std::string locStr)
 
 		// check for the index directive, otherwise use the default index
 		if (containsDirective(locStr, "\nindex "))
-		{
-			// if the index directive given in the config file doesn't exist, and the autoindex is off, throw and error
-			try
-			{
-				loc.index = extractIndex(removeDirective(locStr,  "\nindex "), loc.root);
-			}
-			catch(const std::exception& e)
-			{
-				std::cerr << e.what() << '\n';
-				if (loc.autoindex)
-					loc.index = rootLocation.index;
-				else
-					throw std::runtime_error("Wrong index and autoindex is off, exiting.");
-			}
-		}
+			loc.index = extractIndex(removeDirective(locStr,  "\nindex "), loc.root);
 		else
 			loc.index = rootLocation.index;	}
-
-	std::cout << "LOCA = " << locStr << std::endl;
 	
 	// remove the line containing "location"
 	if (containsDirective(locStr, "location"))

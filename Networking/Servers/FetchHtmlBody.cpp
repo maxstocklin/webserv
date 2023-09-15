@@ -23,7 +23,6 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 
 		// Log the error for diagnostics
 		// Return an HTTP 500 error to the client
-		std::cout << "DA ERROR 1" << std::endl;
 		handler.handler_response.statusCode = 500;
 		handler.handler_response.htmlContentType = "text/html";
 		return;
@@ -82,7 +81,6 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	int readbytes = read(pipefd[0], html_content, sizeof(html_content));
 	if (readbytes == -1)
 	{
-		std::cout << "DA ERROR 2" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;

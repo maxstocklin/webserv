@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 12:39:36 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 17:18:29 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void WebServer::accepter(ListeningSocket *master_socket)
 	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 	{
 		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-		std::cout << "DA ERROR 1212" << std::endl;
+
 		if (errno == ENOENT)
 			handler.handler_response.statusCode = 404;  // Not Found
 		else if (errno == EACCES)
