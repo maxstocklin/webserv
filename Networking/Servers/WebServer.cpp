@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 17:18:29 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 17:24:31 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void WebServer::handle(ListeningSocket *master_socket)
 
 	handler.setBuffer(completeData);
 	handler.parse(master_socket, env);
-	std::cout << handler << std::endl;
+	// std::cout << handler << std::endl;
 
 	handler.makeFullLocalPath(master_socket);
 	handler.getPathResponse(master_socket, new_socket);

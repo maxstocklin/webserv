@@ -93,9 +93,9 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	handler.handler_response.htmlContentType = "text/html";
 
 	if (handler.connection == "keep-alive")
-		std::cout << "True" << std::endl;
+		handler.handler_response.keepAlive = true;
 	else if (handler.connection == "close")
-		handler.handler_response.keepAlive = false; // TODO
+		handler.handler_response.keepAlive = false;
 };
 
 void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::string mimeType)
@@ -136,22 +136,14 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	handler.handler_response.htmlBody = imageData;
 	handler.handler_response.htmlContentType = mimeType;
 	if (handler.connection == "keep-alive")
-		handler.handler_response.keepAlive = true; // TODO
+		handler.handler_response.keepAlive = true;
 	else if (handler.connection == "close")
-		handler.handler_response.keepAlive = false; // TODO
+		handler.handler_response.keepAlive = false;
 
 };
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sys/types.h>
-#include <dirent.h>
-
 void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 {
-
-
 	std::vector<std::string> result;
 	DIR* dir = opendir(usePath.c_str());
 
@@ -162,7 +154,7 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 			result.push_back(ent->d_name);
 		closedir(dir);
 	}
-	else 
+	else
 	{
 		// std::cerr << "Could not open usePath: " << usePath << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
@@ -176,7 +168,6 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 	html += "<h1>Directory Listing</h1>";
 	html += "<ul>";
 
-
 	for (std::vector<std::string>::const_iterator it = result.begin(); it != result.end(); ++it)
 	{
 		const std::string& file = *it;
@@ -185,14 +176,11 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 
 	html += "</ul></body></html>";
 
-
 	handler.handler_response.statusCode = 200;
 	handler.handler_response.htmlBody = html;
 	handler.handler_response.htmlContentType = "text/html";
 	if (handler.connection == "keep-alive")
-		handler.handler_response.keepAlive = true; // TODO
+		handler.handler_response.keepAlive = true;
 	else if (handler.connection == "close")
-		handler.handler_response.keepAlive = false; // TODO
-
-
+		handler.handler_response.keepAlive = false;
 };

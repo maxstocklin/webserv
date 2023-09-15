@@ -20,16 +20,28 @@ void Handler::setBuffer(std::string completeData)
 }
 
 std::string getStringPiece(const std::string &line, int part) {
-	std::cout << "line = " << line;
+    // std::cout << "line = " << line;
     std::size_t start = 0;
     std::size_t end = 0;
     int count = 0;
 
-    while (end != std::string::npos) {
+    while (end != std::string::npos)
+    {
         end = line.find(" ", start);
 
-        if (count == part) {
-            return (end == std::string::npos) ? line.substr(start) : line.substr(start, end - start);
+        if (count == part) // Check if we've reached the desired part
+        {
+            std::string piece;
+            if (end == std::string::npos)
+                piece = line.substr(start);
+            else
+                piece = line.substr(start, end - start);
+
+            // Trim any trailing \r or \n characters
+            while (!piece.empty() && (piece.back() == '\r' || piece.back() == '\n'))
+                piece.pop_back();
+
+            return piece;
         }
 
         start = end + 1;
@@ -244,7 +256,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		else
 		{
 			handler_response.htmlContentType = "text/html";
-			std::cout <<"************* IN HERE *************************\n\n\n";
 			std::string mimeType2 = getMimeType(append_index);
 			FetchHtmlBody::dispatchResponse(*this, append_index, "text/html");
 		}
