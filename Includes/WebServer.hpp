@@ -42,7 +42,8 @@ class WebServer : public AServer
 		void launch();
 
 	private:
-		char buffer[30000];
+		std::string completeData;
+		char buffer[4096];
 		int new_socket;
 
 		WebServer();

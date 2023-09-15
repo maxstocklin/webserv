@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 16:33:53 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 11:00:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,12 @@
 WebServer::WebServer(char *config_file) : AServer(config_file)
 {
 	memset(buffer, 0, sizeof(buffer));
-	// TESTING: ADD back when testing the whole program
 	launch();
 }
+
 WebServer::WebServer(char *config_file, char **env) : AServer(config_file), env(env)
 {
 	memset(buffer, 0, sizeof(buffer));
-	// TESTING: ADD back when testing the whole program
 	launch();
 }
 
@@ -52,10 +51,8 @@ void WebServer::accepter(ListeningSocket *master_socket)
 		return;
 	}
 
-
 	memset(buffer, 0, sizeof(buffer));
 
-	std::cout << "Socket fd = " << master_socket->get_sock() << " and root loc = " << master_socket->get_rootLocation().root << "___________________________________\n\n\n";
 	int bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
 	if (bytes_read == -1)
 	{
@@ -66,23 +63,37 @@ void WebServer::accepter(ListeningSocket *master_socket)
 	}
 
 	buffer[bytes_read] = '\0'; // Null-terminate the buffer
+
+	// while (true)
+	// {
+	// 	bytes_read = read(socket, buffer, sizeof(buffer) - 1);
+
+	// 	if (bytes_read > 0)
+	// 		completeData.append(buffer, bytes_read);
+	// 	else if (bytes_read == 0)
+	// 		break;
+	// 	else
+	// 	{
+	// 		std::cout << "DA ERROR 22222221111" << std::endl;
+	// 		handler.handler_response.statusCode = 500;  // Internal Server Error
+	// 		handler.handler_response.htmlContentType = "text/html";
+	// 		return;
+	// 	}
+	// }
 }
 
 void WebServer::handle(ListeningSocket *master_socket)
 {
-	std::cout << "###################### Buffer start ######################" << std::endl;
+	std::cout << "###################### HTTP REQUEST ######################" << std::endl  << std::endl;
 	std::cout << buffer << std::endl;
-	// std::cout << "###################### Buffer end  ######################" << std::endl;
-	// std::cout << "###################### HERE COMES THE PARSED RESULTS ######################" << std::endl;
+
 	handler.setBuffer(buffer);
 	handler.parse(master_socket, env);
+
 	// std::cout << handler << std::endl;
+
 	handler.makeFullLocalPath(master_socket);
 	handler.getPathResponse(master_socket, new_socket);
-
-
-	// std::cout << "###################### End Parsed Results ######################" << std::endl;
-
 }
 
 
@@ -94,7 +105,6 @@ void WebServer::handle(ListeningSocket *master_socket)
 void WebServer::responder(ListeningSocket *master_socket)
 {
 	Responder resp(handler, master_socket->get_error_pages(), new_socket);
-	//  FetchHtmlBody::phpResponder(new_socket, handler);
 }
 
 

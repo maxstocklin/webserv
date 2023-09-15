@@ -67,12 +67,10 @@ void Handler::getExecutablePath(std::string command)
 		end = pathString.find(":", start);
 		exec_info.found = false;
 		testPath = pathString.substr(start, (end == -1 ? pathString.length() : end)  - start) +"/" +command;
-		// std::cout << testPath <<  std::endl;
 		start = end + 1;
 		struct stat sb;
 		if ((stat(testPath.c_str(), &sb) == 0 && (sb.st_mode & S_IXUSR)))
 		{
-			// std::cout <<" test path " << testPath << " executable " << (stat(testPath.c_str(), &sb) == 0 && (sb.st_mode & S_IXUSR)) <<  std::endl;
 			exec_info.found = true;
 			exec_info.path = testPath.c_str();
 		}
@@ -81,15 +79,12 @@ void Handler::getExecutablePath(std::string command)
 
 void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 	std::vector<Location> locationVector = master_socket->get_locations();
-
-	std::cout << "request path : " << path << std::endl;
 	
 	std::string basePath;
 	int secondBackslashPos = path.substr(1).find("/");
 	if (secondBackslashPos != -1 || (secondBackslashPos == -1 && path.size() > 1))
 	{
 		basePath = path.substr(1, secondBackslashPos);
-		std::cout << "basepath " << basePath << std::endl;
 	} else
 	{
 		basePath = "/";
@@ -124,7 +119,6 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 				first = first + '/';
 
 			fullLocalPath = first + sec;
-			std::cout << " full locationPath " << fullLocalPath << std::endl;
 			 base_index = locationVector[i].index;
 		}
 		std::cout << locationVector[i].route << " " << locationVector[i].root << std::endl;
@@ -151,9 +145,7 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 				first = first + '/';
 
 			fullLocalPath = first + path;
-			std::cout << " full locationPath " << fullLocalPath << std::endl;
 			 base_index = master_socket->get_rootLocation().index;
-
 	}
 };
 
@@ -182,6 +174,7 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 	std::string pathToCheck;
 
+
 	(void)new_socket;
 	// TODO: create a checker function
 	if (handler_response.statusCode != 0)
@@ -190,6 +183,7 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		handler_response.htmlContentType = "text/html";
 		return;
 	}
+
 	if (access(fullLocalPath.c_str(), F_OK) != 0)
 	{
 		std::cout << "DA ERROR there" << std::endl;
@@ -204,7 +198,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		handler_response.htmlContentType = "text/html";
 		return;
 	}
-	std::cout << "\n\n\n DIR? \n\n\n" << fullLocalPath << "\n\n\n\n\n";
 	if (isDirectory(fullLocalPath))
 		std::cout << fullLocalPath << " is a directory." << std::endl;
 	else if (isFile(fullLocalPath))
@@ -214,7 +207,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 	if (!isFile(fullLocalPath))
 	{
-		std::cout << "appending index.html" << std::endl;
 		if (fullLocalPath[fullLocalPath.size() - 1] != '/')
 			fullLocalPath += "/";
 		std::string append_index = fullLocalPath + base_index;
@@ -248,7 +240,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 	else
 	{
 		std::string mimeType = getMimeType(fullLocalPath);
-		std::cout << "\n\n\n mimeType \n\n\n" << mimeType << "\n\n\n\n\n";
 		if (mimeType == "what the fuck")
 		{
 			std::cout << "DA ERROR " << std::endl;
@@ -348,8 +339,6 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 		ptr = strtok (NULL, "\n");  
 	}  
 
-
-   
 	for(unsigned int i = 0; i < cgiEnvVector.size(); i++)
 	{
 		cgiEnv.push_back(const_cast<char*>(cgiEnvVector[i].c_str()));;

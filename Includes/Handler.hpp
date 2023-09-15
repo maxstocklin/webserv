@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/14 03:10:34 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 10:59:37 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Handler {
         void setBuffer(char * buffer);
         std::map<std::string, std::string> getParameters(std::string params);
         char _buffer[30000];
+
         std::string method;
         std::string path;
         std::string fullLocalPath;

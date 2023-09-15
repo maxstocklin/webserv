@@ -95,7 +95,6 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 		handler.handler_response.keepAlive = true; // TODO
 	else if (handler.connection == "close")
 		handler.handler_response.keepAlive = false; // TODO
-	std::cout << "handler.connection "<< handler.connection << std::endl;
 };
 
 void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::string mimeType)
@@ -136,7 +135,6 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	handler.handler_response.statusCode = 200;
 	handler.handler_response.htmlBody = imageData;
 	handler.handler_response.htmlContentType = mimeType;
-	std::cout << "handler.connection "<< handler.connection << std::endl;
 	if (handler.connection == "keep-alive")
 		handler.handler_response.keepAlive = true; // TODO
 	else if (handler.connection == "close")
@@ -194,7 +192,6 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 		handler.handler_response.keepAlive = true; // TODO
 	else if (handler.connection == "close")
 		handler.handler_response.keepAlive = false; // TODO
-	std::cout << "handler.connection "<< handler.connection << std::endl;
 
 
 };

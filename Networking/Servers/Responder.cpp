@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 04:14:38 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 10:57:44 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 Responder::Responder(Handler &handler, std::map<int, std::string> errorMap, int new_socket) : errorMap(errorMap), new_socket(new_socket)
 {
-	std::cout << "\n\n1. In Responder\n\n";
 	statusMessage[200] = "OK";							// The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
 	statusMessage[400] = "Bad Request";					// The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
 	statusMessage[403] = "Forbidden";  					// The server understood the request, but it refuses to fulfill it. Authorization will not help and the request should not be repeated.
@@ -59,6 +58,9 @@ void Responder::respond(Handler &handler)
 	ssize_t bytesSent = write(this->new_socket, fullResponse.data(), fullResponse.size());
 	if (bytesSent == -1)
 		throw std::runtime_error("ERROR: Error with write.");
+
+	std::cout << std::endl << std::endl << "###################### HTTP RESPONSE ######################" << std::endl  << std::endl;
+	std::cout << fullResponse << std::endl;
 
 	// TODO: test for chunked data:
 	// sendChunkedResponse(this->new_socket, fullResponse)
@@ -144,7 +146,7 @@ std::string Responder::loadFile(std::string errorFile)
 {
 	int op = 0;
 	int readbytes = 0;
-	char buffer[2000];
+	char buffer[4096];
 
 	memset(buffer, 0, sizeof(buffer));
 	std::cout << "err file = " << errorFile << std::endl;
