@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/15 10:59:37 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 11:09:58 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,52 +26,60 @@
 #include <string>
 #include <algorithm>
 
-class Handler {
+struct exec_info_t {
+	std::string path ;
+	bool found;
+};
 
-    public:
-        
-        Handler();
-        ~Handler();
-        void parse(ListeningSocket *master_socket, char **env);
-        void setBuffer(char * buffer);
-        std::map<std::string, std::string> getParameters(std::string params);
-        char _buffer[30000];
+struct handler_response_t {
+	int statusCode;
+	std::string htmlBody;
+	bool keepAlive;
+	std::string htmlContentType;
+};
 
-        std::string method;
-        std::string path;
-        std::string fullLocalPath;
-        std::string base_index;
-        std::string query_string;
-        std::string filename;
-        std::string connection;
-        int contentLength;
-        std::vector<std::string> cgiEnvVector;
-        std::vector<char *> cgiEnv;
-        void getExecutablePath(std::string command);
-        void makeFullLocalPath(ListeningSocket *master_socket);
-        void getPathResponse(ListeningSocket *master_socket, int new_socket);
-        std::string getFileExtension(const std::string& filename);
-        std::string getMimeType(const std::string& filePath);
-        std::map<std::string, std::string> getMimeTypes();
+class Handler
+{
 
- 
- 
-        struct exec_info_t {
-            std::string path ;
-            bool found;
-        } exec_info;
-        
-        struct handler_response_t {
-            int statusCode;
-            std::string htmlBody;
-            bool keepAlive;
-            std::string htmlContentType;
-        } handler_response;
+	public:
+		// constructors
+		Handler();
+		~Handler();
 
+		// helper methods
+		void								parse(ListeningSocket *master_socket, char **env);
+		void								setBuffer(std::string completeData);
+		std::map<std::string, std::string>	getParameters(std::string params);
 
-        bool isDirectory(const std::string& path);
-        bool isFile(const std::string& path);
-    private:
+		void								getExecutablePath(std::string command);
+		void								makeFullLocalPath(ListeningSocket *master_socket);
+		void								getPathResponse(ListeningSocket *master_socket, int new_socket);
+		std::string							getFileExtension(const std::string& filename);
+		std::string							getMimeType(const std::string& filePath);
+		std::map<std::string, std::string>	getMimeTypes();
+
+		bool								isDirectory(const std::string& path);
+		bool								isFile(const std::string& path);
+
+		char						_buffer[30000];
+		std::string					_completeData;
+
+		std::string					method;
+		std::string					path;
+		std::string					fullLocalPath;
+		std::string					base_index;
+		std::string					query_string;
+		std::string					filename;
+		std::string					connection;
+		int contentLength;
+		std::vector<std::string>	cgiEnvVector;
+		std::vector<char *>			cgiEnv;
+
+		exec_info_t					exec_info;
+		handler_response_t			handler_response;
+
+	private:
+
 
 };
 

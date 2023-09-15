@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 11:00:24 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 12:39:36 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,33 +53,40 @@ void WebServer::accepter(ListeningSocket *master_socket)
 
 	memset(buffer, 0, sizeof(buffer));
 
-	int bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
-	if (bytes_read == -1)
+	completeData.clear();
+	while (true)
 	{
-		std::cout << "DA ERROR 22222221111" << std::endl;
-		handler.handler_response.statusCode = 500;  // Internal Server Error
-		handler.handler_response.htmlContentType = "text/html";
-		return;
+		ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
+
+
+		if (bytes_read > 0)
+		{
+			completeData.append(buffer, bytes_read);
+			if (completeData.find("\r\n\r\n") != std::string::npos)
+				break;
+
+		}
+		else if (bytes_read == 0)
+		{
+			break;
+		}
+		else
+		{
+			// Handle errors based on errno
+			if (errno == ECONNRESET) {
+				// Connection reset by peer
+				// Handle this specific error, e.g., log it and then break out of loop
+				std::cerr << "Connection reset by peer." << std::endl;
+				break;
+			}
+	
+			handler.handler_response.statusCode = 500;  // Internal Server Error
+			handler.handler_response.htmlContentType = "text/html";
+			return;
+		}
+
+
 	}
-
-	buffer[bytes_read] = '\0'; // Null-terminate the buffer
-
-	// while (true)
-	// {
-	// 	bytes_read = read(socket, buffer, sizeof(buffer) - 1);
-
-	// 	if (bytes_read > 0)
-	// 		completeData.append(buffer, bytes_read);
-	// 	else if (bytes_read == 0)
-	// 		break;
-	// 	else
-	// 	{
-	// 		std::cout << "DA ERROR 22222221111" << std::endl;
-	// 		handler.handler_response.statusCode = 500;  // Internal Server Error
-	// 		handler.handler_response.htmlContentType = "text/html";
-	// 		return;
-	// 	}
-	// }
 }
 
 void WebServer::handle(ListeningSocket *master_socket)
@@ -87,10 +94,9 @@ void WebServer::handle(ListeningSocket *master_socket)
 	std::cout << "###################### HTTP REQUEST ######################" << std::endl  << std::endl;
 	std::cout << buffer << std::endl;
 
-	handler.setBuffer(buffer);
+	handler.setBuffer(completeData);
 	handler.parse(master_socket, env);
-
-	// std::cout << handler << std::endl;
+	std::cout << handler << std::endl;
 
 	handler.makeFullLocalPath(master_socket);
 	handler.getPathResponse(master_socket, new_socket);

@@ -1,6 +1,6 @@
 // everything is in the _buffer variable.
 
-#include "Includes/TestServer.hpp"
+#include "Includes/WebServer.hpp"
 
 void splitString(const std::string &input, std::vector<std::string> &output, const char *delimiter) {
 	char *token = strtok(const_cast<char *>(input.c_str()), delimiter);

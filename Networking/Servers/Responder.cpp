@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 10:57:44 by max              ###   ########.fr       */
+/*   Updated: 2023/09/15 14:46:33 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void Responder::respond(Handler &handler)
 		throw std::runtime_error("ERROR: Error with write.");
 
 	std::cout << std::endl << std::endl << "###################### HTTP RESPONSE ######################" << std::endl  << std::endl;
-	std::cout << fullResponse << std::endl;
+	// std::cout << fullResponse << std::endl;
 
 	// TODO: test for chunked data:
 	// sendChunkedResponse(this->new_socket, fullResponse)

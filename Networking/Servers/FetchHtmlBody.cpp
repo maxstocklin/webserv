@@ -2,6 +2,8 @@
 
 void FetchHtmlBody::dispatchResponse(Handler &handler, std::string usePath, std::string mimeType)
 {
+
+
 	if ((usePath.size() > 4 && !usePath.substr(usePath.size() - 4).compare(".php")))
 		phpResponder(handler, usePath);
 	else if (handler.isFile(usePath))
@@ -91,14 +93,17 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	handler.handler_response.statusCode = 200;
 	handler.handler_response.htmlBody = html_content;
 	handler.handler_response.htmlContentType = "text/html";
+
 	if (handler.connection == "keep-alive")
-		handler.handler_response.keepAlive = true; // TODO
+		std::cout << "True" << std::endl;
 	else if (handler.connection == "close")
 		handler.handler_response.keepAlive = false; // TODO
 };
 
 void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::string mimeType)
 {
+
+
 	int op = 0;
 	ssize_t readbytes = 0;
 	char buffer[100000]; // consider using a dynamic approach or a larger buffer
@@ -107,7 +112,6 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	if (op == -1)
 	{
 		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-		std::cout << "DA ERROR 4" << std::endl;
 		if (errno == ENOENT)
 			handler.handler_response.statusCode = 404;  // Not Found
 		else if (errno == EACCES)
@@ -121,13 +125,11 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	readbytes = read(op, buffer, sizeof(buffer));
 	if (readbytes == -1)
 	{
-		std::cout << "DA ERROR 22" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;
 	}
-	else
-		close(readbytes);
+
 
 	// Use the buffer directly without adding a null terminator
 	std::string imageData(buffer, readbytes);
@@ -139,6 +141,7 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 		handler.handler_response.keepAlive = true; // TODO
 	else if (handler.connection == "close")
 		handler.handler_response.keepAlive = false; // TODO
+
 };
 
 #include <iostream>
@@ -149,6 +152,7 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 
 void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 {
+
 
 	std::vector<std::string> result;
 	DIR* dir = opendir(usePath.c_str());
@@ -163,7 +167,6 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 	else 
 	{
 		// std::cerr << "Could not open usePath: " << usePath << std::endl;
-		std::cout << "DA ERROR 33" << std::endl;
 		handler.handler_response.statusCode = 500;  // Internal Server Error
 		handler.handler_response.htmlContentType = "text/html";
 		return;

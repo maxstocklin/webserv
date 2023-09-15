@@ -12,26 +12,33 @@ Handler::~Handler()
 
 }
 
-void Handler::setBuffer(char * buffer) 
+void Handler::setBuffer(std::string completeData) 
 {
-	strcpy(_buffer, buffer);
+	std::cout << "SETBUFF\n" << completeData << std::endl;
+	 _completeData = completeData;
+	// strcpy(_buffer, buffer);
 }
 
-std::string getStringPiece(std::string line, int part)
-{
-  
-	int count = 0;
-	int start = 0;
-	int end = line.find(" ");
-	while (end != -1) {
-		if (count == part)
-			   return (line.substr(start, end - start));
-		start = end + 1;
-		end = line.find(" ", start);
-		count++;
-	}
-	return (line.substr(start, end - start));
+std::string getStringPiece(const std::string &line, int part) {
+	std::cout << "line = " << line;
+    std::size_t start = 0;
+    std::size_t end = 0;
+    int count = 0;
+
+    while (end != std::string::npos) {
+        end = line.find(" ", start);
+
+        if (count == part) {
+            return (end == std::string::npos) ? line.substr(start) : line.substr(start, end - start);
+        }
+
+        start = end + 1;
+        count++;
+    }
+
+    return ""; // If the part is not found, return an empty string.
 }
+
 
 std::map<std::string, std::string> Handler::getParameters(std::string params){
 	int start = 0;
@@ -177,6 +184,9 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 	(void)new_socket;
 	// TODO: create a checker function
+	if (contentLength > master_socket->get_client_max_body_size())
+		handler_response.statusCode = 413; // Payload Too Large
+
 	if (handler_response.statusCode != 0)
 	{
 		std::cout << "DA ERROR here: " << handler_response.statusCode << std::endl;
@@ -229,11 +239,18 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 		// if the default file doesnt exist and the auto index is on
 		else if (access(append_index.c_str(), F_OK) != 0 && master_socket->get_rootLocation().autoindex)
-			FetchHtmlBody::dispatchResponse(*this, fullLocalPath, "none");
+		{
+			FetchHtmlBody::dispatchResponse(*this, fullLocalPath, "text/html");
+		}
 
 		// if the default file exists
 		else
-			FetchHtmlBody::dispatchResponse(*this, append_index, "none");
+		{
+			handler_response.htmlContentType = "text/html";
+			std::cout <<"************* IN HERE *************************\n\n\n";
+			std::string mimeType2 = getMimeType(append_index);
+			FetchHtmlBody::dispatchResponse(*this, append_index, "text/html");
+		}
 
 	}
 	// if we received a file
@@ -294,50 +311,48 @@ std::string Handler::getMimeType(const std::string& filePath)
 	return "what the fuck";  // default MIME type for unknown extensions
 }
 
-
 void Handler::parse(ListeningSocket *master_socket, char **env)
 {
-
 	cgiEnvVector.clear();
 	cgiEnv.clear();
-	char *ptr;
-	ptr = strtok( _buffer, "\n");
-	//method and path always on first line
-	method = getStringPiece(ptr, 0);
-	
-	cgiEnvVector.push_back("REQUEST_METHOD=" + method);
 
-	std::size_t questMarkPosition = getStringPiece(ptr, 1).find("?");
-   
-	cgiEnvVector.push_back("QUERY_STRING=" + (questMarkPosition == std::string::npos ? "" : getStringPiece(ptr, 1).substr(questMarkPosition +1)) );
-	cgiEnvVector.push_back("SERVER_PORT=" + std::to_string((master_socket->get_port())));
-	std::string tmp;
-	while (*env)
+	std::istringstream requestStream(_completeData);
+	std::string line;
+
+	if (std::getline(requestStream, line)) { // First line
+		method = getStringPiece(line, 0);
+		cgiEnvVector.push_back("REQUEST_METHOD=" + method);
+
+		std::size_t questMarkPosition = getStringPiece(line, 1).find("?");
+		cgiEnvVector.push_back("QUERY_STRING=" + (questMarkPosition == std::string::npos ? "" : getStringPiece(line, 1).substr(questMarkPosition +1)));
+		cgiEnvVector.push_back("SERVER_PORT=" + std::to_string(master_socket->get_port()));
+	
+		path = getStringPiece(line, 1).substr(0, questMarkPosition);
+		cgiEnvVector.push_back("PATH_INFO=" + getStringPiece(line, 1).substr(0, questMarkPosition));
+		cgiEnvVector.push_back("SCRIPT_INFO=" + getStringPiece(line, 1).substr(0, questMarkPosition));
+		cgiEnvVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	}
+
+	while (*env) // Process environment variables (assuming env is some external char**)
 	{
-		tmp = (*env);
-		if (!strncmp(*env, "PATH=", 5))
+		std::string tmp(*env);
+		if (tmp.substr(0, 5) == "PATH=")
 			cgiEnvVector.push_back(tmp);
 		env++;
 	}
 
-	(void)env;
-
-//    (void)master_socket;
-	path = getStringPiece(ptr, 1).substr(0, questMarkPosition);
-	cgiEnvVector.push_back("PATH_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
-	cgiEnvVector.push_back("SCRIPT_INFO=" + getStringPiece(ptr, 1).substr(0, questMarkPosition));
-	cgiEnvVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	while (ptr != NULL)
-	{
-		if (!getStringPiece(ptr, 0).compare("Connection:"))
-			connection = getStringPiece(ptr, 1);
-		if (!getStringPiece(ptr, 0).compare("content-length:"))
+	while (std::getline(requestStream, line)) { // Remaining lines (headers etc.)
+		// Process the rest of the request headers/data
+		if (getStringPiece(line, 0) == "Connection:")
 		{
-			contentLength = stoi(getStringPiece(ptr, 1));
-			cgiEnvVector.push_back("CONTENT_LENGTH="+ getStringPiece(ptr, 1));
+			connection = getStringPiece(line, 1);
 		}
-		ptr = strtok (NULL, "\n");  
-	}  
+		if (!getStringPiece(line, 0).compare("content-length:"))
+		{
+			contentLength = stoi(getStringPiece(line, 1));
+			cgiEnvVector.push_back("CONTENT_LENGTH="+ getStringPiece(line, 1));
+		}
+	}
 
 	for(unsigned int i = 0; i < cgiEnvVector.size(); i++)
 	{
@@ -346,8 +361,14 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 		// std::cout <<"env const char *variable " << cgiEnv[i] << " " << std::endl;
 	}
 	// cgiEnv[index + 1] = NULL;
-
 }
+
+
+
+
+
+
+
 
 std::ostream &operator << (std::ostream &o, Handler  & handler )
 {
@@ -359,9 +380,6 @@ std::ostream &operator << (std::ostream &o, Handler  & handler )
 	{
 		std::cout <<"env const char *variable " << handler.cgiEnv[i] << " " << std::endl;
 	}
-
-	
-
 
 	return (o);
 
