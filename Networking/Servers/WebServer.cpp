@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 17:24:31 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 16:33:05 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,30 @@ void WebServer::accepter(ListeningSocket *master_socket)
 		return;
 	}
 
+	struct timeval timeout;
+	timeout.tv_sec = 5;  // 5 seconds timeout
+	timeout.tv_usec = 0;
+
+	// Set receive timeout
+	if (setsockopt(new_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+	{
+		std::cout << "WOOP WOOP\n";
+		handler.handler_response.statusCode = 408;  // Timeout
+		handler.handler_response.keepAlive = false;
+		handler.handler_response.htmlContentType = "text/html";
+		close(new_socket);
+	}
+
+	// Set send timeout
+	else if (setsockopt(new_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
+	{
+		std::cout << "WOOP WOOP\n";
+		handler.handler_response.statusCode = 408;  // Timeout
+		handler.handler_response.keepAlive = false;
+		handler.handler_response.htmlContentType = "text/html";
+		close(new_socket);
+	}
+
 	memset(buffer, 0, sizeof(buffer));
 
 	completeData.clear();
@@ -73,6 +97,13 @@ void WebServer::accepter(ListeningSocket *master_socket)
 		else
 		{
 			// Handle errors based on errno
+			if (errno == EAGAIN || errno == EWOULDBLOCK) 
+			{
+				std::cout << "WOOP WOOP\n";
+				handler.handler_response.statusCode = 408;  // Request Timeout
+				handler.handler_response.htmlContentType = "text/html";
+				return;
+			} 
 			if (errno == ECONNRESET) {
 				// Connection reset by peer
 				// Handle this specific error, e.g., log it and then break out of loop
@@ -101,12 +132,6 @@ void WebServer::handle(ListeningSocket *master_socket)
 	handler.makeFullLocalPath(master_socket);
 	handler.getPathResponse(master_socket, new_socket);
 }
-
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 void WebServer::responder(ListeningSocket *master_socket)
 {
@@ -172,7 +197,8 @@ void WebServer::launch()
 			{
 				handler.handler_response.statusCode = 0;
 				accepter(get_socket(i));
-				handle(get_socket(i));
+				if (handler.handler_response.statusCode == 0)
+					handle(get_socket(i));
 				responder(get_socket(i));
 				std::cout << "count = " << count << std::endl;
 				std::cout << "============= DONE =============" << std::endl;
@@ -226,5 +252,4 @@ void WebServer::launch()
 			}
 		}
 	}
-	// close(server_fd);
 }

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 17:07:24 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 16:03:25 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -519,7 +519,7 @@ void ServerConfig::extractError_page(std::string line)
 		// TODO: Validate error codes based on the ones we support
 		// TODO: create the error pages
 		if (errorCode != 400 && errorCode != 403 && errorCode != 404 \
-			&& errorCode != 405 && errorCode != 410 && errorCode != 413 && errorCode != 500 && errorCode != 501) 
+			&& errorCode != 405 && errorCode != 408 && errorCode != 410 && errorCode != 413 && errorCode != 500 && errorCode != 501) 
 			throw std::runtime_error("Unsupported error code in error_page directive: " + errorCodeStr);
 
 		// Validate the path if required.

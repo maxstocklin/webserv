@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/15 10:10:12 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 16:04:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,10 @@ int main(int ac, char **av, char **env)
 - finish adding chunks
 - handle all read with GNL
 
+- change all connection: close for errors?
+- check all errors are text/html
 
-Create a checker function before the html body fetch
-- is content length > max body size
+
 
 */
 

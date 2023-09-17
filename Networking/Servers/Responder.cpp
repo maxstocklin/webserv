@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 17:47:36 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 16:00:47 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,11 @@ Responder::Responder(Handler &handler, std::map<int, std::string> errorMap, int 
 	statusMessage[403] = "Forbidden";  					// The server understood the request, but it refuses to fulfill it. Authorization will not help and the request should not be repeated.
 	statusMessage[404] = "Not Found";  					// The server can't find the requested resource. Links which lead to a 404 page are often called broken or dead links.
 	statusMessage[405] = "Method Not Allowed"; 			// The request method is known by the server but is not supported by the target resource.
+	statusMessage[408] = "Request Timeout";   			// This is a standard HTTP status code that indicates that the server timed out waiting for the request.
 	statusMessage[410] = "Gone";   						// This response is sent when the requested content has been permanently deleted from the server, with no forwarding address.
 	statusMessage[413] = "Payload Too Large";  			// The request is larger than the server is willing or able to process.
 	statusMessage[500] = "Internal Server Error";  		// The server encountered an unexpected condition that prevented it from fulfilling the request.}
-	statusMessage[501] = "Not Implemented";  		// The server does not support the functionality required to fulfill the request.
+	statusMessage[501] = "Not Implemented";  			// The server does not support the functionality required to fulfill the request.
 
 	respond(handler);
 }
@@ -64,7 +65,6 @@ void Responder::respond(Handler &handler)
 
 	// TODO: test for chunked data:
 	// sendChunkedResponse(this->new_socket, fullResponse)
-
 }
 
 
@@ -121,7 +121,6 @@ std::string Responder::createResponseHeader(Handler &handler)
 		response_headers += "Connection: close\r\n";
 
 	return (response_headers);
-
 }
 
 
@@ -151,14 +150,12 @@ std::string Responder::loadFile(std::string errorFile)
 	std::cout << "err file = " << errorFile << std::endl;
 
 	// TODO: What to do when even the error files won't open or read?
-	std::cout << errorFile << std::endl;
 	if ((op = open(errorFile.c_str(), O_RDONLY)) < 0)
 		throw std::runtime_error("ERROR: Error with error file OPEN.");
+
 	if ((readbytes = read(op, buffer, sizeof(buffer))) < 0)
 		throw std::runtime_error("ERROR: Error with error file READ.");
 	
 	buffer[readbytes] = 0;
-
-	return (buffer);
-	
+	return (buffer);	
 }
