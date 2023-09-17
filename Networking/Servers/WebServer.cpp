@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 18:00:19 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 18:26:26 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ void WebServer::launch()
 
 		if ((activity < 0) && (errno!=EINTR))
 		{
-			printf("select error && activity = %d\n\n", activity);
+			std::cerr << "select error && activity = " << activity << std::endl;
 			perror("select");
 		}
 		// Check activity on each master socket
@@ -194,7 +194,7 @@ void WebServer::launch()
 						if( client_socket[j] == 0 )
 						{
 							client_socket[j] = new_socket;
-							printf("Adding to list of sockets as %d\n" , j);
+							std::cout << "Adding to list of sockets as " << j << std::endl;
 							break;
 						}
 					}

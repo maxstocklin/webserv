@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 18:06:41 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 18:25:18 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,18 +36,16 @@ Responder::~Responder()
 
 void Responder::respond(Handler &handler)
 {
-	char		html_content[20048];
-	char		html_response[20048];
 	std::string	response_headers;
-
-	memset(html_content, 0, sizeof(html_content));
-	memset(html_response, 0, sizeof(html_response));
-
 
 	response_headers = createResponseHeader(handler);
 
 	if (handler.get_handler_response().statusCode != 200)
+	{
 		handler.set_response_htmlBody(get_error_content(handler.get_handler_response().statusCode));
+		handler.set_response_keepAlive(false); // TODO --> Do we close all error connections?
+		handler.set_response_htmlContentType("text/html");
+	}
 
 	// 1. Build the headers including the content length
 	std::string headers = response_headers + "Content-Length: " + std::to_string(handler.get_handler_response().htmlBody.size()) + "\r\n\r\n";
@@ -60,8 +58,8 @@ void Responder::respond(Handler &handler)
 	if (bytesSent == -1)
 		throw std::runtime_error("ERROR: Error with write.");
 
-	std::cout << std::endl << std::endl << "###################### HTTP RESPONSE ######################" << std::endl  << std::endl;
-	std::cout << fullResponse << std::endl;
+	// std::cout << std::endl << std::endl << "###################### HTTP RESPONSE ######################" << std::endl  << std::endl;
+	// std::cout << fullResponse << std::endl;
 
 	// TODO: test for chunked data:
 	// sendChunkedResponse(this->new_socket, fullResponse)
