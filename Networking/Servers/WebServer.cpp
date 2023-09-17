@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 16:33:05 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 18:00:19 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,13 @@ void WebServer::accepter(ListeningSocket *master_socket)
 
 	if ((new_socket = accept(master_socket->get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 	{
-		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-
 		if (errno == ENOENT)
-			handler.handler_response.statusCode = 404;  // Not Found
+			handler.set_response_status_code(404);  // Not Found
 		else if (errno == EACCES)
-			handler.handler_response.statusCode = 403;  // Forbidden
+			handler.set_response_status_code(403);  // Forbidden
 		else
-			handler.handler_response.statusCode = 500;  // Internal Server Error
-		handler.handler_response.htmlContentType = "text/html";
+			handler.set_response_status_code(500);  // Internal Server Error
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
@@ -58,20 +56,20 @@ void WebServer::accepter(ListeningSocket *master_socket)
 	// Set receive timeout
 	if (setsockopt(new_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
 	{
-		std::cout << "WOOP WOOP\n";
-		handler.handler_response.statusCode = 408;  // Timeout
-		handler.handler_response.keepAlive = false;
-		handler.handler_response.htmlContentType = "text/html";
+		std::cout << "WOOP WOOP1\n";
+		handler.set_response_status_code(408);  // Timeout
+		handler.set_response_keepAlive(false);
+		handler.set_response_htmlContentType("text/html");
 		close(new_socket);
 	}
 
 	// Set send timeout
 	else if (setsockopt(new_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0)
 	{
-		std::cout << "WOOP WOOP\n";
-		handler.handler_response.statusCode = 408;  // Timeout
-		handler.handler_response.keepAlive = false;
-		handler.handler_response.htmlContentType = "text/html";
+		std::cout << "WOOP WOOP2\n";
+		handler.set_response_status_code(408);  // Timeout
+		handler.set_response_keepAlive(false);
+		handler.set_response_htmlContentType("text/html");
 		close(new_socket);
 	}
 
@@ -96,27 +94,10 @@ void WebServer::accepter(ListeningSocket *master_socket)
 		}
 		else
 		{
-			// Handle errors based on errno
-			if (errno == EAGAIN || errno == EWOULDBLOCK) 
-			{
-				std::cout << "WOOP WOOP\n";
-				handler.handler_response.statusCode = 408;  // Request Timeout
-				handler.handler_response.htmlContentType = "text/html";
-				return;
-			} 
-			if (errno == ECONNRESET) {
-				// Connection reset by peer
-				// Handle this specific error, e.g., log it and then break out of loop
-				std::cerr << "Connection reset by peer." << std::endl;
-				break;
-			}
-	
-			handler.handler_response.statusCode = 500;  // Internal Server Error
-			handler.handler_response.htmlContentType = "text/html";
+			handler.set_response_status_code(408);  // Request Timeout
+			handler.set_response_htmlContentType("text/html");
 			return;
 		}
-
-
 	}
 }
 
@@ -195,16 +176,16 @@ void WebServer::launch()
 
 			if (FD_ISSET(master_socket_fd, &readfds))
 			{
-				handler.handler_response.statusCode = 0;
+				handler.set_response_status_code(0);
 				accepter(get_socket(i));
-				if (handler.handler_response.statusCode == 0)
+				if (handler.get_handler_response().statusCode == 0)
 					handle(get_socket(i));
 				responder(get_socket(i));
 				std::cout << "count = " << count << std::endl;
 				std::cout << "============= DONE =============" << std::endl;
 				count++;
 
-				if (handler.connection == "keep-alive")
+				if (handler.get_connection() == "keep-alive")
 				{
 					//add new socket to array of sockets
 					for (int j = 0; j < max_clients; j++)

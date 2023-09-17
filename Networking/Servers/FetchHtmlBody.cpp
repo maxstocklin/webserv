@@ -23,8 +23,8 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 
 		// Log the error for diagnostics
 		// Return an HTTP 500 error to the client
-		handler.handler_response.statusCode = 500;
-		handler.handler_response.htmlContentType = "text/html";
+		handler.set_response_status_code(500);
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
@@ -34,8 +34,8 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 		perror("fork failed");
 		// Log the error for diagnostics
 		// Return an HTTP 500 error to the client
-		handler.handler_response.statusCode = 500;
-		handler.handler_response.htmlContentType = "text/html";
+		handler.set_response_status_code(500);
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
@@ -51,17 +51,19 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 			perror("dup2 failed");
 			exit(EXIT_FAILURE);
 		}
-		
+
+		exec_info_t execInfo = handler.get_exec_info();
+
 		char *argv[] =
 		{
-			const_cast<char*>(handler.exec_info.path.c_str()), 
+			const_cast<char*>(execInfo.path.c_str()), 
 			const_cast<char*>(usePath.c_str()), 
 			NULL
 		};
-		if (handler.cgiEnv.empty() || handler.cgiEnv.back() != nullptr)
-			handler.cgiEnv.push_back(nullptr); 
+		if (handler.get_cgiEnv().empty() || handler.get_cgiEnv().back() != nullptr)
+			handler.get_cgiEnv().push_back(nullptr); 
 
-		execve(handler.exec_info.path.c_str(), argv, handler.cgiEnv.data());
+		execve(handler.get_exec_info().path.c_str(), argv, handler.get_cgiEnv().data());
 
 		perror("execve failed");
 		exit(EXIT_FAILURE);
@@ -81,27 +83,25 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	int readbytes = read(pipefd[0], html_content, sizeof(html_content));
 	if (readbytes == -1)
 	{
-		handler.handler_response.statusCode = 500;  // Internal Server Error
-		handler.handler_response.htmlContentType = "text/html";
+		handler.set_response_status_code(500);  // Internal Server Error
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
 
 	html_content[readbytes] = 0;
-	handler.handler_response.statusCode = 200;
-	handler.handler_response.htmlBody = html_content;
-	handler.handler_response.htmlContentType = "text/html";
+	handler.set_response_status_code(200);
+	handler.set_response_htmlBody(html_content);
+	handler.set_response_htmlContentType("text/html");
 
-	if (handler.connection == "keep-alive")
-		handler.handler_response.keepAlive = true;
-	else if (handler.connection == "close")
-		handler.handler_response.keepAlive = false;
+	if (handler.get_connection() == "keep-alive")
+		handler.set_response_keepAlive(true);
+	else if (handler.get_connection() == "close")
+		handler.set_response_keepAlive(false);
 };
 
 void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::string mimeType)
 {
-
-
 	int op = 0;
 	ssize_t readbytes = 0;
 	char buffer[100000]; // consider using a dynamic approach or a larger buffer
@@ -109,22 +109,21 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	op = open(usePath.c_str(), O_RDONLY);
 	if (op == -1)
 	{
-		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
 		if (errno == ENOENT)
-			handler.handler_response.statusCode = 404;  // Not Found
+			handler.set_response_status_code(404);  // Not Found
 		else if (errno == EACCES)
-			handler.handler_response.statusCode = 403;  // Forbidden
+			handler.set_response_status_code(403);  // Forbidden
 		else
-			handler.handler_response.statusCode = 500;  // Internal Server Error
-		handler.handler_response.htmlContentType = "text/html";
+			handler.set_response_status_code(500);  // Internal Server Error
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
 	readbytes = read(op, buffer, sizeof(buffer));
 	if (readbytes == -1)
 	{
-		handler.handler_response.statusCode = 500;  // Internal Server Error
-		handler.handler_response.htmlContentType = "text/html";
+		handler.set_response_status_code(500);  // Internal Server Error
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
@@ -132,13 +131,13 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 	// Use the buffer directly without adding a null terminator
 	std::string imageData(buffer, readbytes);
 
-	handler.handler_response.statusCode = 200;
-	handler.handler_response.htmlBody = imageData;
-	handler.handler_response.htmlContentType = mimeType;
-	if (handler.connection == "keep-alive")
-		handler.handler_response.keepAlive = true;
-	else if (handler.connection == "close")
-		handler.handler_response.keepAlive = false;
+	handler.set_response_status_code(200);
+	handler.set_response_htmlBody(imageData);
+	handler.set_response_htmlContentType(mimeType);
+	if (handler.get_connection() == "keep-alive")
+		handler.set_response_keepAlive(true);
+	else if (handler.get_connection() == "close")
+		handler.set_response_keepAlive(false);
 
 };
 
@@ -157,8 +156,8 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 	else
 	{
 		// std::cerr << "Could not open usePath: " << usePath << std::endl;
-		handler.handler_response.statusCode = 500;  // Internal Server Error
-		handler.handler_response.htmlContentType = "text/html";
+		handler.set_response_status_code(500);  // Internal Server Error
+		handler.set_response_htmlContentType("text/html");
 		return;
 	}
 
@@ -176,11 +175,11 @@ void FetchHtmlBody::lsResponder(Handler &handler, std::string usePath)
 
 	html += "</ul></body></html>";
 
-	handler.handler_response.statusCode = 200;
-	handler.handler_response.htmlBody = html;
-	handler.handler_response.htmlContentType = "text/html";
-	if (handler.connection == "keep-alive")
-		handler.handler_response.keepAlive = true;
-	else if (handler.connection == "close")
-		handler.handler_response.keepAlive = false;
+	handler.set_response_status_code(200);
+	handler.set_response_htmlBody(html);
+	handler.set_response_htmlContentType("text/html");
+	if (handler.get_connection() == "keep-alive")
+		handler.set_response_keepAlive(true);
+	else if (handler.get_connection() == "close")
+		handler.set_response_keepAlive(false);
 };

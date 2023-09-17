@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/15 11:09:58 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 18:06:03 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,31 @@ class Handler
 		bool								isDirectory(const std::string& path);
 		bool								isFile(const std::string& path);
 
+		// SETTERS
+		void						set_response_status_code(int code);
+		void						set_response_keepAlive(bool res);
+		void						set_response_htmlContentType(std::string type);
+		void						set_response_htmlBody(std::string body);
+
+		// GETTERS
+		char						*get_buffer();
+		std::string					get_completeData();
+
+		std::string					get_method();
+		std::string					get_path();
+		std::string					get_fullLocalPath();
+		std::string					get_base_index();
+		std::string					get_query_string();
+		std::string					get_filename();
+		std::string					get_connection();
+		int							get_contentLength();
+		std::vector<std::string>	get_cgiEnvVector();
+		std::vector<char *>			get_cgiEnv();
+
+		exec_info_t					get_exec_info();
+		handler_response_t			get_handler_response();
+
+	private:
 		char						_buffer[30000];
 		std::string					_completeData;
 
@@ -71,14 +96,12 @@ class Handler
 		std::string					query_string;
 		std::string					filename;
 		std::string					connection;
-		int contentLength;
+		int							contentLength;
 		std::vector<std::string>	cgiEnvVector;
 		std::vector<char *>			cgiEnv;
 
 		exec_info_t					exec_info;
 		handler_response_t			handler_response;
-
-	private:
 
 
 };

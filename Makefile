@@ -14,7 +14,7 @@
 
 NAME 	= 	webserv
 CC 		= 	g++
-FLAGS 	= 	-std=c++98
+FLAGS 	= 	-Wall -Wextra -Werror -std=c++98
 RM		= 	rm -rf
 MKDIR	= 	mkdir -p
 AR		=	ar rcs

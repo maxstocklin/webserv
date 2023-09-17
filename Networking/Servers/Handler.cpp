@@ -207,8 +207,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 
 	if (access(fullLocalPath.c_str(), F_OK) != 0)
 	{
-		const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-
 		if (errno == ENOENT)
 			handler_response.statusCode = 404;  // Not Found
 		else if (errno == EACCES)
@@ -234,8 +232,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		// if the default file doesnt exist and the auto index is off
 		if (access(append_index.c_str(), F_OK) != 0 && !master_socket->get_rootLocation().autoindex)
 		{
-			const char* errorMessage = strerror(errno);  // Retrieve human-readable error message
-
 			if (errno == ENOENT)
 				handler_response.statusCode = 404;  // Not Found
 			else if (errno == EACCES)
@@ -379,15 +375,112 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 
 std::ostream &operator << (std::ostream &o, Handler  & handler )
 {
-	o << "Method: " << handler.method << std::endl;
-	o << "Path: " << handler.path << std::endl;
-	o << "content-length: " << handler.contentLength << std::endl;
-	o << "Connection: " << handler.connection << std::endl;
-	for(unsigned int i = 0; i < handler.cgiEnv.size(); i++)
+	o << "Method: " << handler.get_method() << std::endl;
+	o << "Path: " << handler.get_path() << std::endl;
+	o << "content-length: " << handler.get_contentLength() << std::endl;
+	o << "Connection: " << handler.get_connection() << std::endl;
+	for(unsigned int i = 0; i < handler.get_cgiEnv().size(); i++)
 	{
-		std::cout <<"env const char *variable " << handler.cgiEnv[i] << " " << std::endl;
+		std::cout <<"env const char *variable " << handler.get_cgiEnv()[i] << " " << std::endl;
 	}
 
 	return (o);
 
 };
+
+
+// GETTERS
+
+void Handler::set_response_status_code(int code)
+{
+	this->handler_response.statusCode = code;
+}
+
+void Handler::set_response_keepAlive(bool res)
+{
+	this->handler_response.keepAlive = res;
+}
+
+void Handler::set_response_htmlContentType(std::string type)
+{
+	this->handler_response.htmlContentType = type;
+}
+
+void Handler::set_response_htmlBody(std::string body)
+{
+	this->handler_response.htmlBody = body;
+}
+
+
+char *Handler::get_buffer()
+{
+	return(this->_buffer);
+}
+
+std::string	Handler::get_completeData()
+{
+	return(this->_completeData);
+}
+
+
+std::string	Handler::get_method()
+{
+	return(this->method);
+}
+
+std::string	Handler::get_path()
+{
+	return(this->path);
+}
+
+std::string	Handler::get_fullLocalPath()
+{
+	return(this->fullLocalPath);
+}
+
+std::string	Handler::get_base_index()
+{
+	return(this->base_index);
+}
+
+std::string	Handler::get_query_string()
+{
+	return(this->query_string);
+}
+
+std::string	Handler::get_filename()
+{
+	return(this->filename);
+}
+
+std::string	Handler::get_connection()
+{
+	return(this->connection);
+}
+
+int	Handler::get_contentLength()
+{
+	return(this->contentLength);
+}
+
+std::vector<std::string>	Handler::get_cgiEnvVector()
+{
+	return(this->cgiEnvVector);
+}
+
+std::vector<char *>	Handler::get_cgiEnv()
+{
+	return(this->cgiEnv);
+}
+
+
+exec_info_t	Handler::get_exec_info()
+{
+	return(this->exec_info);
+}
+
+handler_response_t	Handler::get_handler_response()
+{
+	return(this->handler_response);
+}
+

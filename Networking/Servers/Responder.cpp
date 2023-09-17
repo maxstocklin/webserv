@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 16:00:47 by max              ###   ########.fr       */
+/*   Updated: 2023/09/17 18:06:41 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,14 @@ void Responder::respond(Handler &handler)
 
 	response_headers = createResponseHeader(handler);
 
-	if (handler.handler_response.statusCode != 200)
-		handler.handler_response.htmlBody = get_error_content(handler.handler_response.statusCode);
+	if (handler.get_handler_response().statusCode != 200)
+		handler.set_response_htmlBody(get_error_content(handler.get_handler_response().statusCode));
 
 	// 1. Build the headers including the content length
-	std::string headers = response_headers + "Content-Length: " + std::to_string(handler.handler_response.htmlBody.size()) + "\r\n\r\n";
+	std::string headers = response_headers + "Content-Length: " + std::to_string(handler.get_handler_response().htmlBody.size()) + "\r\n\r\n";
 
 	// 2. Combine headers and content
-	std::string fullResponse = headers + handler.handler_response.htmlBody;
+	std::string fullResponse = headers + handler.get_handler_response().htmlBody;
 
 	// 3. Send the response
 	ssize_t bytesSent = write(this->new_socket, fullResponse.data(), fullResponse.size());
@@ -104,18 +104,18 @@ std::string Responder::createResponseHeader(Handler &handler)
 	// Add the HTTP version and status code
 	response_headers += "HTTP/1.1 ";
 
-	if (statusMessage.find(handler.handler_response.statusCode) != statusMessage.end())
-		response_headers += std::to_string(handler.handler_response.statusCode) + " " + statusMessage[handler.handler_response.statusCode];
+	if (statusMessage.find(handler.get_handler_response().statusCode) != statusMessage.end())
+		response_headers += std::to_string(handler.get_handler_response().statusCode) + " " + statusMessage[handler.get_handler_response().statusCode];
 	else
 		response_headers += std::to_string(404) + " " + statusMessage[404]; // Default to 404 for unkown codes
 
 	response_headers += "\r\n";
 
 	// Add the Content-Type
-	response_headers += "Content-Type: " + handler.handler_response.htmlContentType + "\r\n";
+	response_headers += "Content-Type: " + handler.get_handler_response().htmlContentType + "\r\n";
 
 	// Add the keepAlive flag
-	if (handler.handler_response.keepAlive)
+	if (handler.get_handler_response().keepAlive)
 		response_headers += "Connection: keep-alive\r\n";
 	else
 		response_headers += "Connection: close\r\n";
