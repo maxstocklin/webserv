@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BindingSocket.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:12:01 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/10 23:07:17 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 12:33:45 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ BindingSocket::BindingSocket(std::string serverBlock) : ASocket(serverBlock)
 {
 	//establish network connection
 	set_connection(connect_network(get_sock(), get_address()));
-	test_connection(get_connection());
+	test_connection("Binding Socket", get_connection());
 
 }
 

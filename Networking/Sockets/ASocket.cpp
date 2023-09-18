@@ -43,11 +43,11 @@ ASocket::~ASocket()
 }
 
 // test connection virtual function
-void ASocket::test_connection(int item_to_test)
+void ASocket::test_connection(std::string socketType, int item_to_test)
 {
 	// confirm the socket or connection has been properly established
 	if (item_to_test < 0)
-		throw std::runtime_error("ERROR: Failed to connect...");
+		throw std::runtime_error("ERROR: " + socketType + " to connect...");
 	// {
 	// 	perror("ERROR: Failed to connect...");
 	// 	exit(EXIT_FAILURE);

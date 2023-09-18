@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ASocket.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/10 23:06:41 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 12:32:33 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class ASocket
 		virtual int					connect_network(int sock, struct sockaddr_in address) = 0;
 
 		// test sockets and connections
-		void						test_connection(int item_to_test);
+		void						test_connection(std::string socketType, int item_to_test);
 
 		// PARSING
 		void						parseServerBlock(std::string serverBlock);

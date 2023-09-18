@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 15:58:13 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 12:31:06 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ ListeningSocket::ListeningSocket(std::string serverBlock) : BindingSocket(server
 {
 	backlog = 3; // find an other way
 	start_listening();
-	test_connection(listening);
+	test_connection("Listenting Socket", listening);
 
 }
 

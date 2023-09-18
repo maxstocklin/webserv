@@ -314,6 +314,20 @@ std::string Handler::getMimeType(const std::string& filePath)
 	return "what the fuck";  // default MIME type for unknown extensions
 }
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
+void Handler::setBody(std::string _completeData) {
+	size_t pos = _completeData.find("\r\n\r\n");
+	std::string body = _completeData.substr(pos + 4); 
+	std::istringstream bodyStream(body);
+
+
+	std::ofstream outFile("output.jpg", std::ios::binary);
+    outFile.write(body.c_str(), body.size());
+}
+
 void Handler::parse(ListeningSocket *master_socket, char **env)
 {
 	cgiEnvVector.clear();
@@ -364,14 +378,9 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 		// std::cout <<"env const char *variable " << cgiEnv[i] << " " << std::endl;
 	}
 	// cgiEnv[index + 1] = NULL;
+
+	setBody(_completeData);
 }
-
-
-
-
-
-
-
 
 std::ostream &operator << (std::ostream &o, Handler  & handler )
 {

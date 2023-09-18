@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Responder.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 18:25:18 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 15:41:15 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ std::string Responder::loadFile(std::string errorFile)
 {
 	int op = 0;
 	int readbytes = 0;
-	char buffer[4096];
+	char buffer[409600];
 
 	memset(buffer, 0, sizeof(buffer));
 	std::cout << "err file = " << errorFile << std::endl;

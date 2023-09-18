@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AServer.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 10:09:26 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 12:55:20 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ std::vector<ListeningSocket*> AServer::get_socket_vector()
 void AServer::split_server_blocks(const char *config_file)
 {
 	std::ifstream configFile(config_file);
-	if (!configFile)
+	if (!configFile.good() || !configFile.is_open())
 		throw std::runtime_error(std::string("Error opening file: ") + config_file);
 
 	std::stringstream buffer;
