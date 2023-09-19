@@ -43,7 +43,7 @@ class WebServer : public AServer
 
 	private:
 		std::string completeData;
-		char buffer[409600];
+		char buffer[1024];
 		int new_socket;
 
 		WebServer();

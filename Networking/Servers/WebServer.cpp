@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/18 16:35:43 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/19 12:36:52 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ WebServer::~WebServer()
 {
 	
 }
+
+
 
 void WebServer::accepter(ListeningSocket *master_socket)
 {
@@ -80,16 +82,23 @@ void WebServer::accepter(ListeningSocket *master_socket)
 	{
 		ssize_t bytes_read = read(new_socket, buffer, sizeof(buffer) - 1);
 
+		// if (bytes_read == -1) {
+     	//    perror("CLIENT: ERROR recv()");
+      	//   exit(EXIT_FAILURE);
+    	// }
 
 		if (bytes_read > 0)
 		{
 			completeData.append(buffer, bytes_read);
+			memset(buffer, 0, sizeof(buffer));
+
 			if (completeData.find("\r\n\r\n") != std::string::npos)
 				break;
 
 		}
 		else if (bytes_read == 0)
 		{
+			std::cout << "in byte zero\n" << std::endl;
 			break;
 		}
 		else
@@ -99,12 +108,34 @@ void WebServer::accepter(ListeningSocket *master_socket)
 			return;
 		}
 	}
+	std::string temp;
+	temp = completeData;
+	transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+	size_t pos = temp.find("content-length: ");
+	if (pos == std::string::npos) {
+        std::cerr << "Content-Length header not found." << std::endl;
+        return;
+    }
+
+    size_t endPos = completeData.find("\r\n", pos);
+    int contentLength = std::stoi(completeData.substr(pos + 15, endPos - (pos + 15)));
+
+    // Read the body data
+    std::string bodyData;
+    while (completeData.size() < (unsigned long)  contentLength) {
+        ssize_t bytes_read = recv(new_socket, buffer, sizeof(buffer), 0);
+        if (bytes_read <= 0) break;
+       	completeData.append(buffer, bytes_read);
+    }
+
+    std::cout << " *********  Received body data: " << completeData.substr(pos, 1500) << std::endl;
+
 }
 
 void WebServer::handle(ListeningSocket *master_socket)
 {
 	std::cout << "###################### HTTP REQUEST ######################" << std::endl  << std::endl;
-	std::cout << buffer << std::endl;
+	// std::cout << buffer << std::endl;
 
 	handler.setBuffer(completeData);
 	handler.parse(master_socket, env);

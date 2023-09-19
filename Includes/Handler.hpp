@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 11:34:27 by srapopor          #+#    #+#             */
-/*   Updated: 2023/09/18 15:41:25 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/19 12:48:12 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,12 +84,12 @@ class Handler
 
 		exec_info_t					get_exec_info();
 		handler_response_t			get_handler_response();
-		void 						setBody(std::string _completeData);
+		std::string 				get_imageData();	
 
 	private:
-		char						_buffer[300000];
+		char						_buffer[30000];
 		std::string					_completeData;
-		std::string					body;
+		std::string 				_imageData;
 
 		std::string					method;
 		std::string					path;

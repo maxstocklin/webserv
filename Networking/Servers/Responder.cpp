@@ -6,7 +6,7 @@
 /*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 15:30:27 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/18 15:41:15 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/09/18 17:37:01 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ std::string Responder::loadFile(std::string errorFile)
 {
 	int op = 0;
 	int readbytes = 0;
-	char buffer[409600];
+	char buffer[40960];
 
 	memset(buffer, 0, sizeof(buffer));
 	std::cout << "err file = " << errorFile << std::endl;

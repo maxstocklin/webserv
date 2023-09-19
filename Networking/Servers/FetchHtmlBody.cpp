@@ -42,8 +42,11 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	if (pid == 0)
 	{
 
-		close(pipefd[0]);
-		int errdup = dup2(pipefd[1], STDOUT_FILENO);
+  		dup2(pipefd[1], STDOUT_FILENO);
+      	int errdup =  dup2(pipefd[0], STDIN_FILENO);
+        close(pipefd[0]);
+        close(pipefd[1]);
+	
 
 		if (errdup == -1)
 		{
@@ -61,7 +64,9 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 			NULL
 		};
 		if (handler.get_cgiEnv().empty() || handler.get_cgiEnv().back() != nullptr)
-			handler.get_cgiEnv().push_back(nullptr); 
+			handler.get_cgiEnv().push_back(nullptr);
+		// std::cout << " path " << handler.get_exec_info().path.c_str() << std::endl;
+		// std::cout << " path " << usePath.c_str() << std::endl;
 
 		execve(handler.get_exec_info().path.c_str(), argv, handler.get_cgiEnv().data());
 
@@ -70,6 +75,9 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	}
 	else
 	{
+		// close(pipefd[0]);
+        write(pipefd[1],  handler.get_imageData().c_str(), handler.get_imageData().size());
+        close(pipefd[1]);
 		waitpid(pid, NULL, 0);  // Wait for child to finish
 		// Parent process code to read from pipe...
 	}
@@ -81,6 +89,7 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	memset(html_content, 0, sizeof(html_content));
 
 	int readbytes = read(pipefd[0], html_content, sizeof(html_content));
+	std::cout << "html content" << html_content << std::endl;
 	if (readbytes == -1)
 	{
 		handler.set_response_status_code(500);  // Internal Server Error
@@ -93,6 +102,7 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	handler.set_response_status_code(200);
 	handler.set_response_htmlBody(html_content);
 	handler.set_response_htmlContentType("text/html");
+	std::cout << "content :" << html_content << std::endl;
 
 	if (handler.get_connection() == "keep-alive")
 		handler.set_response_keepAlive(true);
@@ -104,7 +114,7 @@ void FetchHtmlBody::htmlResponder(Handler &handler, std::string usePath, std::st
 {
 	int op = 0;
 	ssize_t readbytes = 0;
-	char buffer[100000]; // consider using a dynamic approach or a larger buffer
+	char buffer[10000]; // consider using a dynamic approach or a larger buffer
 
 	op = open(usePath.c_str(), O_RDONLY);
 	if (op == -1)

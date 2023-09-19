@@ -14,7 +14,7 @@ Handler::~Handler()
 
 void Handler::setBuffer(std::string completeData) 
 {
-	std::cout << "SETBUFF\n" << completeData << std::endl;
+	std::cout << "SETBUFF\n" << completeData.substr(0, 500) << std::endl;
 	 _completeData = completeData;
 	// strcpy(_buffer, buffer);
 }
@@ -318,14 +318,32 @@ std::string Handler::getMimeType(const std::string& filePath)
 #include <fstream>
 #include <string>
 
-void Handler::setBody(std::string _completeData) {
-	size_t pos = _completeData.find("\r\n\r\n");
-	std::string body = _completeData.substr(pos + 4); 
-	std::istringstream bodyStream(body);
 
 
-	std::ofstream outFile("output.jpg", std::ios::binary);
-    outFile.write(body.c_str(), body.size());
+std::string parseMultipart( std::string& data, const std::string& boundary) {
+    std::string delimiter = "--" + boundary;
+    size_t pos = 0;
+    std::string token;
+    std::vector<std::string> parts;
+
+    while ((pos = data.find(delimiter)) != std::string::npos) {
+        token = data.substr(0, pos);
+		std::cout << "token: " << token << std::endl;
+		parts.push_back(token);
+		data.erase(0, pos + delimiter.length());
+    }
+
+    // Normally, the first and last parts are not actual data parts.
+    if (parts.size() > 2) {
+        // Here, I'm just extracting the 2nd part, assuming that's where the image is.
+        // In a real-world application, you'd need to inspect the headers of each part.
+        size_t headerEnd = parts[1].find("\r\n\r\n");
+        if (headerEnd != std::string::npos) {
+            return parts[1].substr(headerEnd + 4);
+        }
+    }
+
+    return "";
 }
 
 void Handler::parse(ListeningSocket *master_socket, char **env)
@@ -378,8 +396,24 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 		// std::cout <<"env const char *variable " << cgiEnv[i] << " " << std::endl;
 	}
 	// cgiEnv[index + 1] = NULL;
+	std::string temp;
+	temp = _completeData;
+	transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
 
-	setBody(_completeData);
+	size_t contentTypePos = temp.find("content-type: ");
+    if (contentTypePos == std::string::npos) {
+        std::cout << "Content-Type header not found." << std::endl;
+  
+    }
+
+    size_t boundaryStart = _completeData.find("boundary=", contentTypePos);
+    size_t boundaryEnd = _completeData.find("\r\n", boundaryStart);
+    std::string boundary = _completeData.substr(boundaryStart + 9, boundaryEnd - (boundaryStart + 9));
+
+    std::string bodyData = _completeData.substr(_completeData.find("\r\n\r\n") + 4);
+	std::cout << "boundary: " << boundaryStart << " " << boundaryEnd << std::endl;
+    _imageData = parseMultipart(bodyData, boundary);
+
 }
 
 std::ostream &operator << (std::ostream &o, Handler  & handler )
@@ -429,6 +463,11 @@ char *Handler::get_buffer()
 std::string	Handler::get_completeData()
 {
 	return(this->_completeData);
+}
+
+std::string	Handler::get_imageData()
+{
+	return(this->_imageData);
 }
 
 

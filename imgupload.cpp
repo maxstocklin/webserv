@@ -17,7 +17,7 @@ int main(void)
 	// the buffer will be replaced by the string containing the request already usable like the example bellow, in the handler::parse() function.
 	std::string buffer = "POST /upload_images HTTP/1.1\r\nHost: example.com\r\nContent-Type: multipart/form-data; boundary=---------------------------1234567890\r\n\r\n-----------------------------1234567890\r\nContent-Disposition: form-data: name=\"image1\"; filename=\"image1.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n[Binary data for image1.jpg goes here]\r\n-----------------------------1234567890\r\nContent-Disposition: form-data: name=\"image2\"; filename=\"image2.png\"\r\nContent-Type: image/png\r\n\r\n[Binary data for image2.png goes here]\r\n-----------------------------1234567890--\r\n";
 	std::cout << "===================== Recieved Request =====================\n" << std::endl;
-	std::cout << buffer << "\n\n" << std::endl;
+	// std::cout << buffer << "\n\n" << std::endl;
 	std::vector<std::string> tab; // these are all the strings once the request is parsed using "\r\n".
 	std::vector<std::vector<std::string> > blocks; // each block is a group of lines composing a part of the body.
 	std::vector<std::string> currentBlock;
