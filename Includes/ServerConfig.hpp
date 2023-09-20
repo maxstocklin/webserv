@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:04 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/10 23:03:54 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 17:42:46 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <cctype>
 #include <string>
+#include <arpa/inet.h>
 
 
 struct Location
@@ -67,6 +68,7 @@ class ServerConfig
 		bool						extractAutoindex(std::string line);
 		std::vector<std::string>	extractAllow_methods(std::string line);
 		std::string					extractIndex(std::string line, std::string path);
+		struct Location				extractRedirect(std::string line);
 
 		// getters
 		int							get_port();

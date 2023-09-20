@@ -29,6 +29,7 @@ DIRS = $(OBJS_DIR) \
        $(OBJS_DIR)Networking/ \
        $(OBJS_DIR)Networking/Config/ \
        $(OBJS_DIR)Networking/Servers/ \
+       $(OBJS_DIR)Networking/Errors/ \
        $(OBJS_DIR)Networking/Cgi/ \
        $(OBJS_DIR)Networking/Sockets/
 
@@ -42,17 +43,21 @@ SRC_HEADER      =   AServer.hpp \
 					ListeningSocket.hpp \
 					ASocket.hpp \
 					ServerConfig.hpp \
-					ParsingRequest.hpp \
-					TestServer.hpp
+					Handler.hpp \
+					WebServer.hpp \
+					Responder.hpp \
+					FetchHtmlBody.hpp
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
 					Servers/AServer.cpp \
-					Servers/TestServer.cpp \
-					Servers/ParsingRequest.cpp \
+					Servers/WebServer.cpp \
+					Servers/Handler.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
-					Sockets/ListeningSocket.cpp
+					Sockets/ListeningSocket.cpp \
+					Servers/Responder.cpp \
+					Servers/FetchHtmlBody.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
 

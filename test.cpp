@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 16:08:01 by max               #+#    #+#             */
-/*   Updated: 2023/09/12 12:56:37 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/17 16:04:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int ac, char **av, char **env)
 
 		char *argv[] = {
 			const_cast<char*>("/usr/bin/php"),  // Path to PHP interpreter
-			const_cast<char*>("/Users/mstockli/cursus/webss/Networking/Cgi/index.php"),  // Path to your PHP script
+			const_cast<char*>("Networking/Cgi/index.php"),  // Path to your PHP script
 			NULL
 		};
 		char *envp[] = { const_cast<char*>("QUERY_STRING=value"), NULL };
@@ -51,4 +51,22 @@ int main(int ac, char **av, char **env)
         exit(0);
     }
 }
+
+
+
+
+
+/*
+
+- add post and delete
+- add keep alive // almost done
+- finish adding chunks
+- handle all read with GNL
+
+- change all connection: close for errors?
+- check all errors are text/html
+
+
+
+*/
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/13 11:15:48 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/09/18 17:53:16 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ ServerConfig::ServerConfig(std::string serverBlock)
 	server_name = "localhost";
 	client_max_body_size = 1 * 1024 * 1024;
 
-	// TODO: Check file access
+	// TODO: check that error pages are .html files
 	// Set other error pages, now they don't exist
-	error_pages[0] = "/Users/mstockli/cursus/maxserv/error_pages/default_error.html";
+	error_pages[0] = "./error_pages/default_error.html";
 
 	// Default methods
 	rootLocation.allow_methods.push_back("GET");
@@ -194,7 +194,7 @@ void ServerConfig::parseLocations(std::string &serverBlock)
 			endPos++;
 		}
 		
-		// add the server{} block to the vector if bracketCount == 0
+		// add the location{} block to the vector if bracketCount == 0
 		// otherwise send an error
 		if (bracketCount == 0)
 			locations.push_back(createLocation(serverBlock.substr(startPos, endPos - startPos)));
@@ -216,8 +216,6 @@ struct Location ServerConfig::createLocation(std::string locStr)
 {
 	Location loc;
 
-	// std::cout << "LOC STR = \n" << locStr << std::endl;
-
 	std::string path = locStr.substr(9);  // skip "location "
 
 	size_t startPos = locStr.find('/'); // the path (route) MUST start with a "/"
@@ -235,74 +233,105 @@ struct Location ServerConfig::createLocation(std::string locStr)
 		throw std::runtime_error("CONFIG ERROR: Wrong location path:" + extractedPath);
 	
 	loc.route = extractedPath;
-
-	// check for the root directive, otherwise use the default root
-	if (containsDirective(locStr, "\nroot "))
+	if (containsDirective(locStr, "\nredirect "))
 	{
-		std::string tempRoot = extractRoot(removeDirective(locStr,  "\nroot "));
+		Location redirect = extractRedirect(removeDirective(locStr,  "\nredirect "));
 
-		// remove a "/" if both the tempRoot and the extractedPath already have one
-		if (!tempRoot.empty() && tempRoot[tempRoot.size() - 1] == '/' && !extractedPath.empty() && extractedPath[0] == '/')
-			tempRoot.pop_back();
-
-		// add a "/" if neither the tempRoot nor the extractedPath have one
-		else if (!tempRoot.empty() && tempRoot[tempRoot.size() - 1] != '/' && !extractedPath.empty() && extractedPath[0] != '/')
-			tempRoot = tempRoot + '/';
-
-		loc.root = tempRoot + extractedPath;
+		loc.root = redirect.root;
+		loc.autoindex = redirect.autoindex;
+		loc.allow_methods = redirect.allow_methods;
+		loc.index = redirect.index;
 	}
 	else
-	{	
-		// remove a "/" if both the rootLocation.root and the extractedPath already have one
-		if (!rootLocation.root.empty() && rootLocation.root[rootLocation.root.size() - 1] == '/' && !extractedPath.empty() && extractedPath[0] == '/')
-			rootLocation.root.pop_back();
-
-		// add a "/" if neither the rootLocation.root nor the extractedPath have one
-		else if (!rootLocation.root.empty() && rootLocation.root[rootLocation.root.size() - 1] != '/' && !extractedPath.empty() && extractedPath[0] != '/')
-		rootLocation.root = rootLocation.root + '/';
-
-		loc.root = rootLocation.root + extractedPath;
-	}
-
-	// check for the autoindex directive, otherwise use the default autoindex
-	if (containsDirective(locStr, "\nautoindex "))
-		loc.autoindex = extractAutoindex(removeDirective(locStr,  "\nautoindex "));
-	else
-		loc.autoindex = rootLocation.autoindex;
-
-	// check for the allow_methods directive, otherwise use the default allow_methods
-	if (containsDirective(locStr, "\nallow_methods "))
-		loc.allow_methods = extractAllow_methods(removeDirective(locStr,  "\nallow_methods "));
-	else
-		loc.allow_methods = rootLocation.allow_methods;
-
-	// check for the index directive, otherwise use the default index
-	if (containsDirective(locStr, "\nindex "))
 	{
-		// if the index directive given in the config file doesn't exist, and the autoindex is off, throw and error
-		try
+		// check for the root directive, otherwise use the default root
+		if (containsDirective(locStr, "\nroot "))
 		{
+			std::string tempRoot = extractRoot(removeDirective(locStr,  "\nroot "));
+
+			// remove a "/" if both the tempRoot and the extractedPath already have one
+			if (!tempRoot.empty() && tempRoot[tempRoot.size() - 1] == '/' && !extractedPath.empty() && extractedPath[0] == '/')
+				tempRoot.pop_back();
+
+			// add a "/" if neither the tempRoot nor the extractedPath have one
+			else if (!tempRoot.empty() && tempRoot[tempRoot.size() - 1] != '/' && !extractedPath.empty() && extractedPath[0] != '/')
+				tempRoot = tempRoot + '/';
+
+			loc.root = tempRoot + extractedPath;
+		}
+		else
+		{	
+			// remove a "/" if both the rootLocation.root and the extractedPath already have one
+			if (!rootLocation.root.empty() && rootLocation.root[rootLocation.root.size() - 1] == '/' && !extractedPath.empty() && extractedPath[0] == '/')
+				rootLocation.root.pop_back();
+
+			// add a "/" if neither the rootLocation.root nor the extractedPath have one
+			else if (!rootLocation.root.empty() && rootLocation.root[rootLocation.root.size() - 1] != '/' && !extractedPath.empty() && extractedPath[0] != '/')
+			rootLocation.root = rootLocation.root + '/';
+
+			loc.root = rootLocation.root + extractedPath;
+		}
+
+		// check for the autoindex directive, otherwise use the default autoindex
+		if (containsDirective(locStr, "\nautoindex "))
+			loc.autoindex = extractAutoindex(removeDirective(locStr,  "\nautoindex "));
+		else
+			loc.autoindex = rootLocation.autoindex;
+
+		// check for the allow_methods directive, otherwise use the default allow_methods
+		if (containsDirective(locStr, "\nallow_methods "))
+			loc.allow_methods = extractAllow_methods(removeDirective(locStr,  "\nallow_methods "));
+		else
+			loc.allow_methods = rootLocation.allow_methods;
+
+		// check for the index directive, otherwise use the default index
+		if (containsDirective(locStr, "\nindex "))
 			loc.index = extractIndex(removeDirective(locStr,  "\nindex "), loc.root);
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-			if (loc.autoindex)
-			{
-				loc.index = rootLocation.index;
-				// std::cout << "autoindex is on, using index.html as default." << std::endl;
-			}
-			else
-				throw std::runtime_error("Wrong index and autoindex is off, exiting.");
-		}
-	}
-	else
-		loc.index = rootLocation.index;
+		else
+			loc.index = rootLocation.index;	}
+	
+	// remove the line containing "location"
+	if (containsDirective(locStr, "location"))
+		removeDirective(locStr,  "location");
 
+	// check if there is something else remaining in the config file
+	if (locStr.find_first_not_of(" \t\n\r\f\v{}") != std::string::npos)
+	{
+		std::cout << locStr << std::endl; // to test
+		throw std::runtime_error("Wrong location directive(s) --> " + locStr);
+	}
 	return (loc);
 }
 
+// extract redirection
+struct Location ServerConfig::extractRedirect(std::string line)
+{
+	std::string redirect = line.substr(9);  // skip "redirect "
 
+	redirect = trimWhiteSpaces(redirect);
+
+	// Check if ends with semicolon
+	if (!endsWithSemicolon(redirect))
+		throw std::runtime_error("Directive does not end with a semicolon");
+
+	// Remove the semicolon for parsing
+	redirect.pop_back();
+	redirect = trimWhiteSpaces(redirect);  // trim any more potential whitespace
+
+	// if there is any white character within the remaining string, the path can't be valid
+	if (redirect.find_first_of(" \t\n\r\f\v") != std::string::npos)
+		throw std::runtime_error("CONFIG ERROR: Wrong redirection path: " + redirect);
+	
+	for (size_t i = 0; i < locations.size(); i++)
+	{
+		if (locations[i].route == redirect)
+			return locations[i];
+	}
+
+	// std::cout << redirect << std::endl;
+
+	throw std::runtime_error("CONFIG ERROR: Unset redirection path: " + redirect);
+}
 
 // extract & check autoindex from the line
 bool ServerConfig::extractAutoindex(std::string line)
@@ -490,7 +519,7 @@ void ServerConfig::extractError_page(std::string line)
 		// TODO: Validate error codes based on the ones we support
 		// TODO: create the error pages
 		if (errorCode != 400 && errorCode != 403 && errorCode != 404 \
-			&& errorCode != 405 && errorCode != 410 && errorCode != 413 && errorCode != 500) 
+			&& errorCode != 405 && errorCode != 408 && errorCode != 410 && errorCode != 413 && errorCode != 500 && errorCode != 501) 
 			throw std::runtime_error("Unsupported error code in error_page directive: " + errorCodeStr);
 
 		// Validate the path if required.
