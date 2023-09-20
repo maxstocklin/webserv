@@ -102,7 +102,6 @@ void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
 	handler.set_response_status_code(200);
 	handler.set_response_htmlBody(html_content);
 	handler.set_response_htmlContentType("text/html");
-	std::cout << "content :" << html_content << std::endl;
 
 	if (handler.get_connection() == "keep-alive")
 		handler.set_response_keepAlive(true);

@@ -14,7 +14,7 @@ Handler::~Handler()
 
 void Handler::setBuffer(std::string completeData) 
 {
-	std::cout << "SETBUFF\n" << completeData.substr(0, 500) << std::endl;
+	// std::cout << "SETBUFF\n" << completeData.substr(0, 500) << std::endl;
 	 _completeData = completeData;
 	// strcpy(_buffer, buffer);
 }
@@ -326,9 +326,11 @@ std::string parseMultipart( std::string& data, const std::string& boundary) {
     std::string token;
     std::vector<std::string> parts;
 
-    while ((pos = data.find(delimiter)) != std::string::npos) {
+	// std::cout << "body " << data.substr(0, 300) << std::endl;
+
+	while ((pos = data.find(delimiter)) != std::string::npos) {
         token = data.substr(0, pos);
-		std::cout << "token: " << token << std::endl;
+		// std::cout << "token: " << token << std::endl;
 		parts.push_back(token);
 		data.erase(0, pos + delimiter.length());
     }
@@ -411,7 +413,7 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
     std::string boundary = _completeData.substr(boundaryStart + 9, boundaryEnd - (boundaryStart + 9));
 
     std::string bodyData = _completeData.substr(_completeData.find("\r\n\r\n") + 4);
-	std::cout << "boundary: " << boundaryStart << " " << boundaryEnd << std::endl;
+	// std::cout << "boundary: " << boundaryStart << " " << boundaryEnd << std::endl;
     _imageData = parseMultipart(bodyData, boundary);
 
 }
