@@ -20,21 +20,13 @@ ASocket::ASocket(std::string serverBlock)
 	// define address structure
 	address.sin_family = get_domain();
 	address.sin_port = htons(get_port());
-	address.sin_addr.s_addr = htonl(get_interface());
+	address.sin_addr.s_addr = get_interface();
 
-	// change interface based on the host:
-	// if (host == "0.0.0.0")
-	// 	address.sin_addr.s_addr = htonl(INADDR_ANY);
-	// else
-	// {
-	// 	if (inet_pton(AF_INET, host.c_str(), &(address.sin_addr)) <= 0)
-	// 	{
-	// 		// Handle error here
-	// 	}
-	// }
 
 	//establish socket
 	sock_fd = socket(get_domain(), get_service(), get_protocol());
+	int option_value = 1;
+	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int));
 }
 
 ASocket::~ASocket()

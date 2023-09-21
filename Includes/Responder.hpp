@@ -28,7 +28,11 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 #include <fcntl.h>
+
+#include "ListeningSocket.hpp"
 #include "Handler.hpp"
+#include "CgiHandler.hpp"
+
 
 
 class Responder
@@ -44,11 +48,27 @@ class Responder
 		std::string get_error_content(int statusCode);
 		std::string loadFile(std::string errorFile);
 
-	private:
-		std::map<int, std::string> errorMap;
-		std::map<int, std::string> statusMessage;
+		void        setServer(ListeningSocket &server);
+		void		setRequest(Handler &req);
+		bool		checkError();
+		void    	buildResponse();
 
-		int new_socket;
+	private:
+		std::map<int, std::string>	errorMap;
+		std::map<int, std::string>	statusMessage;
+		ListeningSocket				_server;
+
+		Handler						request;
+		CgiHandler					_cgi_obj;
+
+		int							_cgi;
+		int							_cgi_fd[2];
+
+
+		int							new_socket;
+		int							_code;			// status code
+        // short           _code; ??
+
 
 };
 

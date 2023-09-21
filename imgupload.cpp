@@ -68,20 +68,24 @@ int main(void)
 	// REGROUPING INTO BLOCKS (std::vector<std::vector<std::string> > blocks)
 
 	//iteration on each string
-	for (std::vector<std::string>::iterator i = tab.begin(); i != tab.end(); ++i) {
-		if (i->find(boundary) != std::string::npos) {
+	for (std::vector<std::string>::iterator i = tab.begin(); i != tab.end(); ++i)
+	{
+		if (i->find(boundary) != std::string::npos)
+		{
 			// we found a boundary so we add first the current block to the blocks vector.
 			blocks.push_back(currentBlock);
 			currentBlock.clear(); // it does not clear the newly add block in blocks, only the currentBlock, which after the push_back are two different things.
 		}
-		else {
+		else
+		{
 			// the line is not a boundary, we can add the line to the current block.
 			currentBlock.push_back(*i);
 		}
 	}
 	// once we exit the loop we still have the last block to add the blocks.
 	// we just need to make sure it is not empty. I am not sure we need that if the last line of a multipart request is a boundary, we will never enter this condition.
-	if (!currentBlock.empty()) {
+	if (!currentBlock.empty())
+	{
 		std::cout << "last line not a boundary, good to know" << std::endl;
 		blocks.push_back(currentBlock);
 	}
@@ -89,7 +93,8 @@ int main(void)
 	std::cout << "===================== BLOCKS =====================\n\n\n" << std::endl;
 	for (size_t i = 0; i < blocks.size(); ++i) {
 		std::cout << "Block " << i + 1 << ":" << std::endl;
-		for (size_t j = 0; j < blocks[i].size(); ++j) {
+		for (size_t j = 0; j < blocks[i].size(); ++j)
+		{
 			std::cout << blocks[i][j] << std::endl;
 		}
 		std::cout << "\n" << std::endl;

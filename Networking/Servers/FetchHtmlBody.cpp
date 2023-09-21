@@ -2,8 +2,6 @@
 
 void FetchHtmlBody::dispatchResponse(Handler &handler, std::string usePath, std::string mimeType)
 {
-
-
 	if ((usePath.size() > 4 && !usePath.substr(usePath.size() - 4).compare(".php")))
 		phpResponder(handler, usePath);
 	else if (handler.isFile(usePath))
@@ -13,7 +11,6 @@ void FetchHtmlBody::dispatchResponse(Handler &handler, std::string usePath, std:
 };
 
 void FetchHtmlBody::phpResponder(Handler &handler, std::string usePath)
-
 {
 	handler.getExecutablePath("php");
 	int pipefd[2];

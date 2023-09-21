@@ -14,8 +14,11 @@ Handler::~Handler()
 
 void Handler::setBuffer(std::string completeData) 
 {
-	std::cout << "SETBUFF\n" << completeData << std::endl;
-	 _completeData = completeData;
+	_completeData = completeData;
+	_chunk_flag = false;
+	_body_flag = false;
+	contentLength = 0;
+
 	// strcpy(_buffer, buffer);
 }
 
@@ -92,14 +95,20 @@ void Handler::getExecutablePath(std::string command)
 		{
 			exec_info.found = true;
 			exec_info.path = testPath.c_str();
+			return;  // Return early once executable is found
+
 		}
 	}
+	// TODO: error handling if path is not found
 }
 
-void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
+void Handler::makeFullLocalPath(ListeningSocket *master_socket, std::string &location_key, std::string &path, Location &target_location)
+{
 	std::vector<Location> locationVector = master_socket->get_locations();
 	
 	std::string basePath;
+
+	// check if the path is the root path
 	int secondBackslashPos = path.substr(1).find("/");
 	if (secondBackslashPos != -1 || (secondBackslashPos == -1 && path.size() > 1))
 	{
@@ -108,13 +117,14 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 	{
 		basePath = "/";
 	}
-	
-   bool found_loc = false;
+
+	bool found_loc = false;
 	for (unsigned long i = 0;  i < locationVector.size(); i++)
 	{
 		if (!locationVector[i].route.compare("/" + basePath))
 		{
 			found_loc = true;
+			target_location = locationVector[i];
 			int meth = 0;
 			for (size_t j = 0; j < locationVector[i].allow_methods.size(); j++)
 			{
@@ -122,14 +132,12 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 					meth = 1;
 			}
 			if (meth == 0)
-			{
 				handler_response.statusCode = 405;
-			}
 			
-
 			std::string first = locationVector[i].root;
 			std::string sec = path.substr(basePath.length() + 1);
 			
+			// remove a "/" if both the first and the path have one
 			if (!first.empty() && first[first.size() - 1] == '/' && !sec.empty() && sec[0] == '/')
 				first.pop_back();
 
@@ -138,33 +146,36 @@ void Handler::makeFullLocalPath(ListeningSocket *master_socket) {
 				first = first + '/';
 
 			fullLocalPath = first + sec;
-			 base_index = locationVector[i].index;
+			base_index = locationVector[i].index;
+			location_key = locationVector[i].route;
 		}
 		std::cout << locationVector[i].route << " " << locationVector[i].root << std::endl;
 	}
 	if (found_loc == false)
 	{
-			std::string first = master_socket->get_rootLocation().root;
+		target_location = master_socket->get_rootLocation();
+		std::string first = master_socket->get_rootLocation().root;
 
-			int meth = 0;
-			for (size_t j = 0; j < master_socket->get_rootLocation().allow_methods.size(); j++)
-			{
-				if (master_socket->get_rootLocation().allow_methods[j] == method)
-					meth = 1;
-			}
-			if (meth == 0)
-			{
-				handler_response.statusCode = 405;
-			}
-			if (!first.empty() && first[first.size() - 1] == '/' && !path.empty() && path[0] == '/')
-				first.pop_back();
+		int meth = 0;
+		for (size_t j = 0; j < master_socket->get_rootLocation().allow_methods.size(); j++)
+		{
+			if (master_socket->get_rootLocation().allow_methods[j] == method)
+				meth = 1;
+		}
+		if (meth == 0)
+			handler_response.statusCode = 405;
 
-			// add a "/" if neither the first nor the path have one
-			else if (!first.empty() && first[first.size() - 1] != '/' && !path.empty() && path[0] != '/')
-				first = first + '/';
+		// remove a "/" if both the first and the path have one
+		if (!first.empty() && first[first.size() - 1] == '/' && !path.empty() && path[0] == '/')
+			first.pop_back();
 
-			fullLocalPath = first + path;
-			 base_index = master_socket->get_rootLocation().index;
+		// add a "/" if neither the first nor the path have one
+		else if (!first.empty() && first[first.size() - 1] != '/' && !path.empty() && path[0] != '/')
+			first = first + '/';
+
+		fullLocalPath = first + path;
+		base_index = master_socket->get_rootLocation().index;
+		location_key = master_socket->get_rootLocation().route;
 	}
 };
 
@@ -188,13 +199,12 @@ bool Handler::isFile(const std::string& path) {
 	}
 	return false;
 }
-void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
+
+void Handler::getPathResponse(ListeningSocket *master_socket)
 {
 
 	std::string pathToCheck;
 
-
-	(void)new_socket;
 	// TODO: create a checker function
 	if (contentLength > master_socket->get_client_max_body_size())
 		handler_response.statusCode = 413; // Payload Too Large
@@ -216,6 +226,7 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		handler_response.htmlContentType = "text/html";
 		return;
 	}
+
 	if (isDirectory(fullLocalPath))
 		std::cout << fullLocalPath << " is a directory." << std::endl;
 	else if (isFile(fullLocalPath))
@@ -255,8 +266,8 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 			std::string mimeType2 = getMimeType(append_index);
 			FetchHtmlBody::dispatchResponse(*this, append_index, "text/html");
 		}
-
 	}
+
 	// if we received a file
 	else
 	{
@@ -268,7 +279,6 @@ void Handler::getPathResponse(ListeningSocket *master_socket, int new_socket)
 		}
 		else
 			FetchHtmlBody::dispatchResponse(*this, fullLocalPath, mimeType);
-
 	}
 }
 
@@ -314,16 +324,101 @@ std::string Handler::getMimeType(const std::string& filePath)
 	return "what the fuck";  // default MIME type for unknown extensions
 }
 
-void Handler::parse(ListeningSocket *master_socket, char **env)
+
+void	Handler::parseRequest(ListeningSocket *master_socket, char **env)
+{
+	size_t		startPos;
+	size_t		endPos
+
+	size_t headersEndPos = _completeData.find("\r\n\r\n");
+	if (headersEndPos == std::string::npos)
+	{
+		// TODO: error code: the final request received is incorrect
+	}
+	
+	std::string headers = _completeData.substr(0, headersEndPos);
+	std::string body = _completeData.substr(headersEndPos + 4);  // +4 to skip "\r\n\r\n"
+
+	// lower case the headers to find "content-length" and "Content-Length"
+	std::string lowerCaseHeaders = toLowerCase(headers);
+
+	parseHeaders(master_socket, env, lowerCaseHeaders);
+	if (_body_flag == true)
+	{
+		parseBody(body);
+	}
+	// todo: parse body
+	// parseBody(master_socket, env, body);
+}
+
+int hex_char_to_int(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1; // invalid character
+}
+
+void Handler::parseBody(std::string body)
+{
+	std::vector<u_int8_t> baseBody(body.begin(), body.end());
+
+	if (_chunk_flag == true)
+	{
+
+		size_t i = 0;
+		while (i < baseBody.size())
+		{
+			// Parse the chunk size
+			size_t chunkSize = 0;
+
+			while (i < baseBody.size() && baseBody[i] != '\r')
+			{
+				chunkSize = chunkSize * 16 + std::hex_char_to_int(baseBody[i]); // You need to convert the char to its hexadecimal value
+				i++;
+			}
+			i += 2; // Skip the CRLF after the chunk size
+
+			// Append the chunk data to _bodyVector
+			for (size_t j = 0; j < chunkSize; j++)
+			{
+				_bodyVector.push_back(baseBody[i + j]);
+			}
+			
+			i += chunkSize + 2; // Skip the chunk data and the following CRLF
+		}
+	}
+	else
+	{
+		_bodyVector = baseBody;
+	}
+	_bodyString.append((char*)_bodyVector.data(), _bodyVector.size());
+	if (_bodyString.length() > _server.get_client_max_body_size())
+	{
+		set_response_status_code(413);
+	}
+
+}
+
+void Handler::parseHeaders(ListeningSocket *master_socket, char **env, std::string headers)
 {
 	cgiEnvVector.clear();
 	cgiEnv.clear();
 
-	std::istringstream requestStream(_completeData);
+	std::istringstream requestStream(headers);
 	std::string line;
 
-	if (std::getline(requestStream, line)) { // First line
+	if (std::getline(requestStream, line))  // 1. Request line
+	{
 		method = getStringPiece(line, 0);
+		if (method == "get" || method == "post" || method == "delete")
+			toUpperCase(method);
+		else
+		{
+			// method not implemented
+			set_response_status_code(405);
+			return;
+		}
 		cgiEnvVector.push_back("REQUEST_METHOD=" + method);
 
 		std::size_t questMarkPosition = getStringPiece(line, 1).find("?");
@@ -331,29 +426,46 @@ void Handler::parse(ListeningSocket *master_socket, char **env)
 		cgiEnvVector.push_back("SERVER_PORT=" + std::to_string(master_socket->get_port()));
 	
 		path = getStringPiece(line, 1).substr(0, questMarkPosition);
-		cgiEnvVector.push_back("PATH_INFO=" + getStringPiece(line, 1).substr(0, questMarkPosition));
-		cgiEnvVector.push_back("SCRIPT_INFO=" + getStringPiece(line, 1).substr(0, questMarkPosition));
+
+		cgiEnvVector.push_back("PATH_INFO=" + path);
+		cgiEnvVector.push_back("SCRIPT_INFO=" + path);
 		cgiEnvVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
+		// todo: check HTTP/1.1
 	}
 
 	while (*env) // Process environment variables (assuming env is some external char**)
 	{
 		std::string tmp(*env);
 		if (tmp.substr(0, 5) == "PATH=")
+		{
 			cgiEnvVector.push_back(tmp);
+			break;
+		}
 		env++;
 	}
 
-	while (std::getline(requestStream, line)) { // Remaining lines (headers etc.)
-		// Process the rest of the request headers/data
-		if (getStringPiece(line, 0) == "Connection:")
-		{
+	while (std::getline(requestStream, line)) // Remaining lines (headers etc.)
+	{
+		if (getStringPiece(line, 0) == "connection:")
 			connection = getStringPiece(line, 1);
-		}
-		if (!getStringPiece(line, 0).compare("content-length:"))
+		else if (getStringPiece(line, 0) == "transfer-encoding: chunked")
 		{
-			contentLength = stoi(getStringPiece(line, 1));
-			cgiEnvVector.push_back("CONTENT_LENGTH="+ getStringPiece(line, 1));
+			_body_flag = true;
+			_chunk_flag = true;
+		}
+		else if (!getStringPiece(line, 0).compare("content-length:"))
+		{
+			try
+			{
+				contentLength = stoi(getStringPiece(line, 1));
+				cgiEnvVector.push_back("CONTENT_LENGTH=" + getStringPiece(line, 1));
+				_body_flag = true;
+			}
+			catch (const std::exception& e)
+			{
+				// TODO: Handle error
+				// Maybe log an error message or set a default content length
+			}
 		}
 	}
 
@@ -406,11 +518,15 @@ void Handler::set_response_htmlContentType(std::string type)
 	this->handler_response.htmlContentType = type;
 }
 
-void Handler::set_response_htmlBody(std::string body)
+void	Handler::set_response_htmlBody(std::string body)
 {
 	this->handler_response.htmlBody = body;
 }
 
+void	HttpRequest::setMaxBodySize(size_t size)
+{
+	_max_body_size = size;
+}
 
 char *Handler::get_buffer()
 {
@@ -484,3 +600,7 @@ handler_response_t	Handler::get_handler_response()
 	return(this->handler_response);
 }
 
+std::string &Handler::getBody()
+{
+	return (_bodyString);
+}

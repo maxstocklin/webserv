@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/17 15:58:13 by max              ###   ########.fr       */
+/*   Updated: 2023/09/18 18:58:51 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ ListeningSocket::ListeningSocket(std::string serverBlock) : BindingSocket(server
 	start_listening();
 	test_connection(listening);
 
+	// ensure that the master_socket socket operates in non-blocking mode
+	test_connection(fcntl(get_sock(), F_SETFL, O_NONBLOCK)); // possible to add FD_CLOEXEC arg too, which closes automatically the fd when execve is called
 }
 
 void ListeningSocket::start_listening()
