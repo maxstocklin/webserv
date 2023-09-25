@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 02:13:16 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 02:33:16 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 	// if (requestConf.getAllowedMethods().find(request.getMethod()) == requestConf.getAllowedMethods().end())
 	// 	_code = 405;
 
-	if (requestConf.get_client_max_body_size() < request.getBody().size() && _code != 405)
+	if (static_cast<std::string::size_type>(requestConf.get_client_max_body_size()) < request.getBody().size() && _code != 405)
 		_code = 413;
 
 
@@ -241,10 +241,11 @@ void			Response::postMethod(Request & request, MasterSocket & requestConf)
 }
 
 
-void			Response::deleteMethod(Request & request, MasterSocket & requestConf)
+void			Response::deleteMethod(Request &request, MasterSocket &requestConf)
 {
 	ResponseHeader	head;
 	(void)request;
+	(void)requestConf;
 
 	_response = "";
 	if (pathIsFile(_path))
@@ -266,7 +267,7 @@ void			Response::deleteMethod(Request & request, MasterSocket & requestConf)
 
 
 // TODO: UTILS
-std::string	to_string(size_t n)
+static std::string	to_string(size_t n)
 {
 	std::stringstream tmp;
 

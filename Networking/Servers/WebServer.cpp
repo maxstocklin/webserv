@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/24 21:59:56 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 02:55:53 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,51 @@ bool	WebServer::readRequest(long socket, MasterSocket &serv)
 	return (requestCompletelyReceived(serv._requests[socket]));
 }
 
+
+long	WebServer::writeRequest(long socket, MasterSocket &serv)
+{
+	static std::map<long, size_t>	sent;
+
+	if (sent.find(socket) == sent.end()) // check if something was already sent
+		sent[socket] = 0;
+
+	if (PRINT && sent[socket] == 0) // print the response if nothing was already sent in chunk
+	{
+		if (serv._requests[socket].size() < 1000)
+			std::cout << "\rResponse :                " << std::endl << "[" << GREEN << serv._requests[socket] << RESET << "]\n" << std::endl;
+		else
+			std::cout << "\rResponse :                " << std::endl << "[" << GREEN << serv._requests[socket].substr(0, 1000) << "..." << serv._requests[socket].substr(serv._requests[socket].size() - 10, 15) << RESET << "]\n" << std::endl;
+	}
+
+	// send data by chunks of size RECV_SIZE = 30000
+	std::string	str = serv._requests[socket].substr(sent[socket], 30000); // create a string from what was already sent (if any --> sent[socket] != 0) until either the end of the response of max RECV_SIZE size
+	int	ret = write(socket, str.c_str(), str.size()); // write the string
+
+	if (ret == -1) // if an error occured with write()
+	{
+		// closeConnection(socket);
+		if (socket > 0)
+			close(socket);
+
+		serv._requests.erase(socket);
+		// this->close(socket); // close the new socket
+		sent[socket] = 0;
+		return (-1);
+	}
+	else
+	{
+		sent[socket] += ret; // save how much of the response was already witten()
+		if (sent[socket] >= serv._requests[socket].size()) // if all of the response was written()
+		{
+			serv._requests.erase(socket); // erase the response
+			sent[socket] = 0; // reset the sent size
+			return (0);
+		}
+		else	// if part of the response was written
+			return (1);
+	}
+}
+
 void	WebServer::launch()
 {
 	initializeSets();
@@ -127,21 +172,19 @@ void	WebServer::launch()
 				if (FD_ISSET(*it, &writing_set))
 				{
 					// std::cout << "write" << std::endl;
-					// long	ret = _sockets[*it]->send(*it);
+					long	ret = writeRequest(*it, *_sockets[*it]);
 
-					exit(0);	
-					// if (ret == 0) // if the response was entirely written()
-					// 	_ready.erase(it); // erase the socket from the ready set
-					// else if (ret == -1)	// if there was an error with write()
-					// {
-					// 	FD_CLR(*it, &_fd_set);
-					// 	FD_CLR(*it, &reading_set);
-					// 	_sockets.erase(*it);
-					// 	_ready.erase(it);
-					// }
-
-					// // ret = 0;
-					// break;
+					if (ret == 0) // if the response was entirely written()
+						_ready.erase(it); // erase the socket from the ready set
+					else if (ret == -1)	// if there was an error with write()
+					{
+						// closeConnection(socket);
+						FD_CLR(*it, &_fd_set);
+						FD_CLR(*it, &reading_set);
+						_sockets.erase(*it);
+						_ready.erase(it);
+					}
+					break;
 				}
 			}
 
@@ -164,7 +207,6 @@ void	WebServer::launch()
 						it->second->handle(socket, env); // parsing / todo1
 						std::cout << RED << "request after: " << it->second->_requests[it->first] <<RESET << std::endl;
 						_ready.push_back(socket); // add to ready set to write()
-						exit(0);
 					}
 					break;
 				}

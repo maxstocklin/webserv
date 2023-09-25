@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/09/24 23:50:28 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 02:21:06 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../../Includes/CgiHandler.hpp"
 
 // TODO: UTILS
-std::string	to_string(size_t n)
+static std::string	to_string(size_t n)
 {
 	std::stringstream tmp;
 

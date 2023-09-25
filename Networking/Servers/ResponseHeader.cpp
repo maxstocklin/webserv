@@ -6,14 +6,14 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/09/24 23:50:05 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 02:21:10 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/ResponseHeader.hpp"
 
 // TODO: UTILS
-std::string	to_string(size_t n)
+static std::string	to_string(size_t n)
 {
 	std::stringstream tmp;
 

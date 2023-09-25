@@ -49,6 +49,8 @@ class WebServer : public AServer
 		void	removeFromSet(const int i, fd_set &set);
 		void	acceptNewConnection(MasterSocket &serv);
 		bool	readRequest(long socket, MasterSocket &serv);
+
+		long	writeRequest(long socket, MasterSocket &serv);
 		void	closeConnection(const int i);
 		bool	requestCompletelyReceived(std::string completeData);
 		std::string	trimWhiteSpaces(const std::string &str);
