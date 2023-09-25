@@ -13,13 +13,8 @@
 #ifndef WEBSERVER_HPP
 # define WEBSERVER_HPP
 
-#define MAX_CLIENTS 5
-
 #include "AServer.hpp"
 #include "Colors.hpp"
-#include "Handler.hpp"
-#include "Responder.hpp"
-#include "Client.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -35,6 +30,11 @@
 #include <sys/socket.h> 
 #include <netinet/in.h> 
 #include <sys/time.h>
+#include <fcntl.h>
+
+#include <string>
+#include <algorithm>
+#include <cctype>
 
 class WebServer : public AServer
 {
@@ -47,25 +47,20 @@ class WebServer : public AServer
 		void	initializeSets();
 		void	addToSet(const int i, fd_set &set);
 		void	removeFromSet(const int i, fd_set &set);
-		void	acceptNewConnection(ListeningSocket &serv);
-		void	readRequest(const int &i, Client &c);
+		void	acceptNewConnection(MasterSocket &serv);
+		bool	readRequest(long socket, MasterSocket &serv);
+
+		long	writeRequest(long socket, MasterSocket &serv);
 		void	closeConnection(const int i);
 		bool	requestCompletelyReceived(std::string completeData);
 		std::string	trimWhiteSpaces(const std::string &str);
 	private:
 		// std::string	completeData; --> moved to client
 		int			new_socket;
-
-		fd_set		_recv_fd_pool;	// receiving new sockets
-		fd_set		_write_fd_pool;	// writing new sockets
-		int			_biggest_fd;	// biggest actual socket's fd
+		char		**env;
 
 
 		WebServer();
-		void accepter(ListeningSocket *master_socket);
-		void handle(ListeningSocket *master_socket);
-		void responder(ListeningSocket *master_socket);
-		char **env;
 		// Handler handler;
 
 };

@@ -19,7 +19,6 @@ RM		= 	rm -rf
 MKDIR	= 	mkdir -p
 AR		=	ar rcs
 
- 
 ##-----PATHS-----##
 
 PROJECT_DIR		= 	Networking/
@@ -31,6 +30,8 @@ DIRS = $(OBJS_DIR) \
        $(OBJS_DIR)Networking/Servers/ \
        $(OBJS_DIR)Networking/Errors/ \
        $(OBJS_DIR)Networking/Cgi/ \
+       $(OBJS_DIR)Networking/Request/ \
+       $(OBJS_DIR)Networking/Response/ \
        $(OBJS_DIR)Networking/Sockets/
 
 OBJS_DIR 		= 	obj/
@@ -40,24 +41,29 @@ OBJS_DIR 		= 	obj/
 
 SRC_HEADER      =   AServer.hpp \
 					BindingSocket.hpp \
-					ListeningSocket.hpp \
 					ASocket.hpp \
 					ServerConfig.hpp \
-					Handler.hpp \
 					WebServer.hpp \
-					Responder.hpp \
-					FetchHtmlBody.hpp
+					AutoIndexGenerator.hpp \
+					CgiHandler.hpp \
+					Colors.hpp \
+					MasterSocket.hpp \
+					Response.hpp \
+					ResponseHeader.hpp
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
+					Request/Request.cpp \
+					Request/RequestMembers.cpp \
+					Response/AutoIndexGenerator.cpp \
+					Response/CgiHandler.cpp \
+					Response/Response.cpp \
+					Response/ResponseHeader.cpp \
 					Servers/AServer.cpp \
 					Servers/WebServer.cpp \
-					Servers/Handler.cpp \
+					Sockets/MasterSocket.cpp \
 					Sockets/ASocket.cpp \
-					Sockets/BindingSocket.cpp \
-					Sockets/ListeningSocket.cpp \
-					Servers/Responder.cpp \
-					Servers/FetchHtmlBody.cpp
+					Sockets/BindingSocket.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
 
@@ -89,5 +95,28 @@ fclean: clean
 
 re:		fclean all
 
-.PHONY:	all fclean clean re
 
+##################################################
+# TESTING
+##################################################
+
+test_setup: all
+	@rm -rf test_us/root
+	@mkdir -p test_us/root
+	@cp test_us/index/* test_us/root/
+	@cp test_us/root/index.html test_us/root/index_permission.html
+	@chmod 000 test_us/root/index_permission.html
+	@clang++ -o client test_us/client.cpp
+
+test: test_setup
+	@osascript -e 'tell application "Terminal" to do script "cd $(PWD) && clear && ./client"'
+	@osascript -e 'tell application "Terminal" to activate'
+	./webserv test_us/conf/webserv.conf
+
+bocal: all
+	@mkdir -p YoupiBanane/put_here
+	@osascript -e 'tell application "Terminal" to do script "cd $(PWD) && clear && time ./test_mac/macos_tester http://localhost:8000"'
+	@osascript -e 'tell application "Terminal" to activate'
+	./webserv test_mac/mac.conf
+
+.PHONY: libft clean fclean re test test_setup bocal

@@ -5,57 +5,50 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/20 21:58:31 by max               #+#    #+#             */
-/*   Updated: 2023/09/20 22:58:59 by max              ###   ########.fr       */
+/*   Created: 2023/09/24 22:40:20 by max               #+#    #+#             */
+/*   Updated: 2023/09/25 19:44:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CGIHANDLER_HPP
-#define CGIHANDLER_HPP
 
-#include "Handler.hpp"
+#ifndef CGI_HANDLER_HPP
 
-class Handler;
-class CgiHandler {
-	private:
-		std::map<std::string, std::string>	_env;
-		char**								_ch_env;
-		char**								_argv;
-		int									_exit_status;
-		std::string							_cgi_path;
-		pid_t								_cgi_pid;
+# define CGI_HANDLER_HPP
 
+# define CGI_BUFSIZE 65536
+
+// # include "Config.hpp"
+#include "Request.hpp"
+#include "MasterSocket.hpp"
+
+class MasterSocket;
+
+class CgiHandler
+{
 	public:
-		int	pipe_in[2];
-		int	pipe_out[2];
+		CgiHandler(Request &request, MasterSocket &config); // sets up env according to the request
+		CgiHandler(CgiHandler const &src);
+		virtual ~CgiHandler(void);
 
-		CgiHandler();
-		CgiHandler(std::string path);
-		~CgiHandler();
-		CgiHandler(CgiHandler const &other);
-		CgiHandler &operator=(CgiHandler const &rhs);
-
-		void initEnv(HttpRequest& req, const Location& loc);
-		void initEnvCgi(HttpRequest& req, const Location& loc);
-		void execute(short &error_code);
-		void sendHeaderBody(int &pipe_out, int &fd, std::string &);
-		void fixHeader(std::string &header);
-		void clear();
-		std::string setCookie(const std::string& str);
-
-		void setCgiPid(pid_t cgi_pid);
-		void setCgiPath(const std::string &cgi_path);
-
-		const std::map<std::string, std::string> &getEnv() const;
-		const pid_t &getCgiPid() const;
-		const std::string &getCgiPath() const;
-
-		std::string	getAfter(const std::string& path, char delim);
-		std::string	getBefore(const std::string& path, char delim);
-		std::string	getPathInfo(std::string& path, std::vector<std::string> extensions);
-		int	countCookies(const std::string& str);
-		int findStart(const std::string path, const std::string delim);
-		std::string decode(std::string &path);
+		CgiHandler   	&operator=(CgiHandler const &src);
+		std::string		executeCgi(const std::string &scriptName);	// executes cgi and returns body
+	private:
+		CgiHandler(void);
+		void								_initEnv(Request &request, MasterSocket &config);
+		char								**_getEnvAsCstrArray() const;
+		int									_getSocket(unsigned int port);
+		int									_connectSocket(unsigned int port);
+		std::map<std::string, std::string>	_env;
+		std::string							_body;
 };
+
+// ENV TO IMPLEMENT
+// AUTH_TYPE
+// CONTENT_LENGTH
+// CONTENT_TYPE
+// GATEWAY_INTERFACE
+// PATH_INFO
+// PATH_TRANSLATED
+// QUERY_STRING˜
 
 #endif

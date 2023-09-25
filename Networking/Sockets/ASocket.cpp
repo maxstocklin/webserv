@@ -88,6 +88,11 @@ std::string ASocket::get_host()
 	return (get_config()->get_host());
 }
 
+int ASocket::get_host_int()
+{
+	return (0);
+}
+
 std::string ASocket::get_server_name()
 {
 	return (get_config()->get_server_name());
