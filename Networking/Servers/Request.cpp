@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:50:37 by max               #+#    #+#             */
-/*   Updated: 2023/09/24 21:32:12 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 14:13:35 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,8 @@ std::vector<std::string>		Request::initMethods()
 	std::vector<std::string>	methods;
 
 	methods.push_back("GET");
-	methods.push_back("HEAD");
 	methods.push_back("POST");
-	methods.push_back("PUT");
 	methods.push_back("DELETE");
-	methods.push_back("OPTIONS");
-	methods.push_back("TRACE" );
 
 	return methods;
 }

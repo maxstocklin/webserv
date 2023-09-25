@@ -67,6 +67,7 @@
 		"variant": "cpp",
 		"algorithm": "cpp",
 		"list": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"filesystem": "cpp"
 	}
 }

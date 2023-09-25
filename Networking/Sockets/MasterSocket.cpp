@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/25 02:18:04 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 21:08:16 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void MasterSocket::start_listening()
 
 	std::cout << std::endl << GREEN << BOLD << "################################# NEW MASTER SOCKET #################################" << RESET << std::endl;
 	std::cout << "socket fd = " << get_sock() << std::endl;
-	std::cout << "listening = " << listening << std::endl;
 	std::cout << "Endpoint / IP:port comination = " << get_endpoint() << std::endl << std::endl;
 	
 }
@@ -106,22 +105,15 @@ void MasterSocket::parseChunks(long socket)
 // request[socket] is the correct request
 void		MasterSocket::handle(long socket, char **env)
 {
-	(void)env;	// necessary?
-	// it->second->makeFullLocalPath(server);
+	Response		response(env);
+
+	// it->second->makeFullLocalPath(server);	--> done
 	// it->second->getPathResponse(server, new_socket);
 	// it->second->parseRequest(socket, env); // socket is used to fetch the right _requests
-	// std::cout << CYAN << "Request Recived From Socket " << socket << " Method= " << c.request.get_method() << " URI= " << c.request.get_path() << RESET << std::endl;
-
-
-
-	// TODODO COMMENTED FROM HERE
-	// RequestConfig	requestConf;
-	Response		response;
-	// std::string		recvd = "";	// useless?
 
 	if (_requests[socket].find("Transfer-Encoding: chunked") != std::string::npos &&
 		_requests[socket].find("Transfer-Encoding: chunked") < _requests[socket].find("\r\n\r\n"))
-		this->parseChunks(socket); // manage chunked data
+		this->parseChunks(socket); // manage chunked data and remove hexadecimals from body
 
 	if (PRINT) // set to 1 to print the request
 	{
@@ -137,16 +129,6 @@ void		MasterSocket::handle(long socket, char **env)
 
 		if (request.getRet() != 200)
 			request.setMethod("GET");	// TODO: find why, probably to avoid some unecessary parsing of the body
-
-
-// TODODODO: COMMENTED FROM HERE:
-		// at this point, the header was parsed 
-
-		// the Server class here corresponds to my ListeningSocket class
-		// _listen is a struct which contains the server's host and port
-		// request.getPath() will return the URI path
-		// request.getHeaders().at("Host") will return the value of the line "Host: localhost:8000" in the request
-		// requestConf = conf.getConfigForRequest(this->_listen,  request.getPath(), request.getHeaders().at("Host"), request.getMethod(), request);
 
 		response.call(request, *this); // todo: send *this instead of requestConf
 

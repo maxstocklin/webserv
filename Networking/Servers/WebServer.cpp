@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/25 02:55:53 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 21:06:48 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ long	WebServer::writeRequest(long socket, MasterSocket &serv)
 	if (sent.find(socket) == sent.end()) // check if something was already sent
 		sent[socket] = 0;
 
-	if (PRINT && sent[socket] == 0) // print the response if nothing was already sent in chunk
+	if (PRINT == 12 && sent[socket] == 0) // print the response if nothing was already sent in chunk
 	{
 		if (serv._requests[socket].size() < 1000)
 			std::cout << "\rResponse :                " << std::endl << "[" << GREEN << serv._requests[socket] << RESET << "]\n" << std::endl;
@@ -205,7 +205,6 @@ void	WebServer::launch()
 					{
 						// std::cout << "request before: \n" << RED << it->second->_requests[it->first] << RESET << std::endl;
 						it->second->handle(socket, env); // parsing / todo1
-						std::cout << RED << "request after: " << it->second->_requests[it->first] <<RESET << std::endl;
 						_ready.push_back(socket); // add to ready set to write()
 					}
 					break;

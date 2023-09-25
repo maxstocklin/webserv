@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:20 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 00:08:09 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 19:44:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@
 
 class MasterSocket;
 
-class CgiHandler {
+class CgiHandler
+{
 	public:
 		CgiHandler(Request &request, MasterSocket &config); // sets up env according to the request
 		CgiHandler(CgiHandler const &src);

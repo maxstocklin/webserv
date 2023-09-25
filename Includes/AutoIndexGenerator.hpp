@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:39:12 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 00:15:49 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 21:16:18 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,9 @@ class AutoIndexGenerator
 
         AutoIndexGenerator   &operator=(AutoIndexGenerator const &src);
 
-        static std::string  getPage(const char *path, std::string const &host, int port);
+        static std::string  getPage(const char *path, std::string const &host, int port, std::string basicUri);
     private:
-        static std::string  getLink(std::string const &dirEntry, std::string const &dirName, std::string const &host, int port);
+        static std::string  getLink(std::string const &dirEntry, std::string const &dirName, std::string const &host, int port, std::string basicUri);
 
 };
 

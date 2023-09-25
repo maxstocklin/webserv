@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:46 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 00:27:01 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 21:18:12 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ typedef struct	s_listen {
 class Response {
 public:
 	Response(void);
+	Response(char **env);
 	Response(const Response & src);
 	~Response(void);
 
@@ -71,17 +72,27 @@ public:
 	// Member functions
 	void			call(Request & request, MasterSocket &requestConf);
 
-	void			getMethod(Request & request, MasterSocket &requestConf);
-	void			postMethod(Request & request, MasterSocket &requestConf);
-	void			deleteMethod(Request & request, MasterSocket &requestConf);
+	void			getHandler(Request & request, MasterSocket &requestConf);
+	void			postHandler(Request & request, MasterSocket &requestConf);
+	void			deleteHandler(Request & request, MasterSocket &requestConf);
 
-	int				readContent(void);
 	int				writeContent(std::string content);
 	int				fileExists(std::string path);
 	std::string		readHtml(const std::string& path);
 
-
 	void			makeFullLocalPath(MasterSocket *master_socket, const std::string &path, const std::string &method, Location &target_location);
+	bool			isFile(const std::string& path);
+	bool			isDirectory(const std::string& path);
+	std::string		getMimeType(const std::string& filePath);
+	std::string		getFileExtension(const std::string& filename);
+	void			getPathResponse(MasterSocket &master_socket, Location target_location);
+
+	void			htmlResponder();
+	std::string		findExecutablePath(const std::string& command, char** env);
+
+	std::map<std::string, std::string>	getMimeTypes();
+
+
 
 private:
 	std::string					_response;
@@ -92,13 +103,21 @@ private:
 	t_listen					_hostPort;
 	std::map<int, std::string>	_errorMap;
 
+	// 0 = directory listing
+	// 1 = normal html/jpeg body or CGI
+	// 2 = Error
+	int							_responseType;
+	std::string					_usePath;
+	std::string					_mimeType;
+
+	std::string					_responseBody;
+	char						**_env;
+
 
 	// mine
 	std::string							fullLocalPath;
 	std::string							base_index;
 
-	static std::map<std::string, void (Response::*)(Request &, MasterSocket &)>	_method;
-	static std::map<std::string, void (Response::*)(Request &, MasterSocket &)>	initMethods();
 };
 
 #endif

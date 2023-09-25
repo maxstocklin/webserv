@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 02:21:06 by max              ###   ########.fr       */
+/*   Updated: 2023/09/25 21:05:08 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,36 +23,41 @@ static std::string	to_string(size_t n)
 	return tmp.str();
 }
 
-CgiHandler::CgiHandler(Request &request, MasterSocket &config):
-_body(request.getBody())
+CgiHandler::CgiHandler(Request &request, MasterSocket &config) : _body(request.getBody())
 {
 	this->_initEnv(request, config);
 }
 
-CgiHandler::CgiHandler(CgiHandler const &src) {
-	if (this != &src) {
+CgiHandler::CgiHandler(CgiHandler const &src)
+{
+	if (this != &src)
+	{
 		this->_body = src._body;
 		this->_env = src._env;
 	}
 	return ;
 }
 
-CgiHandler::~CgiHandler(void) {
-	return ;
+CgiHandler::~CgiHandler(void)
+{
 }
 
-CgiHandler	&CgiHandler::operator=(CgiHandler const &src) {
-	if (this != &src) {
+CgiHandler	&CgiHandler::operator=(CgiHandler const &src)
+{
+	if (this != &src)
+	{
 		this->_body = src._body;
 		this->_env = src._env;
 	}
 	return *this;
 }
 
+
+// create the env for execve
 void		CgiHandler::_initEnv(Request &request, MasterSocket &config)
 {
-	std::map<std::string, std::string>	headers = request.getHeaders();
 
+	std::map<std::string, std::string>	headers = request.getHeaders();
 	if (headers.find("Auth-Scheme") != headers.end() && headers["Auth-Scheme"] != "")
 		this->_env["AUTH_TYPE"] = headers["Authorization"];
 
@@ -78,13 +83,14 @@ void		CgiHandler::_initEnv(Request &request, MasterSocket &config)
 	this->_env["SERVER_PROTOCOL"] = "HTTP/1.1";
 	this->_env["SERVER_SOFTWARE"] = "WebServ/1.0";
 
-	this->_env.insert(config.getCgiParam().begin(), config.getCgiParam().end());
 }
 
-char					**CgiHandler::_getEnvAsCstrArray() const {
+char					**CgiHandler::_getEnvAsCstrArray() const
+{
 	char	**env = new char*[this->_env.size() + 1];
 	int	j = 0;
-	for (std::map<std::string, std::string>::const_iterator i = this->_env.begin(); i != this->_env.end(); i++) {
+	for (std::map<std::string, std::string>::const_iterator i = this->_env.begin(); i != this->_env.end(); i++)
+	{
 		std::string	element = i->first + "=" + i->second;
 		env[j] = new char[element.size() + 1];
 		env[j] = strcpy(env[j], (const char*)element.c_str());
@@ -94,17 +100,21 @@ char					**CgiHandler::_getEnvAsCstrArray() const {
 	return env;
 }
 
-std::string		CgiHandler::executeCgi(const std::string& scriptName) {
+std::string		CgiHandler::executeCgi(const std::string& scriptName)
+{
 	pid_t		pid;
 	int			saveStdin;
 	int			saveStdout;
 	char		**env;
 	std::string	newBody;
 
-	try {
+	try
+	{
 		env = this->_getEnvAsCstrArray();
 	}
-	catch (std::bad_alloc &e) {
+	catch (std::bad_alloc &e)
+	{
+		std::cout << "cerr " << std::endl;
 		std::cerr << RED << e.what() << RESET << std::endl;
 	}
 
@@ -122,7 +132,7 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName) {
 	lseek(fdIn, 0, SEEK_SET);
 
 	pid = fork();
-
+	
 	if (pid == -1)
 	{
 		std::cerr << RED << "Fork crashed." << RESET << std::endl;
@@ -130,11 +140,19 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName) {
 	}
 	else if (!pid)
 	{
-		char * const * nll = NULL;
+		char *argv[] =
+		{
+			const_cast<char*>(scriptName.c_str()),
+			const_cast<char*>(this->_env["SCRIPT_NAME"].c_str()),
+			NULL
+		};
 
 		dup2(fdIn, STDIN_FILENO);
 		dup2(fdOut, STDOUT_FILENO);
-		execve(scriptName.c_str(), nll, env);
+
+		execve(scriptName.c_str(), argv, env);
+
+
 		std::cerr << RED << "Execve crashed." << RESET << std::endl;
 		write(STDOUT_FILENO, "Status: 500\r\n\r\n", 15);
 	}
@@ -153,7 +171,6 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName) {
 			newBody += buffer;
 		}
 	}
-
 	dup2(saveStdin, STDIN_FILENO);
 	dup2(saveStdout, STDOUT_FILENO);
 	fclose(fIn);
@@ -169,6 +186,5 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName) {
 
 	if (!pid)
 		exit(0);
-
 	return (newBody);
 }
