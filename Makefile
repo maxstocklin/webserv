@@ -31,6 +31,8 @@ DIRS = $(OBJS_DIR) \
        $(OBJS_DIR)Networking/Servers/ \
        $(OBJS_DIR)Networking/Errors/ \
        $(OBJS_DIR)Networking/Cgi/ \
+       $(OBJS_DIR)Networking/Request/ \
+       $(OBJS_DIR)Networking/Response/ \
        $(OBJS_DIR)Networking/Sockets/
 
 OBJS_DIR 		= 	obj/
@@ -52,14 +54,14 @@ SRC_HEADER      =   AServer.hpp \
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
+					Request/Request.cpp \
+					Request/RequestMembers.cpp \
+					Response/AutoIndexGenerator.cpp \
+					Response/CgiHandler.cpp \
+					Response/Response.cpp \
+					Response/ResponseHeader.cpp \
 					Servers/AServer.cpp \
 					Servers/WebServer.cpp \
-					Servers/AutoIndexGenerator.cpp \
-					Servers/CgiHandler.cpp \
-					Servers/Request.cpp \
-					Servers/RequestMembers.cpp \
-					Servers/Response.cpp \
-					Servers/ResponseHeader.cpp \
 					Sockets/MasterSocket.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp
