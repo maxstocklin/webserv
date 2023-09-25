@@ -19,7 +19,12 @@ RM		= 	rm -rf
 MKDIR	= 	mkdir -p
 AR		=	ar rcs
 
- 
+ifeq ($(shell uname -s),Darwin)
+OS = mac
+else
+OS = linux
+endif
+
 ##-----PATHS-----##
 
 PROJECT_DIR		= 	Networking/
@@ -96,5 +101,44 @@ fclean: clean
 
 re:		fclean all
 
-.PHONY:	all fclean clean re
+
+##################################################
+# TESTING
+##################################################
+
+test: test_$(OS)
+
+test_setup: all
+	@rm -rf test_us/root
+	@mkdir -p test_us/root
+	@cp test_us/index/* test_us/root/
+	@cp test_us/root/index.html test_us/root/index_permission.html
+	@chmod 000 test_us/root/index_permission.html
+	@clang++ -o client test_us/client.cpp
+
+test_mac: test_setup
+	@osascript -e 'tell application "Terminal" to do script "cd $(PWD) && clear && ./client"'
+	@osascript -e 'tell application "Terminal" to activate'
+	./webserv test_us/conf/webserv.conf
+
+test_linux: test_setup
+	@x-terminal-emulator --working-directory=$$(pwd) -x "./client"
+	./webserv test_us/conf/webserv.conf
+
+bocal: bocal_$(OS)
+
+bocal_mac: all
+	@mkdir -p YoupiBanane/put_here
+	@osascript -e 'tell application "Terminal" to do script "cd $(PWD) && clear && time ./test_mac/macos_tester http://localhost:8000"'
+	@osascript -e 'tell application "Terminal" to activate'
+	./webserv test_mac/mac.conf
+
+bocal_linux: all
+	@mkdir -p YoupiBanane/put_here
+	@x-terminal-emulator --working-directory=$$(pwd) -x "time ./test_linux/ubuntu_tester http://localhost:8000"
+	./webserv test_linux/linux.conf
+
+.PHONY: libft clean fclean re test test_setup test_mac test_linux bocal bocal_mac bocal_linux
+
+# .PHONY:	all fclean clean re
 
