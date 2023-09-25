@@ -40,24 +40,25 @@ OBJS_DIR 		= 	obj/
 
 SRC_HEADER      =   AServer.hpp \
 					BindingSocket.hpp \
-					ListeningSocket.hpp \
+					MasterSocket.hpp \
 					ASocket.hpp \
 					ServerConfig.hpp \
-					Handler.hpp \
-					WebServer.hpp \
-					Responder.hpp \
-					FetchHtmlBody.hpp
+					Response.hpp \
+					ResponseHeaders.hpp \
+					Request.hpp \
+					WebServer.hpp
 
 SRC_FILES       =   main.cpp \
 					Config/ServerConfig.cpp \
 					Servers/AServer.cpp \
 					Servers/WebServer.cpp \
-					Servers/Handler.cpp \
+					Servers/Request.cpp \
+					Servers/RequestMembers.cpp \
+					Servers/Response.cpp \
+					Servers/ResponseHeaders.cpp \
 					Sockets/ASocket.cpp \
 					Sockets/BindingSocket.cpp \
-					Sockets/ListeningSocket.cpp \
-					Servers/Responder.cpp \
-					Servers/FetchHtmlBody.cpp
+					Sockets/MasterSocket.cpp 
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
 
@@ -68,7 +69,10 @@ OBJ				=	$(SRCS:.cpp=.o)
 OBJS			=	$(addprefix $(OBJS_DIR),$(OBJ))
 HEADERS			=	$(addprefix $(HEADERS_DIR),$(SRC_HEADER))
 
-$(OBJS_DIR)$(PROJECT_DIR)%.o : $(PROJECT_DIR)%.cpp $(HEADERS)
+directories:
+	@mkdir -p $(DIRS)
+
+$(OBJS_DIR)$(PROJECT_DIR)%.o : $(PROJECT_DIR)%.cpp $(HEADERS) directories
 	@mkdir -p $(OBJS_DIR)$(PROJECT_DIR)
 	@mkdir -p $(DIRS)
 	@$(CC) $(FLAGS) -o $(@) -c $(<)

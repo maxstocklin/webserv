@@ -1,19 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   WebServer.hpp                                     :+:      :+:    :+:   */
+/*   AutoIndexGenerator.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/14 03:02:32 by max              ###   ########.fr       */
+/*   Created: 2023/09/24 22:39:12 by max               #+#    #+#             */
+/*   Updated: 2023/09/25 00:15:49 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERVER_HPP
-# define WEBSERVER_HPP
 
-#include "AServer.hpp"
+#ifndef AUTO_INDEX_GENERATOR_HPP
+
+# define AUTO_INDEX_GENERATOR_HPP
+
 #include "Colors.hpp"
 
 #include <stdio.h>
@@ -31,35 +32,30 @@
 #include <netinet/in.h> 
 #include <sys/time.h>
 #include <fcntl.h>
+#include <map>
+#include <vector>
+#include <list>
 
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <sstream>
 
-class WebServer : public AServer
+#include <sys/types.h>
+#include <dirent.h>
+
+class AutoIndexGenerator
 {
-	public:
-		WebServer(char *config_file, char **env);
-		~WebServer();
+    public:
+        AutoIndexGenerator(void);
+        AutoIndexGenerator(AutoIndexGenerator const &src);
+        virtual ~AutoIndexGenerator(void);
 
+        AutoIndexGenerator   &operator=(AutoIndexGenerator const &src);
 
-		void	launch();
-		void	initializeSets();
-		void	addToSet(const int i, fd_set &set);
-		void	removeFromSet(const int i, fd_set &set);
-		void	acceptNewConnection(MasterSocket &serv);
-		bool	readRequest(long socket, MasterSocket &serv);
-		void	closeConnection(const int i);
-		bool	requestCompletelyReceived(std::string completeData);
-		std::string	trimWhiteSpaces(const std::string &str);
-	private:
-		// std::string	completeData; --> moved to client
-		int			new_socket;
-		char		**env;
-
-
-		WebServer();
-		// Handler handler;
+        static std::string  getPage(const char *path, std::string const &host, int port);
+    private:
+        static std::string  getLink(std::string const &dirEntry, std::string const &dirName, std::string const &host, int port);
 
 };
 

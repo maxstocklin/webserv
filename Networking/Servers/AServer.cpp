@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/15 10:09:26 by max              ###   ########.fr       */
+/*   Updated: 2023/09/24 18:02:28 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,24 +22,20 @@ AServer::AServer(char *config_file)
 	// Create a new socket for each server{} block
 	for (size_t i = 0; i < serverBlocks.size(); ++i)
 	{
-		sockets.push_back(new ListeningSocket(serverBlocks[i]));
+		sockets.push_back(MasterSocket(serverBlocks[i]));
 	}
 }
 
 AServer::~AServer()
 {
-    for (size_t i = 0; i < sockets.size(); ++i)
-	{
-        delete sockets[i];
-    }
 }
 
-ListeningSocket * AServer::get_socket(int i)
+MasterSocket AServer::get_socket(int i)
 {
 	return (sockets[i]);
 }
 
-std::vector<ListeningSocket*> AServer::get_socket_vector()
+std::vector<MasterSocket> AServer::get_socket_vector()
 {
 	return (sockets);
 }

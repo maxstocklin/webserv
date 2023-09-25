@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/10 23:06:41 by max              ###   ########.fr       */
+/*   Updated: 2023/09/24 23:43:20 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ class ASocket
 		int							get_port();
 		int							get_domain();
 		std::string					get_host();
+		int							get_host_int();		// todo: not hardcode
 		std::string					get_server_name();
 		std::string					get_index();
 		std::map<int, std::string>	get_error_pages();
