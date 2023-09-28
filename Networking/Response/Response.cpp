@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 04:10:37 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 04:56:55 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,10 +187,6 @@ bool Response::isFile(const std::string& path)
 	}
 	return false;
 }
-
-
-
-
 
 
 // this function finds what to do with the request
@@ -516,6 +512,40 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
 }
 
+std::string handlePostResponse(std::string phpResponse)
+{
+	std::string httpResponse;
+	std::string imagePath;
+	std::string nameLastname;
+
+	size_t pos = phpResponse.find("SUCCESS:");
+	if (pos != std::string::npos)
+	{
+		imagePath = phpResponse.substr(pos + 8);  // +8 to skip "SUCCESS:"
+		imagePath = imagePath.substr(0, imagePath.find('\n'));  // Get only the path part
+		nameLastname = phpResponse.substr(imagePath.size() + pos + 9); // +9 to account for "SUCCESS:" and newline
+		imagePath = imagePath.substr(10); 
+	}
+
+	std::cout << "nameLastname = " << nameLastname << std::endl;
+	std::cout << "imagePath = ." << imagePath << "." << std::endl;
+
+	httpResponse += "<!DOCTYPE html>\n";
+	httpResponse += "<html lang=\"en\">\n";
+	httpResponse += "<head>\n";
+	httpResponse += "<meta charset=\"UTF-8\">\n";
+	httpResponse += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+	httpResponse += "<title>Upload Successful</title>\n";
+	httpResponse += "</head>\n";
+	httpResponse += "<body>\n";
+	httpResponse += "<h1>" + nameLastname + "</h1>\n";  // Display the name and lastname
+	httpResponse += "<p>Your post was successful!</p>\n";
+	httpResponse += "<img src=\"" + imagePath + "\" alt=\"Uploaded Image\">\n";  // Display the image
+	//  <img src="files/image.jpeg" alt="">
+	httpResponse += "</body>\n";
+	httpResponse += "</html>\n";
+	return httpResponse;
+}
 
 void			Response::postHandler(Request & request, MasterSocket & requestConf)
 {
@@ -528,27 +558,16 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 		size_t		i = 0;
 		size_t		j = _response.size() - 2;
 
-		std::string phpPath = findExecutablePath("php", _env);
-		if (phpPath.empty())
-		{
-			std::cerr << RED << "Couldn't locate PHP." << RESET << std::endl;	// throw an error?
-			_code = 500;
-		}
-
 		std::string phpCgiPath = findExecutablePath("php-cgi", _env);
 		if (phpCgiPath.empty())
 		{
 			std::cerr << RED << "Couldn't locate PHP." << RESET << std::endl;	// throw an error?
 		}
-		else
-		{
-			std::cout << BLUE << "PHP CGI = " << phpCgiPath << RESET << std::endl;	// throw an error?
-		}
-
 		
 		// std::cout << "\nRequest :" << std::endl << "[" << YELLOW << request.getBody().substr(0, 800) << "..." << request.getBody().substr(request.getBody().size() - 10, 15) << RESET << "]" << std::endl;
 
 		_response = cgi.executeCgi(phpCgiPath);
+		std::cout << "_response" << _response << std::endl;
 		std::cout << "MID POST\n\n";
 
 		while (_response.find("\r\n\r\n", i) != std::string::npos || _response.find("\r\n", i) == i)
@@ -567,13 +586,17 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 	}
 	else
 	{
+		_mimeType = "text/html";
 		_code = 204;
 		_response = "";
 	}
+	_mimeType = "text/html";
 	if (_code == 500)
 		_response = this->readHtml(_errorMap[_code]);
-	std::cout << "END POST\n\n";
-	_response = head.getHeader(_response.size(), _path, _code, _type, request.getPath(), "") + "\r\n" + _response;
+	_response = handlePostResponse(_response);
+	std::cout << "_response " << _response  << "\n\n";
+
+	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
 }
 
 

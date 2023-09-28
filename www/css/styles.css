@@ -20,21 +20,26 @@ header, nav, section {
     margin-bottom: 20px;
 }
 
+
+/* Base styles for the list items and links */
 nav ul {
-    list-style-type: none;
+    list-style-type: none; /* Remove bullets */
     padding: 0;
+    margin: 0; /* Remove default margin */
 }
 
 nav li {
-    display: inline;
-    margin-right: 10px;
+    display: inline-block; /* Make list items inline */
+    margin-right: 20px; /* Add spacing between menu items */
 }
 
 nav a {
-    color: #fff;
-    text-decoration: none;
+    color: red; /* Set text color to red */
+    text-decoration: none; /* Remove the underline from the links */
+    transition: text-shadow 0.3s ease; /* Animation transition for the glow effect */
 }
 
+/* Hover effect */
 nav a:hover {
-    text-decoration: underline;
+    text-shadow: 0 0 5px red, 0 0 10px red, 0 0 15px red; /* Glow effect */
 }
