@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 17:43:35 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 03:13:02 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ std::string		ResponseHeader::notAllowed(std::vector<std::string> methods, const 
 	std::string	header;
 
 	resetValues();
-	setValues(0, path, code, "", path, lang);
+	setValues(0, path, code, "text/html", path, lang);
 	setAllow(methods);
 
 	if (code == 405)
@@ -51,6 +51,7 @@ std::string		ResponseHeader::notAllowed(std::vector<std::string> methods, const 
 		header = "HTTP/1.1 413 Payload Too Large\r\n";
 	header += writeHeader();
 
+	std::cout << "header = " << header << std::endl;
 	return (header);
 }
 

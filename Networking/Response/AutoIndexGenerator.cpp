@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:08 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 21:23:47 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 02:54:16 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ std::string	AutoIndexGenerator::getPage(const char *path, std::string const &hos
 		dirName = "/" + dirName;
 	for (struct dirent *dirEntry = readdir(dir); dirEntry; dirEntry = readdir(dir))
 	{
-		page += AutoIndexGenerator::getLink(std::string(dirEntry->d_name), dirName, host, port, basicUri);
-		std::cout << "path: " << path << std::endl;
+		if (std::string(dirEntry->d_name) != "." && std::string(dirEntry->d_name) != "..")
+			page += AutoIndexGenerator::getLink(std::string(dirEntry->d_name), dirName, host, port, basicUri);
 
 	}
 	page +="\
@@ -69,10 +69,7 @@ std::string	AutoIndexGenerator::getLink(std::string const &dirEntry, std::string
 {
 	std::stringstream   ss;
 
-	std::cout << "dirName: " << dirName << std::endl;
-	std::cout << "dirEntry: " << dirEntry << std::endl;
-	std::cout << "basicUri: " << basicUri << std::endl;
-
+	(void)dirName;
 	// Ensure the basicUri ends with a '/' before appending dirEntry
 	if (basicUri[basicUri.length() - 1] != '/')
 	{

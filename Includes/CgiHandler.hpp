@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:20 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 19:44:24 by max              ###   ########.fr       */
+/*   Updated: 2023/09/27 23:48:07 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # define CGI_HANDLER_HPP
 
-# define CGI_BUFSIZE 65536
+# define CGI_BUFSIZE 100536
 
 // # include "Config.hpp"
 #include "Request.hpp"
@@ -41,14 +41,5 @@ class CgiHandler
 		std::map<std::string, std::string>	_env;
 		std::string							_body;
 };
-
-// ENV TO IMPLEMENT
-// AUTH_TYPE
-// CONTENT_LENGTH
-// CONTENT_TYPE
-// GATEWAY_INTERFACE
-// PATH_INFO
-// PATH_TRANSLATED
-// QUERY_STRING˜
 
 #endif

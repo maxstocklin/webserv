@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 23:08:57 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 02:20:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,14 @@ void		CgiHandler::_initEnv(Request &request, MasterSocket &config)
 	this->_env["SERVER_PROTOCOL"] = "HTTP/1.1";
 	this->_env["SERVER_SOFTWARE"] = "WebServ/1.0";
 
+	if (request.getMethod() == "POST")
+	{
+		this->_env["SCRIPT_NAME"] = "./Networking/Cgi/post.php";
+		this->_env["SCRIPT_FILENAME"] = "./Networking/Cgi/post.php";
+	}
 }
 
-char					**CgiHandler::_getEnvAsCstrArray() const
+char	**CgiHandler::_getEnvAsCstrArray() const
 {
 	char	**env = new char*[this->_env.size() + 1];
 	int	j = 0;
@@ -99,6 +104,8 @@ char					**CgiHandler::_getEnvAsCstrArray() const
 	return env;
 }
 
+
+
 std::string		CgiHandler::executeCgi(const std::string& scriptName)
 {
 	pid_t		pid;
@@ -107,9 +114,23 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	char		**env;
 	std::string	newBody;
 
+	// std::cout << "this->_env[CONTENT_TYPE] = " << this->_env["CONTENT_TYPE"] << std::endl;
+	// std::cout << "this->_env[CONTENT_LENGTH] = " << this->_env["CONTENT_LENGTH"] << std::endl;
+
+
 	try
 	{
 		env = this->_getEnvAsCstrArray();
+		int i = 0;
+		while (env[i])
+		{
+			std::cout << "env i = " << env[i] << std::endl;
+			i++;
+		}
+		std::cout << "scriptName = " << scriptName << std::endl;
+		std::cout << "this->_env[SCRIPT_NAME] = " << this->_env["SCRIPT_NAME"] << std::endl;
+
+
 	}
 	catch (std::bad_alloc &e)
 	{
@@ -125,7 +146,7 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	FILE	*fOut = tmpfile();
 	long	fdIn = fileno(fIn);
 	long	fdOut = fileno(fOut);
-	int		ret = 1;
+	// std::cout << "\nRequest :" << std::endl << "[" << YELLOW << _body.substr(0, 800) <<  RESET << "]" << std::endl;
 
 	write(fdIn, _body.c_str(), _body.size());
 	lseek(fdIn, 0, SEEK_SET);
@@ -137,7 +158,7 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 		std::cerr << RED << "Fork crashed." << RESET << std::endl;
 		return ("Status: 500\r\n\r\n");
 	}
-	else if (!pid)
+	else if (pid == 0)
 	{
 		char *argv[] =
 		{
@@ -162,11 +183,12 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 		waitpid(-1, NULL, 0);
 		lseek(fdOut, 0, SEEK_SET);
 
-		ret = 1;
-		while (ret > 0)
+		while (true)
 		{
-			memset(buffer, 0, CGI_BUFSIZE);
-			ret = read(fdOut, buffer, CGI_BUFSIZE - 1);
+			memset(buffer, 0, sizeof(buffer));
+			int readbytes = read(fdOut, buffer, sizeof(buffer) - 1);
+			if (readbytes <= 0)
+				break;
 			newBody += buffer;
 		}
 	}

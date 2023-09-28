@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 21:18:14 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 03:08:16 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,6 @@ int		pathIsFile(const std::string& path)
 
 void	Response::makeFullLocalPath(MasterSocket *master_socket, const std::string &path, const std::string &method, Location &target_location)
 {
-	std::cout << "\n\n__FULL PATH__\n\n";
-	std::cout << "path = " << path << std::endl;
 	std::vector<Location> locationVector = master_socket->get_locations();
 	
 	std::string basePath;
@@ -75,7 +73,6 @@ void	Response::makeFullLocalPath(MasterSocket *master_socket, const std::string 
 			}
 			if (meth == 0)
 				_code = 405;
-			
 			std::string first = locationVector[i].root;
 			std::string sec = path.substr(basePath.length() + 1);
 			
@@ -299,25 +296,27 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 {
 	Location	target_location;
 
+	_code = request.getRet();
 	// here, target_location is the right location block
 	// private attribute "fullLocalPath" is the correct physical root in my computer
 	// private attribute "base_index" is the correct index file
 	makeFullLocalPath(&requestConf, request.getPath(), request.getMethod(), target_location);
 	requestConf.set_path(this->fullLocalPath);
 
+
 	_errorMap = requestConf.get_error_pages();
 	_isAutoIndex = target_location.autoindex;
-	_code = request.getRet();
 	_hostPort.host = requestConf.get_host_int();	// todo: right now, get_host_int() always returns 0
 	_hostPort.port = requestConf.get_port();
 	_path = requestConf.get_rootLocation().root;
 
+	std::cout << "_code 3" << _code << std::endl;
 
 	if (static_cast<std::string::size_type>(requestConf.get_client_max_body_size()) < request.getBody().size() && _code != 405)
 		_code = 413; // Payload Too Large
-
 	if (_code == 405 || _code == 413)
 	{
+		std::cout << "_code 3 " << _code << std::endl;
 		ResponseHeader	head;
 		// TODO: requestConf.getLang() is replaced by "", we won't handle this, so remove all occurrence
 		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, "") + "\r\n";
@@ -529,14 +528,35 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 {
 	ResponseHeader	head;
 
-
-	if (requestConf.getCgiPass() != "")
+	std::cout << "ENTERING POST\n\n";
+	if (1)
 	{
 		CgiHandler	cgi(request, requestConf);
 		size_t		i = 0;
 		size_t		j = _response.size() - 2;
 
-		_response = cgi.executeCgi(requestConf.getCgiPass());
+		std::string phpPath = findExecutablePath("php", _env);
+		if (phpPath.empty())
+		{
+			std::cerr << RED << "Couldn't locate PHP." << RESET << std::endl;	// throw an error?
+			_code = 500;
+		}
+
+		std::string phpCgiPath = findExecutablePath("php-cgi", _env);
+		if (phpCgiPath.empty())
+		{
+			std::cerr << RED << "Couldn't locate PHP." << RESET << std::endl;	// throw an error?
+		}
+		else
+		{
+			std::cout << BLUE << "PHP CGI = " << phpCgiPath << RESET << std::endl;	// throw an error?
+		}
+
+		
+		// std::cout << "\nRequest :" << std::endl << "[" << YELLOW << request.getBody().substr(0, 800) << "..." << request.getBody().substr(request.getBody().size() - 10, 15) << RESET << "]" << std::endl;
+
+		_response = cgi.executeCgi(phpCgiPath);
+		std::cout << "MID POST\n\n";
 
 		while (_response.find("\r\n\r\n", i) != std::string::npos || _response.find("\r\n", i) == i)
 		{
@@ -559,6 +579,7 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 	}
 	if (_code == 500)
 		_response = this->readHtml(_errorMap[_code]);
+	std::cout << "END POST\n\n";
 	_response = head.getHeader(_response.size(), _path, _code, _type, request.getPath(), "") + "\r\n" + _response;
 }
 

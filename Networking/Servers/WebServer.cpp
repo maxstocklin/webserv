@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/25 21:06:48 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 01:43:00 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,8 @@ bool	WebServer::readRequest(long socket, MasterSocket &serv)
 	}
 	else if (bytes_read != 0)
 	{
-		serv._requests[socket] += std::string(buffer);
+		serv._requests[socket].append(buffer, bytes_read);
+
 		// c.updateTime();
 		// _requests[socket].append(buffer, bytes_read);
 	}
@@ -151,6 +152,7 @@ void	WebServer::launch()
 		int				select_activity = 0;
 		struct timeval	timeout;
 
+		std::cout << "\r============= WAITING FOR NEXT CONNECT =============" << std::endl;
 		while (select_activity == 0)
 		{
 			timeout.tv_sec  = 1;
@@ -160,18 +162,18 @@ void	WebServer::launch()
 			for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)	// add every new socket that is ready to the writing set
 				FD_SET(*it, &writing_set);
 
-			std::cout << "\r============= WAITING FOR NEXT CONNECT =============" << std::flush;
 
 			select_activity = select(_max_fd + 1, &reading_set, &writing_set, NULL, &timeout); //
 		}
-	if (select_activity > 0)
+		
+		if (select_activity > 0)
 		{
 			// check write
 			for (std::vector<int>::iterator it = _ready.begin() ; select_activity && it != _ready.end() ; it++)
 			{
 				if (FD_ISSET(*it, &writing_set))
 				{
-					// std::cout << "write" << std::endl;
+					std::cout << "write" << std::endl;
 					long	ret = writeRequest(*it, *_sockets[*it]);
 
 					if (ret == 0) // if the response was entirely written()
@@ -189,7 +191,7 @@ void	WebServer::launch()
 			}
 
 			if (select_activity)
-				std::cout << "\rReceived a connection !   " << std::flush; //   flush replaces what has been written on the last std_out
+				std::cout << "\rReceived a connection !   " << std::endl; //   flush replaces what has been written on the last std_out
 
 
 			// check read 
@@ -199,11 +201,11 @@ void	WebServer::launch()
 
 				if (FD_ISSET(socket, &reading_set))
 				{
-					// std::cout << "read" << std::endl;
+					std::cout << "read" << std::endl;
 					
 					if (readRequest(socket, *it->second)) // returns true if the http request is fully received 
 					{
-						// std::cout << "request before: \n" << RED << it->second->_requests[it->first] << RESET << std::endl;
+						// std::cout << "request before: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 						it->second->handle(socket, env); // parsing / todo1
 						_ready.push_back(socket); // add to ready set to write()
 					}
@@ -216,7 +218,7 @@ void	WebServer::launch()
 			{
 				if (FD_ISSET(it->first, &reading_set))
 				{
-					// std::cout << "accept" << std::endl;
+					std::cout << "accept" << std::endl;
 					acceptNewConnection(it->second); // get new socket
 					break;
 				}
@@ -266,13 +268,17 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 
 	size_t headersEndPos = completeData.find("\r\n\r\n");
 	if (headersEndPos == std::string::npos)
-		return (false);  // Headers aren't fully received yet.
+		return (false);  // Headers aren't fully received yet
 
 	std::string headers = completeData.substr(0, headersEndPos);
 	std::string body = completeData.substr(headersEndPos + 4);  // +4 to skip "\r\n\r\n"
 
 	// lower case the headers to find "content-length" and "Content-Length"
 	std::string lowerCaseHeaders = toLowerCase(headers);
+
+	// aaaaaa cout
+	// std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
+	// std::cout << "\n BODY :" << std::endl << "[\n" << YELLOW << body.substr(0, 1800) << RESET << "\n]" << std::endl;
 
 	size_t contentLengthPos = lowerCaseHeaders.find("\r\ncontent-length:");
 
@@ -284,6 +290,8 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 		if (endPos != std::string::npos)
 		{
 			std::string lengthStr = trimWhiteSpaces(headers.substr(startPos, endPos - startPos));
+			std::cout << "content length __ " << lengthStr << std::endl; 
+			std::cout << "body.size() __ " << body.size() << std::endl; 
 
 			try
 			{
