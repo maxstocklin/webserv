@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:51 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 00:14:20 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 15:03:36 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ class ResponseHeader
 
 		// Member functions
 		std::string		getHeader(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation, const std::string& lang);
-		std::string		notAllowed(std::vector<std::string> methods, const std::string& path, int code, const std::string& lang);
+		std::string		notAllowed(std::vector<std::string> methods, const std::string& path, int code, const std::string& lang, size_t size);
 		std::string		writeHeader(void);
 		void			setValues(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation, const std::string& lang);
 		void			resetValues(void);

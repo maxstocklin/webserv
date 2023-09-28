@@ -1,14 +1,19 @@
-body {
+body
+{
     font-family: Arial, sans-serif;
     background: url('../files/background.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     height: 100vh;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     margin: 0;
     padding: 0;
 }
 
-.container {
+.container
+{
     max-width: 800px;
     margin: 50px auto;
     padding: 20px;
@@ -16,30 +21,56 @@ body {
     border-radius: 10px;
 }
 
-header, nav, section {
+header, nav, section
+{
     margin-bottom: 20px;
 }
 
 
 /* Base styles for the list items and links */
-nav ul {
+nav ul
+{
     list-style-type: none; /* Remove bullets */
     padding: 0;
     margin: 0; /* Remove default margin */
 }
 
-nav li {
+nav li
+{
     display: inline-block; /* Make list items inline */
     margin-right: 20px; /* Add spacing between menu items */
 }
 
-nav a {
+nav a
+{
     color: red; /* Set text color to red */
     text-decoration: none; /* Remove the underline from the links */
     transition: text-shadow 0.3s ease; /* Animation transition for the glow effect */
 }
 
-/* Hover effect */
-nav a:hover {
+nav .vertical-list
+{
+    color: blue; /* Set text color to blue */
+    list-style-type: none; /* Removes bullet points */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+}
+
+nav .vertical-list li
+{
+    color: blue; /* Set text color to blue */
+    display: block; /* Makes each list item a block element, so they stack vertically */
+    margin-bottom: 10px; /* Optional: Add some space between list items */
+}
+
+/* Hover effect for general links */
+nav a:hover
+{
     text-shadow: 0 0 5px red, 0 0 10px red, 0 0 15px red; /* Glow effect */
+}
+
+/* Hover effect for links in vertical list */
+nav ul.vertical-list a:hover
+{
+    text-shadow: 0 0 5px blue, 0 0 10px blue, 0 0 15px blue; /* Glow effect in blue */
 }

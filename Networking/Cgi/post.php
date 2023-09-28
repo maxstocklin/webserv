@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image']))
 			echo "Error moving uploaded file.";
 	}
 	else
-		echo "File upload error: " . $uploadedFile['error'];
+		echo "File upload error: ";
 }
 else
 	echo "No file uploaded or wrong method.";

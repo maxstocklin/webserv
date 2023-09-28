@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:18:10 by max               #+#    #+#             */
-/*   Updated: 2023/09/24 22:04:58 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 21:48:53 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,6 +241,26 @@ int					Request::readFirstLine(const std::string& str)
 	return this->readPath(line, i);
 }
 
+// TODO: UTILS
+std::string decodeSpaces(const std::string& input)
+{
+    std::string result;
+    for (std::size_t i = 0; i < input.size(); ++i)
+	{
+        if (i < input.size() - 2 && input.substr(i, 3) == "%20")
+		{
+            result += ' ';
+            i += 2;  // skip the next two characters
+        }
+		else
+		{
+            result += input[i];
+        }
+    }
+    return result;
+}
+
+
 int					Request::readPath(const std::string& line, size_t i)
 {
 	size_t	j;
@@ -258,7 +278,8 @@ int					Request::readPath(const std::string& line, size_t i)
 		return 400;
 	}
 	this->_path.assign(line, j, i - j);
-	// std::cout << "\nPATH = " << _path << std::endl;
+	std::cout << BLUE << "\nPATH = " << _path << RESET << std::endl;
+	_path = decodeSpaces(_path);
 	return this->readVersion(line, i);
 }
 
@@ -417,7 +438,8 @@ void				Request::findQuery()
 std::string 		Request::formatHeaderForCGI(std::string& key)
 {
 	to_upper(key);
-	for (size_t i = 0 ; i < key.size() ; i++) {
+	for (size_t i = 0 ; i < key.size() ; i++)
+	{
 		if (key[i] == '-')
 			key[i] = '_';
 	}

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/28 01:43:00 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 21:29:14 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,7 @@ void	WebServer::launch()
 						// std::cout << "request before: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 						it->second->handle(socket, env); // parsing / todo1
 						_ready.push_back(socket); // add to ready set to write()
+						// std::cout << "request AFTER: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 					}
 					break;
 				}
@@ -290,9 +291,6 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 		if (endPos != std::string::npos)
 		{
 			std::string lengthStr = trimWhiteSpaces(headers.substr(startPos, endPos - startPos));
-			std::cout << "content length __ " << lengthStr << std::endl; 
-			std::cout << "body.size() __ " << body.size() << std::endl; 
-
 			try
 			{
 				int contentLength = std::stoi(lengthStr);

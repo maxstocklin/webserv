@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 02:20:38 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 16:53:59 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,15 +121,14 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	try
 	{
 		env = this->_getEnvAsCstrArray();
-		int i = 0;
-		while (env[i])
-		{
-			std::cout << "env i = " << env[i] << std::endl;
-			i++;
-		}
-		std::cout << "scriptName = " << scriptName << std::endl;
-		std::cout << "this->_env[SCRIPT_NAME] = " << this->_env["SCRIPT_NAME"] << std::endl;
-
+		// int i = 0;
+		// while (env[i])
+		// {
+		// 	std::cout << "env i = " << env[i] << std::endl;
+		// 	i++;
+		// }
+		// std::cout << "scriptName = " << scriptName << std::endl;
+		// std::cout << "this->_env[SCRIPT_NAME] = " << this->_env["SCRIPT_NAME"] << std::endl;
 
 	}
 	catch (std::bad_alloc &e)

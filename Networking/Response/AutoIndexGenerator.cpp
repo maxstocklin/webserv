@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:08 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 02:54:16 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 19:22:58 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,20 @@ std::string	AutoIndexGenerator::getPage(const char *path, std::string const &hos
 	"<!DOCTYPE html>\n\
 	<html>\n\
 	<head>\n\
+			<meta charset=\"UTF-8\">\n\
+			<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
 			<title>" + dirName + "</title>\n\
+			<link rel=\"stylesheet\" href=\"/css/styles.css\">\n\
 	</head>\n\
 	<body>\n\
-	<h1>INDEX</h1>\n\
-	<p>\n";
+		<div class=\"container\">\n\
+		<header>\n\
+			<h1>INDEX</h1>\n\
+			<h2>Check this Directory Listing, bro:</h2>\n\
+		</header>\n\
+		\n\
+		<nav>\n\
+			<ul class=\"vertical-list\">\n";
 
 	if (dir == NULL)
 	{
@@ -58,10 +67,14 @@ std::string	AutoIndexGenerator::getPage(const char *path, std::string const &hos
 
 	}
 	page +="\
-	</p>\n\
+						<li><a href=\"/\">BACK HOME</a></li>\n\
+				</ul>\n\
+			</nav>\n\
+		</div>\n\
 	</body>\n\
 	</html>\n";
 	closedir(dir);
+	std::cout << YELLOW << page << RESET << std::endl;
 	return page;
 }
 
@@ -78,10 +91,8 @@ std::string	AutoIndexGenerator::getLink(std::string const &dirEntry, std::string
 	// TODO: not hardcode host;
 	std::string betterHost = "127.0.0.1";
 	(void)host;
-	ss << "\t\t<p><a href=\"http://" + betterHost + ":" <<\
-		port << basicUri + dirEntry + "\">" + dirEntry + "</a></p>\n";
+	ss << "\t\t\t\t\t<li><a href=\"http://" + betterHost + ":" <<\
+		port << basicUri + dirEntry + "\">" + dirEntry + "</a></li>\n";
 
-	// ss << "\t\t<p><a href=\"http://" + betterHost + ":" <<\
-	// 	port << "/" + dirEntry + "\">" + dirEntry + "</a></p>\n";
 	return ss.str();
 }

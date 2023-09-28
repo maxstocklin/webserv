@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 04:56:55 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 21:52:23 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,42 +286,38 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 	Location	target_location;
 
 	_code = request.getRet();
+
 	// here, target_location is the right location block
 	// private attribute "fullLocalPath" is the correct physical root in my computer
 	// private attribute "base_index" is the correct index file
 	makeFullLocalPath(&requestConf, request.getPath(), request.getMethod(), target_location);
 	requestConf.set_path(this->fullLocalPath);
 
-
 	_errorMap = requestConf.get_error_pages();
 	_isAutoIndex = target_location.autoindex;
 	_hostPort.host = requestConf.get_host_int();	// todo: right now, get_host_int() always returns 0
 	_hostPort.port = requestConf.get_port();
 	_path = requestConf.get_rootLocation().root;
-
-	std::cout << "_code 3" << _code << std::endl;
-
+	
 	if (static_cast<std::string::size_type>(requestConf.get_client_max_body_size()) < request.getBody().size() && _code != 405)
 		_code = 413; // Payload Too Large
 	if (_code == 405 || _code == 413)
 	{
-		std::cout << "_code 3 " << _code << std::endl;
 		ResponseHeader	head;
+		_response = this->readHtml(_errorMap[_code]);
 		// TODO: requestConf.getLang() is replaced by "", we won't handle this, so remove all occurrence
-		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, "") + "\r\n";
+		head.setContentLength(_response.size());
+		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, "", _response.size()) + "\r\n" + _response;
+		// std::cout << RED << "BODY = " << _response << RESET << std::endl;
+
 		return ;
 	}
-	
 
 	if (request.getMethod() == "GET" || request.getMethod() == "POST")
 	{
 		getPathResponse(requestConf, target_location);
 		requestConf.set_path(_usePath);	// in case index was appended
 	}
-	
-
-	// TODO111: we don't check the path until this point, some parsing & checking are missing from:
-	// requestConf = conf.getConfigForRequest(this->_listen,  request.getPath(), request.getHeaders().at("Host"), request.getMethod(), request);
 
 	if (request.getMethod() == "GET")
 		getHandler(request, requestConf);
@@ -461,7 +457,7 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 {
 	ResponseHeader	head;
 
-	std::string phpPath = findExecutablePath("php", _env);
+	std::string phpPath = findExecutablePath("php-cgi", _env);
 	if (phpPath.empty())
 	{
 		std::cerr << RED << "Couldn't locate PHP." << RESET << std::endl;	// throw an error?
@@ -503,12 +499,14 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 		_mimeType = "text/html"; // todo: check for every time _type is set and replacew with mimetype
 		_response = this->readHtml(_errorMap[_code]);
 	}
-	if (_code == 500)
+	if (_response.size() > 5000000)
+		_code = 403;
+	if (_code == 500 || _code == 403)
 	{
+		std::cout << BLUE << "_response.size() 2" << _response.size() << RESET << std::endl;
 		_mimeType = "text/html";
 		_response = this->readHtml(_errorMap[_code]);
 	}
-
 	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
 }
 
@@ -551,24 +549,19 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 {
 	ResponseHeader	head;
 
-	std::cout << "ENTERING POST\n\n";
-	if (1)
+	if (request.getBody().size() > 0)
 	{
 		CgiHandler	cgi(request, requestConf);
 		size_t		i = 0;
 		size_t		j = _response.size() - 2;
 
+		// Use php-cgi as executable, not php!
 		std::string phpCgiPath = findExecutablePath("php-cgi", _env);
 		if (phpCgiPath.empty())
-		{
 			std::cerr << RED << "Couldn't locate PHP." << RESET << std::endl;	// throw an error?
-		}
-		
-		// std::cout << "\nRequest :" << std::endl << "[" << YELLOW << request.getBody().substr(0, 800) << "..." << request.getBody().substr(request.getBody().size() - 10, 15) << RESET << "]" << std::endl;
+		_mimeType = "text/html";
 
 		_response = cgi.executeCgi(phpCgiPath);
-		std::cout << "_response" << _response << std::endl;
-		std::cout << "MID POST\n\n";
 
 		while (_response.find("\r\n\r\n", i) != std::string::npos || _response.find("\r\n", i) == i)
 		{
@@ -577,7 +570,7 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 				_code = std::atoi(str.substr(8, 3).c_str());
 			else if (str.find("Content-Type: ") == 0)
 				_type = str.substr(14, str.size());
-			i += str.size() + 2;
+				i += str.size() + 2;
 		}
 		while (_response.find("\r\n", j) == j)
 			j -= 2;
@@ -587,17 +580,36 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 	else
 	{
 		_mimeType = "text/html";
-		_code = 204;
+		_code = 204;	// empty response
 		_response = "";
 	}
-	_mimeType = "text/html";
 	if (_code == 500)
 		_response = this->readHtml(_errorMap[_code]);
 	_response = handlePostResponse(_response);
-	std::cout << "_response " << _response  << "\n\n";
 
 	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
 }
+
+std::string handleDeleteResponse(std::string path)
+{
+	std::string httpResponse;
+
+	httpResponse += "<!DOCTYPE html>\n";
+	httpResponse += "<html lang=\"en\">\n";
+	httpResponse += "<head>\n";
+	httpResponse += "<meta charset=\"UTF-8\">\n";
+	httpResponse += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+	httpResponse += "<title>Delete Successful</title>\n";
+	httpResponse += "</head>\n";
+	httpResponse += "<body>\n";
+	httpResponse += "<h1>" + path + "</h1>\n";  // Display the name and lastname
+	httpResponse += "<p>was successfully deleted!</p>\n";
+	//  <img src="files/image.jpeg" alt="">
+	httpResponse += "</body>\n";
+	httpResponse += "</html>\n";
+	return httpResponse;
+}
+
 
 
 void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
@@ -607,10 +619,15 @@ void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
 	(void)requestConf;
 
 	_response = "";
-	if (pathIsFile(_path))
+
+
+	if (pathIsFile(fullLocalPath))
 	{
-		if (remove(_path.c_str()) == 0)
-			_code = 204;
+		if (remove(fullLocalPath.c_str()) == 0)
+		{
+			_response = handleDeleteResponse(fullLocalPath);
+			_code = 200;
+		}
 		else
 			_code = 403;
 	}
@@ -618,15 +635,16 @@ void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
 		_code = 404;
 	if (_code == 403 || _code == 404)
 		_response = this->readHtml(_errorMap[_code]);
-	_response = head.getHeader(_response.size(), _path, _code, _type, request.getPath(), "") + "\r\n" + _response;
-
-
+	_response = head.getHeader(_response.size(), fullLocalPath, _code, _type, request.getPath(), "") + "\r\n" + _response;
 }
 
 
 
-// Utils
 
+
+
+
+// Utils
 
 int				Response::writeContent(std::string content)
 {

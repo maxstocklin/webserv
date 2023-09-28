@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 03:13:02 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 15:16:23 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,12 @@ std::string		ResponseHeader::getHeader(size_t size, const std::string& path, int
 	return (header);
 }
 
-std::string		ResponseHeader::notAllowed(std::vector<std::string> methods, const std::string& path, int code, const std::string& lang)
+std::string		ResponseHeader::notAllowed(std::vector<std::string> methods, const std::string& path, int code, const std::string& lang, size_t size)
 {
 	std::string	header;
 
 	resetValues();
-	setValues(0, path, code, "text/html", path, lang);
+	setValues(size, path, code, "text/html", path, lang);
 	setAllow(methods);
 
 	if (code == 405)
@@ -61,8 +61,8 @@ std::string		ResponseHeader::writeHeader(void)
 
 	if (_allow != "")
 		header += "Allow: " + _allow + "\r\n";
-	if (_contentLanguage != "")
-		header += "Content-Language: " + _contentLanguage + "\r\n";
+	// if (_contentLanguage != "")
+	// 	header += "Content-Language: " + _contentLanguage + "\r\n";
 	if (_contentLength != "")
 		header += "Content-Length: " + _contentLength + "\r\n";
 	if (_contentLocation != "")

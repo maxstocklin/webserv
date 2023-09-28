@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f3f3;
+    background-image: url('backgrounderrors.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    color: #333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0;
+}
+
+h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+a {
+    display: inline-block;
+    background-color: #184e88;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+    background-color: #0056b3;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    transform: translateY(-3px); /* Bounce effect */
+}
+
+.shining-text {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #f20f35, 0 0 40px #ff0037, 0 0 50px #ff0019, 0 0 60px #007BFF, 0 0 70px #007BFF;
+}
