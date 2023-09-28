@@ -1,0 +1,40 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('../files/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 10px;
+}
+
+header, nav, section {
+    margin-bottom: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav li {
+    display: inline;
+    margin-right: 10px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}

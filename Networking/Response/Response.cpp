@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 03:08:16 by max              ###   ########.fr       */
+/*   Updated: 2023/09/28 04:10:37 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,16 +141,9 @@ std::map<std::string, std::string> Response::getMimeTypes()
 	mimeTypes[".htm"] = "text/html";
 	mimeTypes[".php"] = "text/html";
 	mimeTypes[".pdf"] = "application/pdf";
-
-
-
-
+	mimeTypes[".css"] = "text/css";
 	mimeTypes[".gif"] = "image/gif";
 	mimeTypes[".mp4"] = "video/mp4";
-	// mimeTypes[".pdf"] = "application/pdf";
-	// mimeTypes[".pdf"] = "application/pdf";
-	// mimeTypes[".pdf"] = "application/pdf";
-	// mimeTypes[".pdf"] = "application/pdf";
 
 
 	return mimeTypes;
