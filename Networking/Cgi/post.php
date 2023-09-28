@@ -2,7 +2,7 @@
 
 <?php
 
-$uploadDir = '../../www/uploads/';
+$uploadDir = '../../www/post/uploads/';
 // Check if directory exists
 if (!file_exists($uploadDir))
 {

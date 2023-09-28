@@ -2,7 +2,7 @@
 // $dirPath = "/Users/max/Desktop/cursus/websmain22/www/files/";
 
 $scriptDir = __DIR__;  // Gets the directory of the current script
-$dirPath = $scriptDir . '/../filestmp/';  // Now it's relative to the script's directory
+$dirPath = $scriptDir . '/../delete/filestmp/';  // Now it's relative to the script's directory
 
 // You can further ensure that the path is absolute (though it's not strictly necessary)
 $dirPath = realpath($dirPath);
@@ -45,7 +45,7 @@ echo '<div id="responseContainer"></div>';
 function deleteFile(filename)
 {
     // Send the delete request
-    fetch('/filestmp/' + filename,
+    fetch('/delete/filestmp/' + filename,
     {
         method: "DELETE"
     })
