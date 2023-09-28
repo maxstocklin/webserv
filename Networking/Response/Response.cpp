@@ -6,11 +6,13 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 21:52:23 by max              ###   ########.fr       */
+/*   Updated: 2023/09/29 00:46:59 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Response.hpp"
+
+// TODO GLOBAL: check if all errors are being handled (especially after read and write and access and stuff)
 
 // TODO UTILS
 
@@ -19,7 +21,6 @@ static std::string	to_string(size_t n)
 	std::stringstream tmp;
 
 	tmp << n;
-
 	return tmp.str();
 }
 
@@ -145,7 +146,6 @@ std::map<std::string, std::string> Response::getMimeTypes()
 	mimeTypes[".gif"] = "image/gif";
 	mimeTypes[".mp4"] = "video/mp4";
 
-
 	return mimeTypes;
 }
 
@@ -153,15 +153,16 @@ std::string Response::getMimeType(const std::string& filePath)
 {
 	static const std::map<std::string, std::string> mimeTypes = getMimeTypes();
 
+
 	std::string ext = getFileExtension(filePath);
 
 	std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);  // Convert to lowercase
 
 	std::map<std::string, std::string>::const_iterator it = mimeTypes.find(ext);
-	if (it != mimeTypes.end()) {
+	if (it != mimeTypes.end())
+	{
 		return it->second;
 	}
-
 	return "what the fuck";  // default MIME type for unknown extensions
 }
 
@@ -249,10 +250,6 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 			_responseType = 1;	// normal html/jpeg body or CGI
 			_mimeType = getMimeType(append_index);	// check the mimeType??
 			_usePath = append_index;	// use the path + default/index file
-
-			// handler_response.htmlContentType = "text/html";
-			// std::string mimeType2 = getMimeType(append_index);
-			// FetchHtmlBody::dispatchResponse(*this, append_index, "text/html");
 		}
 
 	}
@@ -260,6 +257,8 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 	else
 	{
 		std::string mimeType = getMimeType(fullLocalPath);
+		std::cout << RED << "mimeType " << mimeType  << "\nfullLocalPath " << fullLocalPath << RESET << std::endl;
+		
 		if (mimeType == "what the fuck")
 		{
 			_code = 501;
@@ -272,8 +271,6 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 			_responseType = 1; // CGI or html/jpeg body
 			_mimeType = mimeType;
 			_usePath = fullLocalPath;	// use the path + default/index file
-
-			// FetchHtmlBody::dispatchResponse(*this, fullLocalPath, mimeType);
 		}
 	}
 }
@@ -318,7 +315,16 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 		getPathResponse(requestConf, target_location);
 		requestConf.set_path(_usePath);	// in case index was appended
 	}
+	if (_code == 501)
+	{
+		ResponseHeader	head;
+		_mimeType = "text/html"; // todo: check for every time _type is set and replacew with mimetype
+		_response = this->readHtml(_errorMap[_code]);
+		head.setContentLength(_response.size());
+		_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
 
+		return ;
+	}
 	if (request.getMethod() == "GET")
 		getHandler(request, requestConf);
 	else if (request.getMethod() == "POST") 
@@ -328,35 +334,6 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 	else
 		throw std::runtime_error("Error with response: Method - " + request.getMethod());
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void	Response::htmlResponder()
@@ -395,19 +372,10 @@ void	Response::htmlResponder()
 	}
 
 	_code = (200);
-	// if (handler.get_connection() == "keep-alive")
-	// 	handler.set_response_keepAlive(true);
-	// else if (handler.get_connection() == "close")
-	// 	handler.set_response_keepAlive(false);
+
 };
 
 
-
-
-
-
-#include <string>
-#include <sys/stat.h>
 
 std::string	Response::findExecutablePath(const std::string& command, char** env)
 {
@@ -446,7 +414,6 @@ std::string	Response::findExecutablePath(const std::string& command, char** env)
             return testPath;
         }
     }
-
     // Couldn't find the executable
     return "";
 }
@@ -646,29 +613,6 @@ void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
 
 // Utils
 
-int				Response::writeContent(std::string content)
-{
-	std::ofstream	file;
-
-	if (pathIsFile(_path))
-	{
-		file.open(_path.c_str());
-		file << content;
-		file.close();
-		return (204);
-	}
-	else
-	{
-		file.open(_path.c_str(), std::ofstream::out | std::ofstream::trunc);
-		if (file.is_open() == false)
-			return (403);
-
-		file << content;
-		file.close();
-		return (201);
-	}
-}
-
 std::string		Response::readHtml(const std::string& path)
 {
 	std::ofstream		file;
@@ -678,7 +622,7 @@ std::string		Response::readHtml(const std::string& path)
 	{
 		file.open(path.c_str(), std::ifstream::in);
 		if (file.is_open() == false)
-			return ("<!DOCTYPE html>\n<html><title>40404</title><body>There was an error finding your error page</body></html>\n");
+			return ("<!DOCTYPE html>\n<html><title>404</title><body>There was an error finding your error page</body></html>\n");
 
 		buffer << file.rdbuf();
 		file.close();
@@ -687,16 +631,7 @@ std::string		Response::readHtml(const std::string& path)
 		return (buffer.str());
 	}
 	else
-		return ("<!DOCTYPE html>\n<html><title>40404</title><body>There was an error finding your error page</body></html>\n");
-}
-
-int				Response::fileExists(std::string path) //deprecated, replaced by ::pathIsFile()
-{
-	struct stat		stats;
-
-	if (stat(path.c_str(), &stats) == 0)
-		return (1);
-	return (0);
+		return ("<!DOCTYPE html>\n<html><title>404</title><body>There was an error finding your error page</body></html>\n");
 }
 
 // Getter functions

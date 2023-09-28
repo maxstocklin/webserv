@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/28 21:29:14 by max              ###   ########.fr       */
+/*   Updated: 2023/09/29 00:50:38 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,7 @@ void	WebServer::launch()
 						// std::cout << "request before: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 						it->second->handle(socket, env); // parsing / todo1
 						_ready.push_back(socket); // add to ready set to write()
-						// std::cout << "request AFTER: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
+						std::cout << "RESPONSE: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 					}
 					break;
 				}
@@ -278,7 +278,7 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 	std::string lowerCaseHeaders = toLowerCase(headers);
 
 	// aaaaaa cout
-	// std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
+	std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
 	// std::cout << "\n BODY :" << std::endl << "[\n" << YELLOW << body.substr(0, 1800) << RESET << "\n]" << std::endl;
 
 	size_t contentLengthPos = lowerCaseHeaders.find("\r\ncontent-length:");
