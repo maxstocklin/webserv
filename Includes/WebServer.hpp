@@ -15,6 +15,7 @@
 
 #include "AServer.hpp"
 #include "Colors.hpp"
+#include "Utils.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -53,7 +54,7 @@ class WebServer : public AServer
 		long	writeRequest(long socket, MasterSocket &serv);
 		void	closeConnection(const int i);
 		bool	requestCompletelyReceived(std::string completeData);
-		std::string	trimWhiteSpaces(const std::string &str);
+
 	private:
 		// std::string	completeData; --> moved to client
 		int			new_socket;

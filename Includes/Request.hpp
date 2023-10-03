@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:51:09 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 14:12:59 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:42:50 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define REQUEST_HPP
 
 #include "Colors.hpp"
+#include "Utils.hpp"
 
 #include <stdio.h>
 #include <iostream>

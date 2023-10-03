@@ -6,23 +6,13 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/09/29 00:46:59 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:50:35 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Response.hpp"
 
 // TODO GLOBAL: check if all errors are being handled (especially after read and write and access and stuff)
-
-// TODO UTILS
-
-static std::string	to_string(size_t n)
-{
-	std::stringstream tmp;
-
-	tmp << n;
-	return tmp.str();
-}
 
 
 int		pathIsFile(const std::string& path)

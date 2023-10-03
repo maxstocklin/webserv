@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/29 00:50:38 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:40:14 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,25 +21,6 @@ WebServer::~WebServer()
 {
 	
 }
-
-// add to utils
-static void	*ft_memcpy(void *dst, const void *src, size_t n)
-{
-	size_t			i;
-	unsigned char	*p;
-	unsigned char	*q;
-
-	i = 0;
-	p = (unsigned char *)dst;
-	q = (unsigned char *)src;
-	while (i < n)
-	{
-		p[i] = q[i];
-		i++;
-	}
-	return (dst);
-}
-
 
 
 void	WebServer::initializeSets()
@@ -206,9 +187,11 @@ void	WebServer::launch()
 					if (readRequest(socket, *it->second)) // returns true if the http request is fully received 
 					{
 						// std::cout << "request before: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
+						if (socket % 2)
+							sleep(2);
 						it->second->handle(socket, env); // parsing / todo1
 						_ready.push_back(socket); // add to ready set to write()
-						std::cout << "RESPONSE: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
+						// std::cout << "RESPONSE: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 					}
 					break;
 				}
@@ -230,37 +213,6 @@ void	WebServer::launch()
 	}
 
 }
-
-
-
-
-
-
-// TODO: toLowerCase == utils
-static std::string toLowerCase(const std::string& input)
-{
-	std::string result = input;
-	for (std::string::iterator it = result.begin(); it != result.end(); ++it)
-	{
-		*it = std::tolower(static_cast<unsigned char>(*it));
-	}
-	return result;
-}
-
-// remove all the tabs and spaces at the extremeties of the string
-// TODO: this is a utils function from ServerConfig class
-std::string WebServer::trimWhiteSpaces(const std::string &str)
-{
-	std::size_t first = str.find_first_not_of(" \t");
-
-	if (std::string::npos == first) // if the string is only made of white spaces, return the string
-		return (str);
-
-	std::size_t last = str.find_last_not_of(" \t");
-
-	return (str.substr(first, (last - first + 1)));
-}
-
 
 bool WebServer::requestCompletelyReceived(std::string completeData)
 {

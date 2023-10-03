@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:20 by max               #+#    #+#             */
-/*   Updated: 2023/09/27 23:48:07 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:49:34 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 // # include "Config.hpp"
 #include "Request.hpp"
 #include "MasterSocket.hpp"
+#include "Utils.hpp"
 
 class MasterSocket;
 

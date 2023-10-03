@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:04 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/18 17:42:46 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:34:15 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define SERVERCONFIG_HPP
 
 #include "Colors.hpp"
+#include "Utils.hpp"
 
 
 #include <stdio.h>
@@ -86,12 +87,12 @@ class ServerConfig
 		int							get_protocol();
 
 		// Utils
-		bool						isNumber(const std::string &s);
-		bool						isValidPort(int port);
-		bool						endsWithSemicolon(const std::string &str);
-		bool						isValidHost(const std::string& host);
-		std::string					trimWhiteSpaces(const std::string &str);
-		std::vector<std::string>	splitToVector(const std::string &str);
+		// bool						isNumber(const std::string &s);
+		// bool						isValidPort(int port);
+		// bool						endsWithSemicolon(const std::string &str);
+		// bool						isValidHost(const std::string& host);
+		// std::string					trimWhiteSpaces(const std::string &str);
+		// std::vector<std::string>	splitToVector(const std::string &str);
 
 
 

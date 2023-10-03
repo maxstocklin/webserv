@@ -6,23 +6,11 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/09/29 00:41:12 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:51:52 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/ResponseHeader.hpp"
-
-// TODO: UTILS
-static std::string	to_string(size_t n)
-{
-	std::stringstream tmp;
-
-	tmp << n;
-
-	return tmp.str();
-}
-
-// Member functions
 
 std::string		ResponseHeader::getHeader(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation, const std::string& lang)
 {

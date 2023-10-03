@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/28 03:11:31 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:39:42 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,6 @@ void MasterSocket::start_listening()
 }
 
 
-
-// TODO: toLowerCase == utils
-static std::string toLowerCase(const std::string& input)
-{
-	std::string result = input;
-	for (std::string::iterator it = result.begin(); it != result.end(); ++it)
-	{
-		*it = std::tolower(static_cast<unsigned char>(*it));
-	}
-	return result;
-}
 
 void MasterSocket::parseChunks(long socket)
 {

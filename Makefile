@@ -32,6 +32,7 @@ DIRS = $(OBJS_DIR) \
        $(OBJS_DIR)Networking/Cgi/ \
        $(OBJS_DIR)Networking/Request/ \
        $(OBJS_DIR)Networking/Response/ \
+       $(OBJS_DIR)Networking/Utils/ \
        $(OBJS_DIR)Networking/Sockets/
 
 OBJS_DIR 		= 	obj/
@@ -63,7 +64,8 @@ SRC_FILES       =   main.cpp \
 					Servers/WebServer.cpp \
 					Sockets/MasterSocket.cpp \
 					Sockets/ASocket.cpp \
-					Sockets/BindingSocket.cpp
+					Sockets/BindingSocket.cpp \
+					Utils/Utils.cpp
 
 SRCS			=	$(addprefix $(PROJECT_DIR),$(SRC_FILES))
 

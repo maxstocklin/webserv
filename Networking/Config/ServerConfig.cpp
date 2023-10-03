@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/09/18 17:53:16 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:41:41 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -657,112 +657,6 @@ bool ServerConfig::containsDirective(const std::string &serverBlock, const std::
 		return (false);
 	}
 }
-
-
-
-// --------------- UTILS ---------------
-
-
-// check if the string is a valid number
-bool ServerConfig::isNumber(const std::string &str)
-{
-	if (str.empty())
-		return (false);  // ensures the string is not empty
-	
-	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
-	{
-		if (!isdigit(*it))
-			return (false);
-	}
-	return (true);
-}
-
-// check if the port is valid (must be a int between 0 and 65535)
-bool ServerConfig::isValidPort(int port)
-{
-	if (port >= 0 && port <= 65535)
-		return (true);
-	return (false);
-}
-
-// check if the line ends with a semicolon
-bool ServerConfig::endsWithSemicolon(const std::string &str)
-{
-	if (!str.empty() && str.back() == ';')
-		return (true);
-	return (false);
-}
-
-// remove all the tabs and spaces at the extremeties of the string
-std::string ServerConfig::trimWhiteSpaces(const std::string &str)
-{
-	std::size_t first = str.find_first_not_of(" \t");
-
-	if (std::string::npos == first) // if the string is only made of white spaces, return the string
-		return (str);
-
-	std::size_t last = str.find_last_not_of(" \t");
-
-	return (str.substr(first, (last - first + 1)));
-}
-
-// check if the host is valid (e.g. 127.0.0.1)
-bool ServerConfig::isValidHost(const std::string& host)
-{
-	std::istringstream	ss(host);
-	std::string			segment;
-	int					count = 0; // count number of dots
-
-	// split into segments separated by a dot and check if it's a valid int between 0 and 255
-	while (getline(ss, segment, '.'))
-	{
-		if (++count > 4)
-			return (false);
-
-		int num = atoi(segment.c_str());
-		if (num < 0 || num > 255)
-			return (false);
-
-		// make sure no extra characters exist in the segment
-		for (std::string::iterator it = segment.begin(); it != segment.end(); ++it)
-		{
-			if (!isdigit(*it)) 
-				return (false);
-		}
-	}
-
-	if (count == 4)
-		return (true);
-	return (false);
-}
-
-// Split a string into a vector for each word
-std::vector<std::string> ServerConfig::splitToVector(const std::string &str)
-{
-	std::vector<std::string> tokens;
-	std::stringstream ss(str);
-	std::string token;
-
-	while (std::getline(ss, token, ' '))  // Split based on spaces first
-	{
-		if (!token.empty())
-		{
-			std::stringstream ss2(token);
-			std::string subToken;
-			
-			while (std::getline(ss2, subToken, '\t'))  // Then split based on tabs
-			{
-				if (!subToken.empty()) 
-					tokens.push_back(subToken);
-			}
-		}
-	}
-
-	return tokens;
-}
-
-
-
 
 // --------------- GETTERS & SETTERS ---------------
 

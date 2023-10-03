@@ -19,6 +19,7 @@
 	#include "BindingSocket.hpp"
 	#include "Request.hpp"
 	#include "Response.hpp"
+	#include "Utils.hpp"
 
 	#include <fcntl.h>
 

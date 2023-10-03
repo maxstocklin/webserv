@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:50:37 by max               #+#    #+#             */
-/*   Updated: 2023/09/25 14:13:35 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:42:25 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,13 +114,6 @@ const std::list<std::pair<std::string, float> >&	Request::getLang() const
 	return this->_lang;
 }
 
-// TODO: ADD TO UTILS
-static std::string&					pop(std::string& str)
-{
-	if (str.size())
-		str.resize(str.size() - 1);
-	return str;
-}
 
 /*** SETTERS ***/
 

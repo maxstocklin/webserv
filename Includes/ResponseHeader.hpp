@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:51 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 15:03:36 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:51:19 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 
 #include "Colors.hpp"
+#include "Utils.hpp"
 
 #include <stdio.h>
 #include <iostream>

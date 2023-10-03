@@ -6,21 +6,11 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/09/28 16:53:59 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 20:49:00 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/CgiHandler.hpp"
-
-// TODO: UTILS
-static std::string	to_string(size_t n)
-{
-	std::stringstream tmp;
-
-	tmp << n;
-
-	return tmp.str();
-}
 
 CgiHandler::CgiHandler(Request &request, MasterSocket &config) : _body(request.getBody())
 {
@@ -170,7 +160,6 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 		dup2(fdOut, STDOUT_FILENO);
 
 		execve(scriptName.c_str(), argv, env);
-
 
 		std::cerr << RED << "Execve crashed." << RESET << std::endl;
 		write(STDOUT_FILENO, "Status: 500\r\n\r\n", 15);
