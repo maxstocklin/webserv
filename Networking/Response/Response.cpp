@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/04 11:48:00 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/04 22:59:35 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,13 +263,12 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 
 // Member functions
 
-void			Response::call(Request &request, MasterSocket &requestConf)
+void			Response::call(Request & request, MasterSocket &requestConf, bool keepAlive)
 {
 	Location	target_location;
 
 	_code = request.getRet();
 
-	std::cout << RED << "\n\n ############## _code = " << _code << RESET << std::endl;
 	// here, target_location is the right location block
 	// private attribute "fullLocalPath" is the correct physical root in my computer
 	// private attribute "base_index" is the correct index file
@@ -287,6 +286,7 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 	if (_code == 405 || _code == 413)
 	{
 		ResponseHeader	head;
+		head.setKeepAlive(keepAlive);
 		_response = this->readHtml(_errorMap[_code]);
 		head.setContentLength(_response.size());
 		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, _response.size()) + "\r\n" + _response;

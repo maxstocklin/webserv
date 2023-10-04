@@ -47,6 +47,7 @@
 			const std::string					&get_path() const;
 			void								set_path(std::string path);
 			std::map<long, std::string>			_requests;					// at first, this map is the request, after the parsing, it's the response
+			std::map<long, bool>				_keepAlive;
 
 		private:
 			int							backlog;					// hardcoded

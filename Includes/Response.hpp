@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:46 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 22:46:59 by max              ###   ########.fr       */
+/*   Updated: 2023/10/04 22:59:04 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ public:
 	std::string		getResponse(void);
 
 	// Member functions
-	void			call(Request & request, MasterSocket &requestConf);
+	void			call(Request & request, MasterSocket &requestConf, bool keepAlive);
 
 	void			getHandler(Request & request, MasterSocket &requestConf);
 	void			postHandler(Request & request, MasterSocket &requestConf);

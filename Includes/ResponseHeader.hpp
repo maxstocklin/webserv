@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHeader.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:51 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:29:16 by max              ###   ########.fr       */
+/*   Updated: 2023/10/04 23:00:23 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,11 @@ class ResponseHeader
 		std::string		writeHeader(void);
 		void			setValues(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation);
 		void			resetValues(void);
+		void			setKeepAlive(bool keepAlive);
 		std::string		getStatusMessage(int code);
 
 	private:
+		bool						_keepAlive;
 		std::string					_allow;
 		std::string					_contentLength;
 		std::string					_contentLocation;

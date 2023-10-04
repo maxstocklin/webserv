@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHeader.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:01:24 by max              ###   ########.fr       */
+/*   Updated: 2023/10/04 23:06:49 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,10 @@ std::string		ResponseHeader::writeHeader(void)
 		header += "Content-Type: " + _contentType + "\r\n";
 	if (_date != "")
 		header += "Date: " + _date + "\r\n";
+	if (_keepAlive)
+		header += "Connection: keep-alive\r\n";
+	else
+		header += "Connection: close\r\n";
 	if (_lastModified != "")
 		header += "Last-Modified: " + _lastModified + "\r\n";
 	if (_location != "")
@@ -265,4 +269,9 @@ ResponseHeader::ResponseHeader(const ResponseHeader & src)
 
 ResponseHeader::~ResponseHeader(void)
 {
+}
+
+void	ResponseHeader::setKeepAlive(bool keepAlive)
+{
+	this->_keepAlive = keepAlive;
 }

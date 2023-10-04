@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 21:10:23 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/10/04 22:54:21 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 		serv._requests[socket].append(buffer, bytes_read);
 	}
 	
-	if (requestCompletelyReceived(serv._requests[socket]) == true)
+	if (requestCompletelyReceived(serv._requests[socket], serv, socket) == true)
 		return 0;
 	else
 		return 1;
@@ -137,6 +137,11 @@ long	WebServer::writeRequest(long socket, MasterSocket &serv)
 		{
 			serv._requests.erase(socket); // erase the response
 			sent[socket] = 0; // reset the sent size
+
+			if (serv._keepAlive.find(socket) != serv._keepAlive.end() && !serv._keepAlive[socket])
+			{
+				close(socket);
+			}
 			return (0);
 		}
 		else	// if part of the response was written
@@ -154,7 +159,8 @@ void	WebServer::launch()
 		fd_set			writing_set;
 		int				select_activity = 0;
 		struct timeval	timeout;
-		usleep(5000);
+		// usleep(5000);
+
 		std::cout << "\r============= WAITING FOR NEXT CONNECT =============" << std::endl;
 		while (select_activity == 0)
 		{
@@ -165,26 +171,30 @@ void	WebServer::launch()
 			for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)	// add every new socket that is ready to the writing set
 				FD_SET(*it, &writing_set);
 
-			std::cout << "select max fd = " << _max_fd << std::endl;
+			// std::cout << "select max fd = " << _max_fd << std::endl;
 
-			std::cout << "reading_set = ";
-			for (int i = 0; i <= _max_fd; i++) {
-				if (FD_ISSET(i, &reading_set)) {
-					std::cout << i << " ";
-				}
-			}
-			std::cout << "writing_set = ";
-			std::cout << std::endl;
-			for (int i = 0; i <= _max_fd; i++) {
-				if (FD_ISSET(i, &writing_set)) {
-					std::cout << i << " ";
-				}
-			}
-			std::cout << std::endl;
+			// std::cout << "reading_set = ";
+			// for (int i = 0; i <= _max_fd; i++) {
+			// 	if (FD_ISSET(i, &reading_set)) {
+			// 		std::cout << i << " ";
+			// 	}
+			// }
+			// std::cout << "writing_set = ";
+			// std::cout << std::endl;
+			// for (int i = 0; i <= _max_fd; i++) {
+			// 	if (FD_ISSET(i, &writing_set)) {
+			// 		std::cout << i << " ";
+			// 	}
+			// }
+			// std::cout << std::endl;
 			
-			for (int i = 0; i <= _max_fd; i++) {
-				if (FD_ISSET(i, &_fd_set)) {
-					std::cout << "Socket in _fd_set: " << i << std::endl;
+			long maxtmp = 0;
+			for (int i = 0; i <= _max_fd; i++)
+			{
+				if (FD_ISSET(i, &_fd_set))
+				{
+					if (i > maxtmp)
+						maxtmp = i;
 				}
 				else if (i > 10)
 				{
@@ -193,7 +203,7 @@ void	WebServer::launch()
 					_sockets.erase(i);
 				}
 			}
-
+			_max_fd = maxtmp;
 			select_activity = select(_max_fd + 1, &reading_set, &writing_set, NULL, &timeout); //
 		}
 		
@@ -204,11 +214,23 @@ void	WebServer::launch()
 			{
 				if (FD_ISSET(*it, &writing_set))
 				{
-					std::cout << "write" << std::endl;
+					// std::cout << "write" << std::endl;
 					long	ret = writeRequest(*it, *_sockets[*it]);
 
 					if (ret == 0) // if the response was entirely written()
+					{
+
 						_ready.erase(it); // erase the socket from the ready set
+						
+						// Check if we should close the connection
+						if (_sockets[*it]->_keepAlive.find(*it) != _sockets[*it]->_keepAlive.end() && !_sockets[*it]->_keepAlive[*it])
+						{
+							FD_CLR(*it, &_fd_set);
+							FD_CLR(*it, &reading_set);
+							close(*it);
+							_sockets.erase(*it);
+						}
+					}
 					else if (ret == -1)	// if there was an error with write()
 					{
 						// closeConnection(socket);
@@ -235,7 +257,7 @@ void	WebServer::launch()
 
 				if (FD_ISSET(socket, &reading_set))
 				{
-					std::cout << "read" << std::endl;
+					// std::cout << "read" << std::endl;
 					
 					long	readRet = readRequest(socket, *it->second);
 					if (readRet == 0)
@@ -269,7 +291,7 @@ void	WebServer::launch()
 			{
 				if (FD_ISSET(it->first, &reading_set))
 				{
-					std::cout << "accept" << std::endl;
+					// std::cout << "accept" << std::endl;
 					long	socket = acceptNewConnection(it->second); // get new socket
 					if (socket != -1)
 					{
@@ -282,7 +304,7 @@ void	WebServer::launch()
 						if (socket > _max_fd)
 						{
 							_max_fd = socket;
-							std::cout << "NEW MAX FD CHANGED TO " << _max_fd << std::endl;
+							// std::cout << "NEW MAX FD CHANGED TO " << _max_fd << std::endl;
 						}
 						for (int i = 0; i <= _max_fd; i++)
 						{
@@ -325,7 +347,7 @@ void	WebServer::launch()
 	}
 }
 
-bool WebServer::requestCompletelyReceived(std::string completeData)
+bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket &serv, long socket)
 {
 	size_t		startPos;
 	size_t		endPos;
@@ -339,6 +361,35 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 
 	// lower case the headers to find "content-length" and "Content-Length"
 	std::string lowerCaseHeaders = toLowerCase(headers);
+
+	size_t conn_pos = lowerCaseHeaders.find("\r\nconnection:");
+	if (conn_pos != std::string::npos)
+	{
+		// Get the value after the "connection:" string.
+		size_t start = conn_pos + strlen("\r\nconnection:");
+		size_t end = lowerCaseHeaders.find("\r\n", start);
+		if(end == std::string::npos) // if there's no other header after "connection:"
+			end = lowerCaseHeaders.length(); // consider till the end of the string
+		
+		std::string conn_value = lowerCaseHeaders.substr(start, end - start);
+
+		// Trim whitespace (both leading and trailing)
+		conn_value.erase(0, conn_value.find_first_not_of(" \t\n\r"));
+		conn_value.erase(conn_value.find_last_not_of(" \t\n\r") + 1);
+
+		if (conn_value == "keep-alive")
+			serv._keepAlive[socket] = true;
+		else if (conn_value == "close")
+			serv._keepAlive[socket] = false;
+		// If not specified, and if you're dealing with HTTP/1.1:
+		else
+			serv._keepAlive[socket] = true; // Default for HTTP/1.1
+	}
+	else
+	{
+		// If the header isn't present and you're assuming HTTP/1.1:
+		serv._keepAlive[socket] = true; // Default for HTTP/1.1
+	}
 
 	// std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
 	// std::cout << "\n BODY :" << std::endl << "[\n" << YELLOW << body.substr(0, 1800) << RESET << "\n]" << std::endl;

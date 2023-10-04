@@ -53,7 +53,7 @@ class WebServer : public AServer
 
 		long	writeRequest(long socket, MasterSocket &serv);
 		void	closeConnection(const int i);
-		bool	requestCompletelyReceived(std::string completeData);
+		bool	requestCompletelyReceived(std::string completeData, MasterSocket &serv, long socket);
 
 	private:
 		// std::string	completeData; --> moved to client
