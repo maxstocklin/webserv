@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:29:10 by max              ###   ########.fr       */
+/*   Updated: 2023/10/04 11:48:00 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,6 +269,7 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 
 	_code = request.getRet();
 
+	std::cout << RED << "\n\n ############## _code = " << _code << RESET << std::endl;
 	// here, target_location is the right location block
 	// private attribute "fullLocalPath" is the correct physical root in my computer
 	// private attribute "base_index" is the correct index file

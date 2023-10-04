@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 00:15:41 by max              ###   ########.fr       */
+/*   Updated: 2023/10/04 15:37:16 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ void	WebServer::initializeSets()
 	// adds servers sockets to _fd_set set
 	for(std::vector<MasterSocket>::iterator it = sockets.begin(); it != sockets.end(); ++it)
 	{
-		addToSet(it->get_sock(), _fd_set);
+		FD_SET(it->get_sock(), &_fd_set);
+		// addToSet(it->get_sock(), _fd_set);
 		_servers.insert(std::make_pair(it->get_sock(), *it));
 		if (it->get_sock() > _max_fd)
 			_max_fd = it->get_sock();
@@ -44,7 +45,7 @@ void	WebServer::initializeSets()
 }
 
 
-bool	WebServer::readRequest(long socket, MasterSocket &serv)
+int	WebServer::readRequest(long socket, MasterSocket &serv)
 {
 	int		bytes_read = 0;
 	char	buffer[40000];
@@ -53,23 +54,47 @@ bool	WebServer::readRequest(long socket, MasterSocket &serv)
 
 	bytes_read = read(socket, buffer, sizeof(buffer) - 1);
 
-	if (bytes_read == 0)
+	if (bytes_read == 0 || bytes_read == -1)
 	{
-		std::cout << YELLOW << BOLD << "webserv: Client " << socket << " Closed Connection" << RESET << std::endl;
-		closeConnection(socket);
-		return (false);
+		if (socket > 0)
+			close(socket);
+		serv._requests.erase(socket);
+
+		if (!bytes_read)
+			std::cout << YELLOW << BOLD << "webserv: Client " << socket << " Closed Connection" << RESET << std::endl;
+		else
+			std::cerr << RED << BOLD << "webserv: Client " << socket << " read error " << strerror(errno) << RESET << std::endl; // todo: erno after read??
+		return (-1);
 	}
-	else if (bytes_read < 0)
-	{
-		std::cout << RED << BOLD << "webserv: Client " << socket << " read error " << strerror(errno) << RESET << std::endl;
-		closeConnection(socket);
-		return (false);
-	}
+
+	// if (bytes_read == 0)
+	// {
+	// 	std::cout << YELLOW << BOLD << "webserv: Client " << socket << " Closed Connection" << RESET << std::endl;
+	// 	FD_CLR(socket, &_fd_set);
+	// 	FD_CLR(socket, &reading_set); // damn
+	// 	_sockets.erase(socket);
+	// 	// closeConnection(socket);
+	// 	return (false);
+	// }
+	// else if (bytes_read < 0)
+	// {
+	// 	std::cout << RED << BOLD << "webserv: Client " << socket << " read error " << strerror(errno) << RESET << std::endl;
+	// 	FD_CLR(socket, &_fd_set);
+	// 	FD_CLR(socket, &reading_set); // damn
+	// 	_sockets.erase(socket);
+	// 	// closeConnection(socket);
+	// 	return (false);
+	// }
 	else if (bytes_read != 0)
 	{
 		serv._requests[socket].append(buffer, bytes_read);
 	}
-	return (requestCompletelyReceived(serv._requests[socket]));
+	
+	if (requestCompletelyReceived(serv._requests[socket]) == true)
+		return 0;
+	else
+		return 1;
+	// return (requestCompletelyReceived(serv._requests[socket]));
 }
 
 
@@ -138,20 +163,20 @@ void	WebServer::launch()
 			for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)	// add every new socket that is ready to the writing set
 				FD_SET(*it, &writing_set);
 
-			std::cout << "select max fd = " << _max_fd << std::endl;
-						std::cout << "select max fd = " << _max_fd << std::endl;
-			for (int i = 0; i <= _max_fd; i++) {
-				if (FD_ISSET(i, &reading_set)) {
-					std::cout << i << " ";
-				}
-			}
-			std::cout << std::endl;
-			for (int i = 0; i <= _max_fd; i++) {
-				if (FD_ISSET(i, &writing_set)) {
-					std::cout << i << " ";
-				}
-			}
-			std::cout << std::endl;
+			// std::cout << "select max fd = " << _max_fd << std::endl;
+			// 			std::cout << "select max fd = " << _max_fd << std::endl;
+			// for (int i = 0; i <= _max_fd; i++) {
+			// 	if (FD_ISSET(i, &reading_set)) {
+			// 		std::cout << i << " ";
+			// 	}
+			// }
+			// std::cout << std::endl;
+			// for (int i = 0; i <= _max_fd; i++) {
+			// 	if (FD_ISSET(i, &writing_set)) {
+			// 		std::cout << i << " ";
+			// 	}
+			// }
+			// std::cout << std::endl;
 
 			select_activity = select(_max_fd + 1, &reading_set, &writing_set, NULL, &timeout); //
 		}
@@ -193,11 +218,25 @@ void	WebServer::launch()
 				{
 					std::cout << "read" << std::endl;
 					
-					if (readRequest(socket, *it->second)) // returns true if the http request is fully received 
+					long	readRet = readRequest(socket, *it->second);
+					if (readRet == 0)
 					{
 						it->second->handle(socket, env); // parsing
 						_ready.push_back(socket); // add to ready set to write()
 					}
+					else if (readRet == -1)
+					{
+						FD_CLR(socket, &_fd_set);
+						FD_CLR(socket, &reading_set);
+						_sockets.erase(socket);
+						it = _sockets.begin();
+					}
+
+					// if (readRequest(socket, *it->second)) // returns true if the http request is fully received 
+					// {
+					// 	it->second->handle(socket, env); // parsing
+					// 	_ready.push_back(socket); // add to ready set to write()
+					// }
 					break;
 				}
 			}
@@ -208,7 +247,14 @@ void	WebServer::launch()
 				if (FD_ISSET(it->first, &reading_set))
 				{
 					std::cout << "accept" << std::endl;
-					acceptNewConnection(it->second); // get new socket
+					long	socket = acceptNewConnection(it->second); // get new socket
+					if (socket != -1)
+					{
+						FD_SET(socket, &_fd_set);
+						_sockets.insert(std::make_pair(socket, &(it->second)));
+						if (socket > _max_fd)
+							_max_fd = socket;
+					}
 					break;
 				}
 			}
@@ -226,13 +272,16 @@ void	WebServer::launch()
 			_sockets.clear();
 			_ready.clear();
 			FD_ZERO(&_fd_set);
-			_max_fd = 0;
 			for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
-			{
-				addToSet(it->first, _fd_set);
-				if (it->first > _max_fd)
-					_max_fd = it->first;
-			}
+				FD_SET(it->first, &_fd_set);
+
+			// _max_fd = 0;
+			// for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
+			// {
+			// 	addToSet(it->first, _fd_set);
+			// 	if (it->first > _max_fd)
+			// 		_max_fd = it->first;
+			// }
 		}
 	}
 }
@@ -302,16 +351,16 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 }
 
 
-/* Closes connection from fd i and remove associated client object from _clients_map */
-void	WebServer::closeConnection(const int i)
-{
-	if (FD_ISSET(i, &_fd_set))
-		removeFromSet(i, _fd_set);
-	if (FD_ISSET(i, &_fd_set))
-		removeFromSet(i, _fd_set);
-	close(i);
-	_sockets.erase(i);
-}
+// /* Closes connection from fd i and remove associated client object from _clients_map */
+// void	WebServer::closeConnection(const int i)
+// {
+// 	if (FD_ISSET(i, &_fd_set))
+// 		removeFromSet(i, _fd_set);
+// 	if (FD_ISSET(i, &_fd_set))
+// 		removeFromSet(i, _fd_set);
+// 	close(i);
+// 	_sockets.erase(i);
+// }
 
 
 
@@ -322,43 +371,52 @@ void	WebServer::closeConnection(const int i)
  * Create new Client object and add it to _client_map
  * Add client socket to _fd_set
 */
-void	WebServer::acceptNewConnection(MasterSocket &serv)
+
+// todo check cclaude
+long	WebServer::acceptNewConnection(MasterSocket &serv)
 {
 	struct sockaddr_in	address;
 	long				addrlen = sizeof(address);
-	int					new_socket;
+	long				new_socket;
 
-	if ((new_socket = accept(serv.get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) == -1)
+	new_socket = accept(serv.get_sock(), (struct sockaddr *)&address, (socklen_t*)&addrlen);
+	if (new_socket == -1)
 	{
-		throw std::runtime_error(std::string("Could not create socket!") + strerror(errno));
-		return;
+		std::cerr << RED << "Could not create socket: " << strerror(errno) << RESET << std::endl;
 	}
-	serv._requests.insert(std::make_pair(new_socket, ""));
-	std::cout << BLUE << BOLD << "New Connection, Assigned Socket " << new_socket << RESET << std::endl;
-
-	addToSet(new_socket, _fd_set);
-	_sockets.insert(std::make_pair(new_socket, &(serv))); // insert new socket to the map of new sockets
-
-	if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
+	else
 	{
-		std::cerr << RED << BOLD << "webserv: fcntl error " << strerror(errno) <<  RESET << std::endl;
-		removeFromSet(new_socket, _fd_set);
-		close(new_socket);
-		return ;
+		fcntl(new_socket, F_SETFL, O_NONBLOCK);
+		serv._requests.insert(std::make_pair(new_socket, ""));
+		std::cout << BLUE << BOLD << "New Connection, Assigned Socket " << new_socket << RESET << std::endl;
 	}
+	return (new_socket);
+	// serv._requests.insert(std::make_pair(new_socket, ""));
+
+	// addToSet(new_socket, _fd_set);
+	// _sockets.insert(std::make_pair(new_socket, &(serv))); // insert new socket to the map of new sockets
+
+	// if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
+	// {
+	// 	std::cerr << RED << BOLD << "webserv: fcntl error " << strerror(errno) <<  RESET << std::endl;
+	// 	removeFromSet(new_socket, _fd_set);
+	// 	close(new_socket);
+	// 	return ;
+	// }
 }
 
 
-void	WebServer::addToSet(const int i, fd_set &set)
-{
-	FD_SET(i, &set);
-	if (i > _max_fd)
-		_max_fd = i;
-}
 
-void	WebServer::removeFromSet(const int i, fd_set &set)
-{
-	FD_CLR(i, &set);
-	if (i == _max_fd)
-		_max_fd--;
-}
+
+
+
+// //todo:: check add to settt
+// void	WebServer::addToSet(const int i, fd_set &set)
+// {
+// 	FD_SET(i, &set);
+// }
+
+// void	WebServer::removeFromSet(const int i, fd_set &set)
+// {
+// 	FD_CLR(i, &set);
+// }

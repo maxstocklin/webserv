@@ -48,8 +48,8 @@ class WebServer : public AServer
 		void	initializeSets();
 		void	addToSet(const int i, fd_set &set);
 		void	removeFromSet(const int i, fd_set &set);
-		void	acceptNewConnection(MasterSocket &serv);
-		bool	readRequest(long socket, MasterSocket &serv);
+		long	acceptNewConnection(MasterSocket &serv);
+		int		readRequest(long socket, MasterSocket &serv);
 
 		long	writeRequest(long socket, MasterSocket &serv);
 		void	closeConnection(const int i);
