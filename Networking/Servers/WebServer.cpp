@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 15:37:16 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/04 17:38:12 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,20 +163,33 @@ void	WebServer::launch()
 			for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)	// add every new socket that is ready to the writing set
 				FD_SET(*it, &writing_set);
 
-			// std::cout << "select max fd = " << _max_fd << std::endl;
-			// 			std::cout << "select max fd = " << _max_fd << std::endl;
-			// for (int i = 0; i <= _max_fd; i++) {
-			// 	if (FD_ISSET(i, &reading_set)) {
-			// 		std::cout << i << " ";
-			// 	}
-			// }
-			// std::cout << std::endl;
-			// for (int i = 0; i <= _max_fd; i++) {
-			// 	if (FD_ISSET(i, &writing_set)) {
-			// 		std::cout << i << " ";
-			// 	}
-			// }
-			// std::cout << std::endl;
+			std::cout << "select max fd = " << _max_fd << std::endl;
+
+			std::cout << "reading_set = ";
+			for (int i = 0; i <= _max_fd; i++) {
+				if (FD_ISSET(i, &reading_set)) {
+					std::cout << i << " ";
+				}
+			}
+			std::cout << "writing_set = ";
+			std::cout << std::endl;
+			for (int i = 0; i <= _max_fd; i++) {
+				if (FD_ISSET(i, &writing_set)) {
+					std::cout << i << " ";
+				}
+			}
+			std::cout << std::endl;
+			
+			for (int i = 0; i <= _max_fd; i++) {
+				if (FD_ISSET(i, &_fd_set)) {
+					std::cout << "Socket in _fd_set: " << i << std::endl;
+				}
+				else if (i > 500)
+				{
+					// shutdown(i, SHUT_WR);
+					close(i);
+				}
+			}
 
 			select_activity = select(_max_fd + 1, &reading_set, &writing_set, NULL, &timeout); //
 		}
@@ -198,9 +211,12 @@ void	WebServer::launch()
 						// closeConnection(socket);
 						FD_CLR(*it, &_fd_set);
 						FD_CLR(*it, &reading_set);
+						// shutdown(*it, SHUT_WR);
+						close(*it);
 						_sockets.erase(*it);
 						_ready.erase(it);
 					}
+					ret = 0;
 					break;
 				}
 			}
@@ -228,6 +244,8 @@ void	WebServer::launch()
 					{
 						FD_CLR(socket, &_fd_set);
 						FD_CLR(socket, &reading_set);
+						// shutdown(socket, SHUT_WR);
+						close(socket);
 						_sockets.erase(socket);
 						it = _sockets.begin();
 					}
@@ -237,6 +255,7 @@ void	WebServer::launch()
 					// 	it->second->handle(socket, env); // parsing
 					// 	_ready.push_back(socket); // add to ready set to write()
 					// }
+					readRet = 0;
 					break;
 				}
 			}
@@ -250,11 +269,27 @@ void	WebServer::launch()
 					long	socket = acceptNewConnection(it->second); // get new socket
 					if (socket != -1)
 					{
+						// if (socket > 1023)
+						// 	exit (0);
+						std::cout << "1 socket is " << socket << " && max fd is " << _max_fd << std::endl;
 						FD_SET(socket, &_fd_set);
+						std::cout << "2 socket is " << socket << " && max fd is " << _max_fd << std::endl;
 						_sockets.insert(std::make_pair(socket, &(it->second)));
 						if (socket > _max_fd)
+						{
 							_max_fd = socket;
+							std::cout << "NEW MAX FD CHANGED TO " << _max_fd << std::endl;
+						}
+						for (int i = 0; i <= _max_fd; i++)
+						{
+							if (FD_ISSET(i, &_fd_set))
+							{
+								std::cout << YELLOW << "Socket in _fd_set after ACCEPT: " << RESET << i << std::endl;
+							}
+						}
+
 					}
+					// select_activity = 0;
 					break;
 				}
 			}
@@ -272,16 +307,16 @@ void	WebServer::launch()
 			_sockets.clear();
 			_ready.clear();
 			FD_ZERO(&_fd_set);
-			for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
-				FD_SET(it->first, &_fd_set);
-
-			// _max_fd = 0;
 			// for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
-			// {
-			// 	addToSet(it->first, _fd_set);
-			// 	if (it->first > _max_fd)
-			// 		_max_fd = it->first;
-			// }
+			// 	FD_SET(it->first, &_fd_set);
+
+			_max_fd = 0;
+			for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
+			{
+				FD_SET(it->first, &_fd_set);
+				if (it->first > _max_fd)
+					_max_fd = it->first;
+			}
 		}
 	}
 }
@@ -301,7 +336,6 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 	// lower case the headers to find "content-length" and "Content-Length"
 	std::string lowerCaseHeaders = toLowerCase(headers);
 
-	// aaaaaa cout
 	// std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
 	// std::cout << "\n BODY :" << std::endl << "[\n" << YELLOW << body.substr(0, 1800) << RESET << "\n]" << std::endl;
 
@@ -322,11 +356,15 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 					return (true);
 				else if (body.size() > static_cast<size_t>(contentLength))
 				{
+					std::cout << "EXIT 1" << std::endl;
+					exit(0);
 					// TODO: ERROR CODE 400
 				}
 			}
 			catch (const std::exception &e)
 			{
+					std::cout << "EXIT 2" << std::endl;
+				exit(0);
 				// TODO: ERROR CODE 400
 				// TODO: if the file is too big, it's not an int --> crash
 				std::cerr << e.what() << '\n';
@@ -351,28 +389,11 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 }
 
 
-// /* Closes connection from fd i and remove associated client object from _clients_map */
-// void	WebServer::closeConnection(const int i)
-// {
-// 	if (FD_ISSET(i, &_fd_set))
-// 		removeFromSet(i, _fd_set);
-// 	if (FD_ISSET(i, &_fd_set))
-// 		removeFromSet(i, _fd_set);
-// 	close(i);
-// 	_sockets.erase(i);
-// }
-
-
-
-
-
 /**
  * Accept new incomming connection.
  * Create new Client object and add it to _client_map
  * Add client socket to _fd_set
 */
-
-// todo check cclaude
 long	WebServer::acceptNewConnection(MasterSocket &serv)
 {
 	struct sockaddr_in	address;
@@ -391,32 +412,5 @@ long	WebServer::acceptNewConnection(MasterSocket &serv)
 		std::cout << BLUE << BOLD << "New Connection, Assigned Socket " << new_socket << RESET << std::endl;
 	}
 	return (new_socket);
-	// serv._requests.insert(std::make_pair(new_socket, ""));
-
-	// addToSet(new_socket, _fd_set);
-	// _sockets.insert(std::make_pair(new_socket, &(serv))); // insert new socket to the map of new sockets
-
-	// if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
-	// {
-	// 	std::cerr << RED << BOLD << "webserv: fcntl error " << strerror(errno) <<  RESET << std::endl;
-	// 	removeFromSet(new_socket, _fd_set);
-	// 	close(new_socket);
-	// 	return ;
-	// }
 }
 
-
-
-
-
-
-// //todo:: check add to settt
-// void	WebServer::addToSet(const int i, fd_set &set)
-// {
-// 	FD_SET(i, &set);
-// }
-
-// void	WebServer::removeFromSet(const int i, fd_set &set)
-// {
-// 	FD_CLR(i, &set);
-// }
