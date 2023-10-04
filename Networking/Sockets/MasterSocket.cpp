@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MasterSocket.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 13:44:54 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/04 21:08:41 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 MasterSocket::MasterSocket(std::string serverBlock) : BindingSocket(serverBlock)
 {
-	backlog = 3; // find an other way
+	backlog = 10000; // find an other way
 	start_listening();
 	test_connection(listening);
 

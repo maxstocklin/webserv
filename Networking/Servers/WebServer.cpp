@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 17:38:12 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/04 21:10:23 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,9 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 	if (bytes_read == 0 || bytes_read == -1)
 	{
 		if (socket > 0)
+		{
 			close(socket);
+		}
 		serv._requests.erase(socket);
 
 		if (!bytes_read)
@@ -152,11 +154,11 @@ void	WebServer::launch()
 		fd_set			writing_set;
 		int				select_activity = 0;
 		struct timeval	timeout;
-
+		usleep(5000);
 		std::cout << "\r============= WAITING FOR NEXT CONNECT =============" << std::endl;
 		while (select_activity == 0)
 		{
-			timeout.tv_sec  = 1;
+			timeout.tv_sec  = 3;
 			timeout.tv_usec = 0;
 			ft_memcpy(&reading_set, &_fd_set, sizeof(_fd_set));
 			FD_ZERO(&writing_set);		// reset writing set
@@ -184,10 +186,11 @@ void	WebServer::launch()
 				if (FD_ISSET(i, &_fd_set)) {
 					std::cout << "Socket in _fd_set: " << i << std::endl;
 				}
-				else if (i > 500)
+				else if (i > 10)
 				{
 					// shutdown(i, SHUT_WR);
 					close(i);
+					_sockets.erase(i);
 				}
 			}
 
@@ -244,6 +247,7 @@ void	WebServer::launch()
 					{
 						FD_CLR(socket, &_fd_set);
 						FD_CLR(socket, &reading_set);
+						FD_CLR(socket, &writing_set);
 						// shutdown(socket, SHUT_WR);
 						close(socket);
 						_sockets.erase(socket);
