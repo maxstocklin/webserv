@@ -6,14 +6,11 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:50:35 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:29:10 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Response.hpp"
-
-// TODO GLOBAL: check if all errors are being handled (especially after read and write and access and stuff)
-
 
 int		pathIsFile(const std::string& path)
 {
@@ -189,7 +186,6 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 {
 	std::string pathToCheck;
 
-	// TODO: create an access function
 	if (access(fullLocalPath.c_str(), F_OK) != 0)
 	{
 		if (errno == ENOENT)
@@ -247,7 +243,6 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 	else
 	{
 		std::string mimeType = getMimeType(fullLocalPath);
-		std::cout << RED << "mimeType " << mimeType  << "\nfullLocalPath " << fullLocalPath << RESET << std::endl;
 		
 		if (mimeType == "what the fuck")
 		{
@@ -282,7 +277,7 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 
 	_errorMap = requestConf.get_error_pages();
 	_isAutoIndex = target_location.autoindex;
-	_hostPort.host = requestConf.get_host_int();	// todo: right now, get_host_int() always returns 0
+	_hostPort.host = requestConf.get_host_int();
 	_hostPort.port = requestConf.get_port();
 	_path = requestConf.get_rootLocation().root;
 	
@@ -292,11 +287,8 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 	{
 		ResponseHeader	head;
 		_response = this->readHtml(_errorMap[_code]);
-		// TODO: requestConf.getLang() is replaced by "", we won't handle this, so remove all occurrence
 		head.setContentLength(_response.size());
-		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, "", _response.size()) + "\r\n" + _response;
-		// std::cout << RED << "BODY = " << _response << RESET << std::endl;
-
+		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, _response.size()) + "\r\n" + _response;
 		return ;
 	}
 
@@ -308,10 +300,10 @@ void			Response::call(Request &request, MasterSocket &requestConf)
 	if (_code == 501)
 	{
 		ResponseHeader	head;
-		_mimeType = "text/html"; // todo: check for every time _type is set and replacew with mimetype
+		_mimeType = "text/html";
 		_response = this->readHtml(_errorMap[_code]);
 		head.setContentLength(_response.size());
-		_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
+		_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath()) + "\r\n" + _response;
 
 		return ;
 	}
@@ -331,7 +323,6 @@ void	Response::htmlResponder()
 	int op = 0;
 	ssize_t readbytes = 1;
 
-	// todo: BUFFER_SIZE define
 	char buffer[10000]; // consider using a dynamic approach or a larger buffer
 
 	op = open(_usePath.c_str(), O_RDONLY);
@@ -434,7 +425,7 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 			if (str.find("Status: ") == 0)
 				_code = std::atoi(str.substr(8, 3).c_str());
 			else if (str.find("Content-type: ") == 0)
-				_type = str.substr(14, str.size());
+				_mimeType = str.substr(14, str.size());
 			i += str.size() + 2;
 		}
 		while (_response.find("\r\n", j) == j)
@@ -444,7 +435,7 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 	}
 	else if (isFile(_usePath))
 		htmlResponder();
-	else if  (_code == 200)	// lsResponder(handler, _usePath);
+	else if  (_code == 200)
 	{
 		std::stringstream	buffer;
 		buffer << AutoIndexGenerator::getPage(_usePath.c_str(), to_string(_hostPort.host), _hostPort.port, request.getPath());
@@ -453,7 +444,9 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 	}
 	else
 	{
-		_mimeType = "text/html"; // todo: check for every time _type is set and replacew with mimetype
+		std::cout << "\n\n ************* ERROR WITH CODE = " << _code << std::endl;
+		std::cout << "fullLocalPath = " << fullLocalPath << std::endl;
+		_mimeType = "text/html";
 		_response = this->readHtml(_errorMap[_code]);
 	}
 	if (_response.size() > 5000000)
@@ -464,7 +457,7 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 		_mimeType = "text/html";
 		_response = this->readHtml(_errorMap[_code]);
 	}
-	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
+	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath()) + "\r\n" + _response;
 }
 
 std::string handlePostResponse(std::string phpResponse)
@@ -526,7 +519,7 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 			if (str.find("Status: ") == 0)
 				_code = std::atoi(str.substr(8, 3).c_str());
 			else if (str.find("Content-Type: ") == 0)
-				_type = str.substr(14, str.size());
+				_mimeType = str.substr(14, str.size());
 				i += str.size() + 2;
 		}
 		while (_response.find("\r\n", j) == j)
@@ -544,7 +537,7 @@ void			Response::postHandler(Request & request, MasterSocket & requestConf)
 		_response = this->readHtml(_errorMap[_code]);
 	_response = handlePostResponse(_response);
 
-	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath(), "") + "\r\n" + _response;
+	_response = head.getHeader(_response.size(), _path, _code, _mimeType, request.getPath()) + "\r\n" + _response;
 }
 
 std::string handleDeleteResponse(std::string path)
@@ -592,7 +585,7 @@ void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
 		_code = 404;
 	if (_code == 403 || _code == 404)
 		_response = this->readHtml(_errorMap[_code]);
-	_response = head.getHeader(_response.size(), fullLocalPath, _code, _type, request.getPath(), "") + "\r\n" + _response;
+	_response = head.getHeader(_response.size(), fullLocalPath, _code, _mimeType, request.getPath()) + "\r\n" + _response;
 }
 
 
@@ -616,7 +609,7 @@ std::string		Response::readHtml(const std::string& path)
 
 		buffer << file.rdbuf();
 		file.close();
-		_type = "text/html";
+		_mimeType = "text/html";
 
 		return (buffer.str());
 	}

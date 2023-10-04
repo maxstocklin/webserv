@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:40:14 by max              ###   ########.fr       */
+/*   Updated: 2023/10/04 00:15:41 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,22 +57,17 @@ bool	WebServer::readRequest(long socket, MasterSocket &serv)
 	{
 		std::cout << YELLOW << BOLD << "webserv: Client " << socket << " Closed Connection" << RESET << std::endl;
 		closeConnection(socket);
-		// _sockets.erase(socket);
 		return (false);
 	}
 	else if (bytes_read < 0)
 	{
 		std::cout << RED << BOLD << "webserv: Client " << socket << " read error " << strerror(errno) << RESET << std::endl;
 		closeConnection(socket);
-		// _sockets.erase(socket);
 		return (false);
 	}
 	else if (bytes_read != 0)
 	{
 		serv._requests[socket].append(buffer, bytes_read);
-
-		// c.updateTime();
-		// _requests[socket].append(buffer, bytes_read);
 	}
 	return (requestCompletelyReceived(serv._requests[socket]));
 }
@@ -143,6 +138,20 @@ void	WebServer::launch()
 			for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)	// add every new socket that is ready to the writing set
 				FD_SET(*it, &writing_set);
 
+			std::cout << "select max fd = " << _max_fd << std::endl;
+						std::cout << "select max fd = " << _max_fd << std::endl;
+			for (int i = 0; i <= _max_fd; i++) {
+				if (FD_ISSET(i, &reading_set)) {
+					std::cout << i << " ";
+				}
+			}
+			std::cout << std::endl;
+			for (int i = 0; i <= _max_fd; i++) {
+				if (FD_ISSET(i, &writing_set)) {
+					std::cout << i << " ";
+				}
+			}
+			std::cout << std::endl;
 
 			select_activity = select(_max_fd + 1, &reading_set, &writing_set, NULL, &timeout); //
 		}
@@ -186,12 +195,8 @@ void	WebServer::launch()
 					
 					if (readRequest(socket, *it->second)) // returns true if the http request is fully received 
 					{
-						// std::cout << "request before: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
-						if (socket % 2)
-							sleep(2);
-						it->second->handle(socket, env); // parsing / todo1
+						it->second->handle(socket, env); // parsing
 						_ready.push_back(socket); // add to ready set to write()
-						// std::cout << "RESPONSE: \n" << YELLOW << it->second->_requests[it->first] << RESET << std::endl;
 					}
 					break;
 				}
@@ -208,10 +213,28 @@ void	WebServer::launch()
 				}
 			}
 		}
-		// todo: add error check with timeouts and select = -1
-
+		else
+		{
+			perror("select");  
+			std::cerr << RED << "ERROR: select returned = " << select_activity << RESET << std::endl;
+			for (std::map<long, MasterSocket *>::iterator it = _sockets.begin() ; it != _sockets.end() ; it++)
+			{
+				if (it->first > 0)
+					close(it->first);
+				it->second->_requests.erase(it->first);
+			}
+			_sockets.clear();
+			_ready.clear();
+			FD_ZERO(&_fd_set);
+			_max_fd = 0;
+			for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
+			{
+				addToSet(it->first, _fd_set);
+				if (it->first > _max_fd)
+					_max_fd = it->first;
+			}
+		}
 	}
-
 }
 
 bool WebServer::requestCompletelyReceived(std::string completeData)
@@ -230,7 +253,7 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 	std::string lowerCaseHeaders = toLowerCase(headers);
 
 	// aaaaaa cout
-	std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
+	// std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
 	// std::cout << "\n BODY :" << std::endl << "[\n" << YELLOW << body.substr(0, 1800) << RESET << "\n]" << std::endl;
 
 	size_t contentLengthPos = lowerCaseHeaders.find("\r\ncontent-length:");
@@ -250,12 +273,13 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 					return (true);
 				else if (body.size() > static_cast<size_t>(contentLength))
 				{
-					// todo: set error code, body size is too big
+					// TODO: ERROR CODE 400
 				}
 			}
 			catch (const std::exception &e)
 			{
-				// TODO: ERROR CODE?
+				// TODO: ERROR CODE 400
+				// TODO: if the file is too big, it's not an int --> crash
 				std::cerr << e.what() << '\n';
 				throw std::runtime_error("Error with content-length --> not an int" + lengthStr);
 				return (false);
@@ -269,11 +293,11 @@ bool WebServer::requestCompletelyReceived(std::string completeData)
 			return (true);
 	}
 
-	// No body, just headers
+	// No body to receive, just headers
 	if (contentLengthPos == std::string::npos && lowerCaseHeaders.find("transfer-encoding:") == std::string::npos)
 		return (true);
 
-	// No complete body yet
+	// Body not completely received
 	return (false);
 }
 

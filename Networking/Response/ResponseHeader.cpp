@@ -6,18 +6,18 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:51:52 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:01:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/ResponseHeader.hpp"
 
-std::string		ResponseHeader::getHeader(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation, const std::string& lang)
+std::string		ResponseHeader::getHeader(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation)
 {
 	std::string	header;
 
 	resetValues();
-	setValues(size, path, code, type, contentLocation, lang);
+	setValues(size, path, code, type, contentLocation);
 
 	header = "HTTP/1.1 " + to_string(code) + " " + getStatusMessage(code) + "\r\n";
 	header += writeHeader();
@@ -25,12 +25,12 @@ std::string		ResponseHeader::getHeader(size_t size, const std::string& path, int
 	return (header);
 }
 
-std::string		ResponseHeader::notAllowed(std::vector<std::string> methods, const std::string& path, int code, const std::string& lang, size_t size)
+std::string		ResponseHeader::notAllowed(std::vector<std::string> methods, const std::string& path, int code, size_t size)
 {
 	std::string	header;
 
 	resetValues();
-	setValues(size, path, code, "text/html", path, lang);
+	setValues(size, path, code, "text/html", path);
 	setAllow(methods);
 
 	if (code == 405)
@@ -49,8 +49,6 @@ std::string		ResponseHeader::writeHeader(void)
 
 	if (_allow != "")
 		header += "Allow: " + _allow + "\r\n";
-	// if (_contentLanguage != "")
-	// 	header += "Content-Language: " + _contentLanguage + "\r\n";
 	if (_contentLength != "")
 		header += "Content-Length: " + _contentLength + "\r\n";
 	if (_contentLocation != "")
@@ -97,10 +95,9 @@ void			ResponseHeader::initErrorMap()
 	_errors[500] = "Internal Server Error";
 }
 
-void			ResponseHeader::setValues(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation, const std::string& lang)
+void			ResponseHeader::setValues(size_t size, const std::string& path, int code, std::string type, const std::string& contentLocation)
 {
 	setAllow();
-	setContentLanguage(lang);
 	setContentLength(size);
 	setContentLocation(contentLocation, code);
 	setContentType(type, path);
@@ -116,7 +113,6 @@ void			ResponseHeader::setValues(size_t size, const std::string& path, int code,
 void			ResponseHeader::resetValues(void)
 {
 	_allow = "";
-	_contentLanguage = "";
 	_contentLength = "";
 	_contentLocation = "";
 	_contentType = "";
@@ -150,10 +146,6 @@ void			ResponseHeader::setAllow(const std::string& allow)
 	_allow = allow;
 }
 
-void			ResponseHeader::setContentLanguage(const std::string& lang)
-{
-	_contentLanguage = lang;
-}
 
 void			ResponseHeader::setContentLength(size_t size)
 {

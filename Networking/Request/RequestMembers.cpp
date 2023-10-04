@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:18:10 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:45:18 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:27:42 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,9 @@ void				Request::resetHeaders()
 	this->_headers.clear();
 
 	this->_headers["Accept-Charsets"] = "";
-	this->_headers["Accept-Language"] = "";
 	this->_headers["Allow"] = "";
 	this->_headers["Auth-Scheme"] = "";
 	this->_headers["Authorization"] = "";
-	this->_headers["Content-Language"] = "";
 	this->_headers["Content-Length"] = "";
 	this->_headers["Content-Location"] = "";
 	this->_headers["Content-Type"] = "";
@@ -75,10 +73,10 @@ int					Request::readFirstLine(const std::string& str)
 		return 400;
 	}
 	this->_method.assign(line, 0, i);
+	to_upper(this->_method);
 	return this->readPath(line, i);
 }
 
-// TODO: UTILS
 std::string decodeSpaces(const std::string& input)
 {
     std::string result;
@@ -115,7 +113,6 @@ int					Request::readPath(const std::string& line, size_t i)
 		return 400;
 	}
 	this->_path.assign(line, j, i - j);
-	std::cout << BLUE << "\nPATH = " << _path << RESET << std::endl;
 	_path = decodeSpaces(_path);
 	return this->readVersion(line, i);
 }
@@ -195,13 +192,12 @@ int					Request::parse(const std::string& str)
 		value = readValue(line); // get 'Value' as received
 		if (this->_headers.count(key)) // check in the headers map if there is such data a key and set it
 				this->_headers[key] = value;
-		// TODO1: case insensivity
-		if (key.find("Secret") != std::string::npos)
+
+		if (key.find("secret") != std::string::npos)
 			this->_env_for_cgi[formatHeaderForCGI(key)] = value; // create a new map element, with <HTTP_ + KEY, value>
 	}
-	if (this->_headers["Www-Authenticate"] != "")
-		this->_env_for_cgi["Www-Authenticate"] = this->_headers["Www-Authenticate"];
-	// this->setLang(); // REMOVED
+	if (this->_headers["www-authenticate"] != "")
+		this->_env_for_cgi["www-authenticate"] = this->_headers["www-authenticate"];
 
 	// set the _body attribute and trim the tailing \r\n chars
 	this->setBody(str.substr(i, std::string::npos));
@@ -210,39 +206,6 @@ int					Request::parse(const std::string& str)
 	return this->_ret;
 }
 
-/*
-**	"Cet en-tête est une indication destinée à être utilisée lorsque le serveur
-**	n'a aucun moyen de déterminer la langue d'une autre manière, comme une URL
-**	spécifique, qui est contrôlée par une décision explicite de l'utilisateur.
-**	Il est recommandé que le serveur ne passe jamais outre une décision explicite."
-*/
-
-void				Request::setLang() // USELESS
-{
-	std::vector<std::string>	token;
-	std::string					header;
-	size_t						i;
-
-	if ((header = this->_headers["Accept-Language"]) != "")
-	{
-		token = split(header, ',');
-		for (std::vector<std::string>::iterator it = token.begin(); it != token.end(); it++)
-		{
-			float			weight = 0.0;
-			std::string		lang;
-
-			lang = (*it).substr(0, (*it).find_first_of('-'));
-			strip(lang, ' ');
-			if ( (i = lang.find_last_of(';') ) != std::string::npos)
-			{
-				weight = atof( (*it).substr(i + 4).c_str() );
-			}
-			lang.resize(i > 2 ? 2 : i);
-			this->_lang.push_back(std::pair<std::string, float>(lang, weight));
-		}
-		this->_lang.sort(compare_langs);
-	}
-}
 
 void				Request::stripAll()
 {

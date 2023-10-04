@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 20:16:07 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:49:22 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:28:47 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,12 +265,6 @@ std::string						readValue(const std::string& line)
 	if (i != std::string::npos)
 		ret.append(line, i, std::string::npos);
 	return (strip(ret, ' ')); // trim leading and tailing spaces
-}
-
-
-bool compare_langs(const std::pair<std::string, float> first, const std::pair<std::string, float> second)
-{
-  return ( first.second > second.second );
 }
 
 std::string&					to_upper(std::string& str)

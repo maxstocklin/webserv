@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:50:37 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:42:25 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:29:05 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,13 @@ std::vector<std::string>	Request::methods = Request::initMethods();
 
 // constructor
 // receives the entire fetched http request string
-Request::Request(const std::string& str) :
-	_method (""), _version(""), _ret(200), _body(""), _port(80), _path(""), _query(""), _raw(str)
+Request::Request(const std::string& str) : _method (""), _version(""), _ret(200), _body(""), _port(80), _path(""), _query(""), _raw(str)
 {
 	this->resetHeaders();
 	this->_env_for_cgi.clear();
 	this->parse(str);
 	if (this->_ret != 200)
 		std::cerr << RED << "Parse error : " << this->_ret << RESET << std::endl;
-	
 }
 
 Request::~Request()
@@ -107,11 +105,6 @@ const std::string&			Request::getQuery() const
 const std::string&			Request::getRaw() const
 {
 	return this->_raw;
-}
-
-const std::list<std::pair<std::string, float> >&	Request::getLang() const
-{
-	return this->_lang;
 }
 
 

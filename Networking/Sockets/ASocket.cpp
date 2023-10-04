@@ -16,7 +16,6 @@ ASocket::ASocket(std::string serverBlock)
 {
 	config = new ServerConfig(serverBlock);
 	
-	// TODO: CREATE A NEW FUNCTION FOR SET UP
 	// define address structure
 	address.sin_family = get_domain();
 	address.sin_port = htons(get_port());

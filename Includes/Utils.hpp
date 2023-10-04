@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:49:17 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:29:14 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ std::string					toLowerCase(const std::string& input);
 void						*ft_memcpy(void *dst, const void *src, size_t n);
 std::string					&pop(std::string& str);
 std::string					&to_upper(std::string& str);
-bool 						compare_langs(const std::pair<std::string, float> first, const std::pair<std::string, float> second);
 std::string						readValue(const std::string& line);
 int								ft_atoi(const char *str);
 void							ft_skip_spacenl(const char *str, int *i);

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 13:47:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:41:41 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:08:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,17 @@ ServerConfig::ServerConfig(std::string serverBlock)
 	server_name = "localhost";
 	client_max_body_size = 1 * 1024 * 1024;
 
-	// TODO: check that error pages are .html files
 	// Set other error pages, now they don't exist
-	error_pages[0] = "./error_pages/default_error.html";
+	error_pages[201] = "./error_pages/201.html";
+	error_pages[204] = "./error_pages/204.html";
+	error_pages[400] = "./error_pages/400.html";
+	error_pages[403] = "./error_pages/403.html";
+	error_pages[404] = "./error_pages/404.html";
+	error_pages[405] = "./error_pages/405.html";
+	error_pages[408] = "./error_pages/408.html";
+	error_pages[413] = "./error_pages/413.html";
+	error_pages[500] = "./error_pages/500.html";
+	error_pages[501] = "./error_pages/501.html";
 
 	// Default methods
 	rootLocation.allow_methods.push_back("GET");
@@ -428,8 +436,6 @@ std::string ServerConfig::extractIndex(std::string line, std::string path)
 	// std::cout << "access = " << checkAccess << "PATH = " << path << " index = " << index << std::endl;
 	if (access(checkAccess.c_str(), F_OK) != 0)  // Check if file exists --> 404 error
 		throw std::runtime_error("Specified index file does not exist: " + checkAccess);
-
-	// TODO: Do we keep only the index file's name, or its path as well with --> return (checkAccess);
 	return (index);
 }
 
@@ -516,8 +522,6 @@ void ServerConfig::extractError_page(std::string line)
 
 		int errorCode = std::atoi(errorCodeStr.c_str());
 
-		// TODO: Validate error codes based on the ones we support
-		// TODO: create the error pages
 		if (errorCode != 400 && errorCode != 403 && errorCode != 404 \
 			&& errorCode != 405 && errorCode != 408 && errorCode != 410 && errorCode != 413 && errorCode != 500 && errorCode != 501) 
 			throw std::runtime_error("Unsupported error code in error_page directive: " + errorCodeStr);

@@ -46,14 +46,7 @@
 
 			const std::string					&get_path() const;
 			void								set_path(std::string path);
-			// todo: put in private
-			std::map<long, std::string>	_requests;					// at first, this map is the request, after the parsing, it's the response
-
-
-			std::string							getCgiPass();
-			std::map<std::string, std::string>	getCgiParam();
-
-
+			std::map<long, std::string>			_requests;					// at first, this map is the request, after the parsing, it's the response
 
 		private:
 			int							backlog;					// hardcoded

@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:39:42 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 22:58:09 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,6 @@ void MasterSocket::parseChunks(long socket)
 {
 	size_t headersEndPos = _requests[socket].find("\r\n\r\n");
 
-	if (headersEndPos == std::string::npos)
-	{
-		// TODO: error code: the final request received is incorrect
-	}
-
 	std::string headers = _requests[socket].substr(0, headersEndPos);
 	std::string lowerCaseHeaders = toLowerCase(headers);
 	std::string body = _requests[socket].substr(headersEndPos + 4);  // +4 to skip "\r\n\r\n"
@@ -82,12 +77,6 @@ void MasterSocket::parseChunks(long socket)
 		}
 		_requests[socket] = headers + "\r\n\r\n" + _bodyString + "\r\n\r\n";
 	}
-
-	// TODO: ERROR CHECK
-	// if (_bodyString.length() > _server.get_client_max_body_size())
-	// {
-	// 	set_response_status_code(413);
-	// }
 }
 
 // at this point, the entire request was fetched, and is not parsed
@@ -95,10 +84,6 @@ void MasterSocket::parseChunks(long socket)
 void		MasterSocket::handle(long socket, char **env)
 {
 	Response		response(env);
-
-	// it->second->makeFullLocalPath(server);	--> done
-	// it->second->getPathResponse(server, new_socket);
-	// it->second->parseRequest(socket, env); // socket is used to fetch the right _requests
 
 	if (_requests[socket].find("Transfer-Encoding: chunked") != std::string::npos &&
 		_requests[socket].find("Transfer-Encoding: chunked") < _requests[socket].find("\r\n\r\n"))
@@ -117,9 +102,9 @@ void		MasterSocket::handle(long socket, char **env)
 		Request			request(_requests[socket]);
 
 		if (request.getRet() != 200)
-			request.setMethod("GET");	// TODO: find why, probably to avoid some unecessary parsing of the body
+			request.setMethod("GET");
 
-		response.call(request, *this); // todo: send *this instead of requestConf
+		response.call(request, *this);
 
 		// remove the fetched http request string
 		_requests.erase(socket);
@@ -127,7 +112,6 @@ void		MasterSocket::handle(long socket, char **env)
 		_requests.insert(std::make_pair(socket, response.getResponse()));
 	}
 }
-
 
 const std::string	&MasterSocket::get_path() const
 {
@@ -138,19 +122,3 @@ void	MasterSocket::set_path(std::string path)
 {
 	this->fullLocalPath = path;
 }
-
-
-
-// TODO: FIND OUT WHAT TODO, now it's just empty strings
-std::string	MasterSocket::getCgiPass()
-{
-	return "";
-}
-
-std::map<std::string, std::string>	MasterSocket::getCgiParam()
-{
-	std::map<std::string, std::string> yolo;
-	return (yolo);
-
-}
-

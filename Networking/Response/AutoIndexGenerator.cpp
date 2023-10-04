@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:08 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:48:46 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:02:21 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,6 @@ std::string	AutoIndexGenerator::getLink(std::string const &dirEntry, std::string
 	{
 		basicUri += "/";
 	}
-	// TODO: not hardcode host;
 	std::string betterHost = "127.0.0.1";
 	(void)host;
 	ss << "\t\t\t\t\t<li><a href=\"http://" + betterHost + ":" <<\

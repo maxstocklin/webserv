@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:51:09 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:42:50 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 23:27:24 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ class Request
 			int											_port;
 			std::string									_path;
 			std::string									_query;
-			std::list<std::pair<std::string, float> >	_lang;
 			const std::string&							_raw;
 
 			/*** PARSING ***/
@@ -75,7 +74,6 @@ class Request
 			void		findQuery();
 			std::string formatHeaderForCGI(std::string& key);
 			std::string	nextLine(const std::string &str, size_t& i);
-			void		setLang();
 
 
 			/*** AVAILABLE HTTP METHODS ***/
@@ -101,7 +99,6 @@ class Request
 			const std::string&									getPath() const;
 			const std::string&									getQuery() const;
 			const std::string&									getRaw() const;
-			const std::list<std::pair<std::string, float> >&	getLang() const;
 
 			/*** SETTERS **/
 			void	setBody(const std::string& line);

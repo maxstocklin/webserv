@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:46 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:50:49 by max              ###   ########.fr       */
+/*   Updated: 2023/10/03 22:46:59 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,6 @@ private:
 	std::string					_response;
 	std::string					_path;
 	int							_code;
-	std::string					_type;
 	bool						_isAutoIndex;
 	t_listen					_hostPort;
 	std::map<int, std::string>	_errorMap;
