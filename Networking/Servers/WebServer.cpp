@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/05 00:36:45 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 22:25:41 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ WebServer::~WebServer()
 	
 }
 
-
 void	WebServer::initializeSets()
 {
 	FD_ZERO(&_fd_set);
@@ -32,7 +31,6 @@ void	WebServer::initializeSets()
 	for(std::vector<MasterSocket>::iterator it = sockets.begin(); it != sockets.end(); ++it)
 	{
 		FD_SET(it->get_sock(), &_fd_set);
-		// addToSet(it->get_sock(), _fd_set);
 		_servers.insert(std::make_pair(it->get_sock(), *it));
 		if (it->get_sock() > _max_fd)
 			_max_fd = it->get_sock();
@@ -43,7 +41,6 @@ void	WebServer::initializeSets()
 		throw std::runtime_error("Could not setup server!");
 	}
 }
-
 
 int	WebServer::readRequest(long socket, MasterSocket &serv)
 {
@@ -63,9 +60,9 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 		serv._requests.erase(socket);
 
 		if (!bytes_read)
-			std::cout << YELLOW << BOLD << "webserv: Client " << socket << " Closed Connection" << RESET << std::endl;
+			std::cout << YELLOW << BOLD << "Client " << socket << " closed connection" << RESET << std::endl;
 		else
-			std::cerr << RED << BOLD << "webserv: Client " << socket << " read error " << strerror(errno) << RESET << std::endl; // todo: erno after read??
+			std::cerr << RED << BOLD << "ERROR: Client " << socket << " read returned -1." << RESET << std::endl; // todo: erno after read??
 		return (-1);
 	}
 
@@ -80,7 +77,6 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 		return 1;
 }
 
-
 long	WebServer::writeRequest(long socket, MasterSocket &serv)
 {
 	static std::map<long, size_t>	sent;
@@ -88,26 +84,16 @@ long	WebServer::writeRequest(long socket, MasterSocket &serv)
 	if (sent.find(socket) == sent.end()) // check if something was already sent
 		sent[socket] = 0;
 
-	if (PRINT == 12 && sent[socket] == 0) // print the response if nothing was already sent in chunk
-	{
-		if (serv._requests[socket].size() < 1000)
-			std::cout << "\rResponse :                " << std::endl << "[" << GREEN << serv._requests[socket] << RESET << "]\n" << std::endl;
-		else
-			std::cout << "\rResponse :                " << std::endl << "[" << GREEN << serv._requests[socket].substr(0, 1000) << "..." << serv._requests[socket].substr(serv._requests[socket].size() - 10, 15) << RESET << "]\n" << std::endl;
-	}
-
-	// send data by chunks of size RECV_SIZE = 30000
-	std::string	str = serv._requests[socket].substr(sent[socket], 30000); // create a string from what was already sent (if any --> sent[socket] != 0) until either the end of the response of max RECV_SIZE size
+	std::string	str = serv._requests[socket].substr(sent[socket], 30000); // create a string from what was already sent (if any --> sent[socket] != 0) until either the end of the response of max 30000 size
 	int	ret = write(socket, str.c_str(), str.size()); // write the string
-
 	if (ret == -1) // if an error occured with write()
 	{
-		// closeConnection(socket);
 		if (socket > 0)
+		{
 			close(socket);
+		}
 
 		serv._requests.erase(socket);
-		// this->close(socket); // close the new socket
 		sent[socket] = 0;
 		return (-1);
 	}
@@ -134,15 +120,15 @@ void	WebServer::launch()
 {
 	initializeSets();
 
+	signal(SIGPIPE, SIG_IGN);
+
 	while (42)
 	{
 		fd_set			reading_set;
 		fd_set			writing_set;
 		int				select_activity = 0;
 		struct timeval	timeout;
-		// usleep(5000);
 
-		std::cout << "\r============= WAITING FOR NEXT CONNECT =============" << std::endl;
 		while (select_activity == 0)
 		{
 			timeout.tv_sec  = 3;
@@ -152,23 +138,6 @@ void	WebServer::launch()
 			for (std::vector<int>::iterator it = _ready.begin() ; it != _ready.end() ; it++)	// add every new socket that is ready to the writing set
 				FD_SET(*it, &writing_set);
 
-			// std::cout << "select max fd = " << _max_fd << std::endl;
-
-			// std::cout << "reading_set = ";
-			// for (int i = 0; i <= _max_fd; i++) {
-			// 	if (FD_ISSET(i, &reading_set)) {
-			// 		std::cout << i << " ";
-			// 	}
-			// }
-			// std::cout << "writing_set = ";
-			// std::cout << std::endl;
-			// for (int i = 0; i <= _max_fd; i++) {
-			// 	if (FD_ISSET(i, &writing_set)) {
-			// 		std::cout << i << " ";
-			// 	}
-			// }
-			// std::cout << std::endl;
-			
 			long maxtmp = 0;
 			for (int i = 0; i <= _max_fd; i++)
 			{
@@ -179,7 +148,6 @@ void	WebServer::launch()
 				}
 				else if (i > 10)
 				{
-					// shutdown(i, SHUT_WR);
 					close(i);
 					_sockets.erase(i);
 				}
@@ -200,7 +168,7 @@ void	WebServer::launch()
 
 					if (ret == 0) // if the response was entirely written()
 					{
-
+						std::cout << GREEN << "\r============= HTTP RESPONSE SENT =============" << RESET << std::endl;
 						_ready.erase(it); // erase the socket from the ready set
 						
 						// Check if we should close the connection
@@ -214,21 +182,19 @@ void	WebServer::launch()
 					}
 					else if (ret == -1)	// if there was an error with write()
 					{
-						// closeConnection(socket);
 						FD_CLR(*it, &_fd_set);
 						FD_CLR(*it, &reading_set);
-						// shutdown(*it, SHUT_WR);
+						
 						close(*it);
 						_sockets.erase(*it);
 						_ready.erase(it);
 					}
-					ret = 0;
 					break;
 				}
 			}
 
-			if (select_activity)
-				std::cout << "\rReceived a connection !   " << std::endl; //   flush replaces what has been written on the last std_out
+			// if (select_activity)
+			// 	std::cout << "\rReceived a connection !   " << std::endl; //   flush replaces what has been written on the last std_out
 
 
 			// check read 
@@ -243,6 +209,7 @@ void	WebServer::launch()
 					long	readRet = readRequest(socket, *it->second);
 					if (readRet == 0)
 					{
+						std::cout << GREEN << "\r============= HTTP REQUEST RECEIVED =============" << RESET << std::endl;
 						it->second->handle(socket, env); // parsing
 						_ready.push_back(socket); // add to ready set to write()
 					}
@@ -251,18 +218,11 @@ void	WebServer::launch()
 						FD_CLR(socket, &_fd_set);
 						FD_CLR(socket, &reading_set);
 						FD_CLR(socket, &writing_set);
-						// shutdown(socket, SHUT_WR);
-						close(socket);
+						
+						close(socket);	// closing twice
 						_sockets.erase(socket);
 						it = _sockets.begin();
 					}
-
-					// if (readRequest(socket, *it->second)) // returns true if the http request is fully received 
-					// {
-					// 	it->second->handle(socket, env); // parsing
-					// 	_ready.push_back(socket); // add to ready set to write()
-					// }
-					readRet = 0;
 					break;
 				}
 			}
@@ -281,25 +241,15 @@ void	WebServer::launch()
 						if (socket > _max_fd)
 						{
 							_max_fd = socket;
-							// std::cout << "NEW MAX FD CHANGED TO " << _max_fd << std::endl;
 						}
-						// for (int i = 0; i <= _max_fd; i++)
-						// {
-						// 	if (FD_ISSET(i, &_fd_set))
-						// 	{
-						// 		std::cout << YELLOW << "Socket in _fd_set after ACCEPT: " << RESET << i << std::endl;
-						// 	}
-						// }
 
 					}
-					// select_activity = 0;
 					break;
 				}
 			}
 		}
 		else
 		{
-			perror("select");  
 			std::cerr << RED << "ERROR: select returned = " << select_activity << RESET << std::endl;
 			for (std::map<long, MasterSocket *>::iterator it = _sockets.begin() ; it != _sockets.end() ; it++)
 			{
@@ -310,8 +260,6 @@ void	WebServer::launch()
 			_sockets.clear();
 			_ready.clear();
 			FD_ZERO(&_fd_set);
-			// for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)
-			// 	FD_SET(it->first, &_fd_set);
 
 			_max_fd = 0;
 			for (std::map<long, MasterSocket>::iterator it = _servers.begin() ; it != _servers.end() ; it++)

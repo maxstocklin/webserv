@@ -56,13 +56,11 @@ class WebServer : public AServer
 		bool	requestCompletelyReceived(std::string completeData, MasterSocket &serv, long socket);
 
 	private:
-		// std::string	completeData; --> moved to client
 		int			new_socket;
 		char		**env;
 
 
 		WebServer();
-		// Handler handler;
 
 };
 

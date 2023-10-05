@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MasterSocket.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/05 01:01:23 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 22:23:04 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,9 @@ void		MasterSocket::handle(long socket, char **env)
 		else
 			std::cout << "\nRequest :" << std::endl << "[" << YELLOW << _requests[socket].substr(0, 1000) << "..." << _requests[socket].substr(_requests[socket].size() - 10, 15) << RESET << "]" << std::endl;
 	}
-
 	if (_requests[socket] != "")
 	{
 		Request			request(_requests[socket]);
-
 		if (request.getRet() != 200)
 			request.setMethod("GET");
 		if (_requests[socket] == "400")

@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 20:17:44 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:18:42 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,6 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 
         dup2(pipeOut[1], STDOUT_FILENO);
 		close(pipeOut[1]);
-
 
 		execve(scriptName.c_str(), argv, env);
 

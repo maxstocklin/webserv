@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 20:12:20 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/05 22:22:55 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,10 @@ void	Response::makeFullLocalPath(MasterSocket *master_socket, const std::string 
 	{
 		basePath = "/";
 	}
-
 	bool found_loc = false;
 	for (unsigned long i = 0;  i < locationVector.size(); i++)
 	{
-		if (!locationVector[i].route.compare("/" + basePath))
+		if (!locationVector[i].route.compare("/" + basePath) && basePath != "/")
 		{
 			found_loc = true;
 			target_location = locationVector[i];
