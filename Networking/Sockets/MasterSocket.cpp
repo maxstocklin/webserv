@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   MasterSocket.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:54:48 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 22:59:08 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/05 01:01:23 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,9 @@ void		MasterSocket::handle(long socket, char **env)
 
 		if (request.getRet() != 200)
 			request.setMethod("GET");
-
+		if (_requests[socket] == "400")
+			request.setRet(400);
 		response.call(request, *this, _keepAlive[socket]);
-
 		// remove the fetched http request string
 		_requests.erase(socket);
 		// Replace it with the complete http response string

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:50:37 by max               #+#    #+#             */
-/*   Updated: 2023/10/04 21:34:16 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/05 00:50:23 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ Request::Request(const std::string& str) : _method (""), _version(""), _ret(200)
 	this->resetHeaders();
 	this->_env_for_cgi.clear();
 	this->parse(str);
-	if (this->_ret != 200)
+	if (this->_ret != 200 && str != "400")
 		std::cerr << RED << "Parse error : " << this->_ret << RESET << std::endl;
 }
 

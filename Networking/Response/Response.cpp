@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/04 22:59:35 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/05 02:15:36 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,42 +263,41 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 
 // Member functions
 
-void			Response::call(Request & request, MasterSocket &requestConf, bool keepAlive)
+void			Response::call(Request &request, MasterSocket &requestConf, bool keepAlive)
 {
 	Location	target_location;
 
 	_code = request.getRet();
-
 	// here, target_location is the right location block
 	// private attribute "fullLocalPath" is the correct physical root in my computer
 	// private attribute "base_index" is the correct index file
-	makeFullLocalPath(&requestConf, request.getPath(), request.getMethod(), target_location);
-	requestConf.set_path(this->fullLocalPath);
-
+	if (_code == 200)
+	{
+		makeFullLocalPath(&requestConf, request.getPath(), request.getMethod(), target_location);
+		requestConf.set_path(this->fullLocalPath);
+	}
 	_errorMap = requestConf.get_error_pages();
 	_isAutoIndex = target_location.autoindex;
 	_hostPort.host = requestConf.get_host_int();
 	_hostPort.port = requestConf.get_port();
 	_path = requestConf.get_rootLocation().root;
-	
 	if (static_cast<std::string::size_type>(requestConf.get_client_max_body_size()) < request.getBody().size() && _code != 405)
 		_code = 413; // Payload Too Large
 	if (_code == 405 || _code == 413)
 	{
-		ResponseHeader	head;
+		ResponseHeader	head;	// todo: add keepalive to every ResponseHeader	head declaration
 		head.setKeepAlive(keepAlive);
 		_response = this->readHtml(_errorMap[_code]);
 		head.setContentLength(_response.size());
 		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, _response.size()) + "\r\n" + _response;
 		return ;
 	}
-
-	if (request.getMethod() == "GET" || request.getMethod() == "POST")
+	if ((request.getMethod() == "GET" || request.getMethod() == "POST") && _code != 400)
 	{
 		getPathResponse(requestConf, target_location);
 		requestConf.set_path(_usePath);	// in case index was appended
 	}
-	if (_code == 501)
+	if (_code == 501 || _code == 400)
 	{
 		ResponseHeader	head;
 		_mimeType = "text/html";
@@ -551,11 +550,15 @@ std::string handleDeleteResponse(std::string path)
 	httpResponse += "<meta charset=\"UTF-8\">\n";
 	httpResponse += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
 	httpResponse += "<title>Delete Successful</title>\n";
+	httpResponse += "<link rel=\"stylesheet\" href=\"/css/styles.css\">\n";
 	httpResponse += "</head>\n";
 	httpResponse += "<body>\n";
+	httpResponse += "<div class=\"container\">\n";
 	httpResponse += "<h1>" + path + "</h1>\n";  // Display the name and lastname
 	httpResponse += "<p>was successfully deleted!</p>\n";
 	//  <img src="files/image.jpeg" alt="">
+	httpResponse += "<a href=\"/\">Go back to the home page</a>\n";
+	httpResponse += "</div\n";
 	httpResponse += "</body>\n";
 	httpResponse += "</html>\n";
 	return httpResponse;
@@ -582,20 +585,19 @@ void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
 		else
 			_code = 403;
 	}
+	else if (isDirectory(fullLocalPath))
+	{
+		_code = 403;
+	}
 	else
+	{
+		std::cout << "fullLocalPath = " << fullLocalPath << std::endl;
 		_code = 404;
+	}
 	if (_code == 403 || _code == 404)
 		_response = this->readHtml(_errorMap[_code]);
 	_response = head.getHeader(_response.size(), fullLocalPath, _code, _mimeType, request.getPath()) + "\r\n" + _response;
 }
-
-
-
-
-
-
-
-// Utils
 
 std::string		Response::readHtml(const std::string& path)
 {

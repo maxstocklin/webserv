@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/04 22:54:21 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/05 00:36:45 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,24 +69,6 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 		return (-1);
 	}
 
-	// if (bytes_read == 0)
-	// {
-	// 	std::cout << YELLOW << BOLD << "webserv: Client " << socket << " Closed Connection" << RESET << std::endl;
-	// 	FD_CLR(socket, &_fd_set);
-	// 	FD_CLR(socket, &reading_set); // damn
-	// 	_sockets.erase(socket);
-	// 	// closeConnection(socket);
-	// 	return (false);
-	// }
-	// else if (bytes_read < 0)
-	// {
-	// 	std::cout << RED << BOLD << "webserv: Client " << socket << " read error " << strerror(errno) << RESET << std::endl;
-	// 	FD_CLR(socket, &_fd_set);
-	// 	FD_CLR(socket, &reading_set); // damn
-	// 	_sockets.erase(socket);
-	// 	// closeConnection(socket);
-	// 	return (false);
-	// }
 	else if (bytes_read != 0)
 	{
 		serv._requests[socket].append(buffer, bytes_read);
@@ -96,7 +78,6 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 		return 0;
 	else
 		return 1;
-	// return (requestCompletelyReceived(serv._requests[socket]));
 }
 
 
@@ -295,24 +276,20 @@ void	WebServer::launch()
 					long	socket = acceptNewConnection(it->second); // get new socket
 					if (socket != -1)
 					{
-						// if (socket > 1023)
-						// 	exit (0);
-						std::cout << "1 socket is " << socket << " && max fd is " << _max_fd << std::endl;
 						FD_SET(socket, &_fd_set);
-						std::cout << "2 socket is " << socket << " && max fd is " << _max_fd << std::endl;
 						_sockets.insert(std::make_pair(socket, &(it->second)));
 						if (socket > _max_fd)
 						{
 							_max_fd = socket;
 							// std::cout << "NEW MAX FD CHANGED TO " << _max_fd << std::endl;
 						}
-						for (int i = 0; i <= _max_fd; i++)
-						{
-							if (FD_ISSET(i, &_fd_set))
-							{
-								std::cout << YELLOW << "Socket in _fd_set after ACCEPT: " << RESET << i << std::endl;
-							}
-						}
+						// for (int i = 0; i <= _max_fd; i++)
+						// {
+						// 	if (FD_ISSET(i, &_fd_set))
+						// 	{
+						// 		std::cout << YELLOW << "Socket in _fd_set after ACCEPT: " << RESET << i << std::endl;
+						// 	}
+						// }
 
 					}
 					// select_activity = 0;
@@ -411,20 +388,16 @@ bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket
 					return (true);
 				else if (body.size() > static_cast<size_t>(contentLength))
 				{
-					std::cout << "EXIT 1" << std::endl;
-					exit(0);
-					// TODO: ERROR CODE 400
+					serv._requests[socket] = "400";
+					std::cerr << RED << "Error with content-length: body > content-length!" << RESET << std::endl;
+					return (true);
 				}
 			}
 			catch (const std::exception &e)
 			{
-					std::cout << "EXIT 2" << std::endl;
-				exit(0);
-				// TODO: ERROR CODE 400
-				// TODO: if the file is too big, it's not an int --> crash
-				std::cerr << e.what() << '\n';
-				throw std::runtime_error("Error with content-length --> not an int" + lengthStr);
-				return (false);
+				std::cerr << RED << "Error with content-length: not an int!" << RESET << std::endl;
+				serv._requests[socket] = "400";
+				return (true);
 			}
 		}
 	}

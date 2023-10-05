@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:18:10 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:27:42 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 00:49:34 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,6 +185,7 @@ int					Request::parse(const std::string& str)
 	size_t			i(0);
 
 	this->readFirstLine(nextLine(str, i));
+
 	while ((line = nextLine(str, i)) != "\r" && line != "" && this->_ret != 400) // parse headers line by line
 	{
 		// handle each header line which are structured as follows: "Key: Value"
@@ -192,15 +193,15 @@ int					Request::parse(const std::string& str)
 		value = readValue(line); // get 'Value' as received
 		if (this->_headers.count(key)) // check in the headers map if there is such data a key and set it
 				this->_headers[key] = value;
-
 		if (key.find("secret") != std::string::npos)
 			this->_env_for_cgi[formatHeaderForCGI(key)] = value; // create a new map element, with <HTTP_ + KEY, value>
 	}
 	if (this->_headers["www-authenticate"] != "")
 		this->_env_for_cgi["www-authenticate"] = this->_headers["www-authenticate"];
-
 	// set the _body attribute and trim the tailing \r\n chars
-	this->setBody(str.substr(i, std::string::npos));
+
+	if (str != "400") // check for body not an int
+		this->setBody(str.substr(i, std::string::npos));
 
 	this->findQuery();
 	return this->_ret;
