@@ -2,3 +2,5 @@
 www/files/forbidden.jpg
 www/post/uploads
 test_us/root/index_permission.html
+*.o
+webserv

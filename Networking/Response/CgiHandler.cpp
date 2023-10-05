@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 20:49:00 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 16:16:39 by srapopor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,14 +131,26 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	saveStdin = dup(STDIN_FILENO);
 	saveStdout = dup(STDOUT_FILENO);
 
-	FILE	*fIn = tmpfile();
-	FILE	*fOut = tmpfile();
-	long	fdIn = fileno(fIn);
-	long	fdOut = fileno(fOut);
+	int pipeOut[2];  // pipe for output
+
+    if ( pipe(pipeOut) == -1)
+    {
+        std::cerr << "Failed to create pipes" << std::endl;
+        return ("Status: 500\r\n\r\n");
+    }
+
+
+
+
+	const char* tmpFilePath = "/tmp/request_body.txt";
+    int tmpFileFd = open(tmpFilePath, O_RDWR | O_CREAT );
+	if (tmpFileFd == -1)
+		std::cout << RED << "OPEN ERROR" << RESET << std::endl;
 	// std::cout << "\nRequest :" << std::endl << "[" << YELLOW << _body.substr(0, 800) <<  RESET << "]" << std::endl;
 
-	write(fdIn, _body.c_str(), _body.size());
-	lseek(fdIn, 0, SEEK_SET);
+	write(tmpFileFd, _body.c_str(), _body.size());
+	close(tmpFileFd);
+	tmpFileFd = open(tmpFilePath, O_RDWR | O_CREAT );
 
 	pid = fork();
 	
@@ -156,8 +168,13 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 			NULL
 		};
 
-		dup2(fdIn, STDIN_FILENO);
-		dup2(fdOut, STDOUT_FILENO);
+		dup2(tmpFileFd, STDIN_FILENO);
+		close(tmpFileFd);
+		close(pipeOut[0]); // Close read end of output pipe
+
+        dup2(pipeOut[1], STDOUT_FILENO);
+		close(pipeOut[1]);
+
 
 		execve(scriptName.c_str(), argv, env);
 
@@ -169,12 +186,12 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 		char	buffer[CGI_BUFSIZE] = {0};
 
 		waitpid(-1, NULL, 0);
-		lseek(fdOut, 0, SEEK_SET);
-
+  		close(pipeOut[1]);
 		while (true)
 		{
 			memset(buffer, 0, sizeof(buffer));
-			int readbytes = read(fdOut, buffer, sizeof(buffer) - 1);
+			int readbytes = read(pipeOut[0], buffer, sizeof(buffer) - 1);
+
 			if (readbytes <= 0)
 				break;
 			newBody += buffer;
@@ -182,10 +199,9 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	}
 	dup2(saveStdin, STDIN_FILENO);
 	dup2(saveStdout, STDOUT_FILENO);
-	fclose(fIn);
-	fclose(fOut);
-	close(fdIn);
-	close(fdOut);
+	close(pipeOut[0]);
+  
+	close(tmpFileFd);
 	close(saveStdin);
 	close(saveStdout);
 
