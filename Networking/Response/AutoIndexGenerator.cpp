@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AutoIndexGenerator.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:08 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:02:21 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 20:08:14 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,6 @@ std::string	AutoIndexGenerator::getPage(const char *path, std::string const &hos
 	</body>\n\
 	</html>\n";
 	closedir(dir);
-	std::cout << YELLOW << page << RESET << std::endl;
 	return page;
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 02:15:36 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 20:12:20 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,8 +444,6 @@ void			Response::getHandler(Request &request, MasterSocket &requestConf)
 	}
 	else
 	{
-		std::cout << "\n\n ************* ERROR WITH CODE = " << _code << std::endl;
-		std::cout << "fullLocalPath = " << fullLocalPath << std::endl;
 		_mimeType = "text/html";
 		_response = this->readHtml(_errorMap[_code]);
 	}

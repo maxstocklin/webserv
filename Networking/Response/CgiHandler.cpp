@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srapopor <srapopor@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 16:16:39 by srapopor         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:17:44 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,16 @@ char	**CgiHandler::_getEnvAsCstrArray() const
 }
 
 
+bool    timer(const std::clock_t start)
+{
+	static int i = 1;
+	std::clock_t end = std::clock();
+	if ((end - start) >= static_cast<unsigned long> (i * CLOCKS_PER_SEC))
+		std::cout << i++ << "sc passed\n" << std::endl;
+	if (end - start >= 5 * CLOCKS_PER_SEC)
+		return true;
+	return false;
+}
 
 std::string		CgiHandler::executeCgi(const std::string& scriptName)
 {
@@ -104,22 +114,9 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	char		**env;
 	std::string	newBody;
 
-	// std::cout << "this->_env[CONTENT_TYPE] = " << this->_env["CONTENT_TYPE"] << std::endl;
-	// std::cout << "this->_env[CONTENT_LENGTH] = " << this->_env["CONTENT_LENGTH"] << std::endl;
-
-
 	try
 	{
 		env = this->_getEnvAsCstrArray();
-		// int i = 0;
-		// while (env[i])
-		// {
-		// 	std::cout << "env i = " << env[i] << std::endl;
-		// 	i++;
-		// }
-		// std::cout << "scriptName = " << scriptName << std::endl;
-		// std::cout << "this->_env[SCRIPT_NAME] = " << this->_env["SCRIPT_NAME"] << std::endl;
-
 	}
 	catch (std::bad_alloc &e)
 	{
@@ -127,7 +124,6 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 		std::cerr << RED << e.what() << RESET << std::endl;
 	}
 
-	// SAVING STDIN AND STDOUT IN ORDER TO TURN THEM BACK TO NORMAL LATER
 	saveStdin = dup(STDIN_FILENO);
 	saveStdout = dup(STDOUT_FILENO);
 
@@ -139,14 +135,10 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
         return ("Status: 500\r\n\r\n");
     }
 
-
-
-
 	const char* tmpFilePath = "/tmp/request_body.txt";
-    int tmpFileFd = open(tmpFilePath, O_RDWR | O_CREAT );
+    int tmpFileFd = open(tmpFilePath, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (tmpFileFd == -1)
 		std::cout << RED << "OPEN ERROR" << RESET << std::endl;
-	// std::cout << "\nRequest :" << std::endl << "[" << YELLOW << _body.substr(0, 800) <<  RESET << "]" << std::endl;
 
 	write(tmpFileFd, _body.c_str(), _body.size());
 	close(tmpFileFd);
@@ -180,9 +172,22 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 
 		std::cerr << RED << "Execve crashed." << RESET << std::endl;
 		write(STDOUT_FILENO, "Status: 500\r\n\r\n", 15);
+		exit(0);
 	}
 	else
 	{
+		int status;
+		const std::clock_t c_start = std::clock();
+		while (waitpid(pid, &status, WNOHANG) != pid)
+		{
+			if (timer(c_start))
+			{
+				kill(pid, SIGKILL);
+				std::cerr << RED << "ERROR: Terminating script due to timeout." << RESET << std::endl;
+				return ("Status: 500\r\n\r\n");
+			}
+		}
+
 		char	buffer[CGI_BUFSIZE] = {0};
 
 		waitpid(-1, NULL, 0);
@@ -194,7 +199,8 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 
 			if (readbytes <= 0)
 				break;
-			newBody += buffer;
+			else if (readbytes > 20000)
+				return ("Status: 500\r\n\r\n");			newBody += buffer;
 		}
 	}
 	dup2(saveStdin, STDIN_FILENO);
