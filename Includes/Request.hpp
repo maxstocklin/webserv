@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:51:09 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:27:24 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 00:10:02 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,35 @@
 */
 class Request
 {
+		public:
+			Request(const std::string& str);
+			~Request();
+
+			/*** GETTERS ***/
+			const std::map<std::string, std::string>&			getHeaders() const;
+			const std::map<std::string, std::string>&			getEnv() const;
+			const std::string&									getMethod() const;
+			const std::string&									getVersion() const;
+			int													getRet() const;
+			const std::string&									getBody() const;
+			int													getPort() const;
+			const std::string&									getPath() const;
+			const std::string&									getQuery() const;
+			const std::string&									getRaw() const;
+
+			/*** SETTERS **/
+			void	setBody(const std::string& line);
+			void	setRet(int);
+			void	setMethod(const std::string &method);
+
+			/*** UTILS ****/
+			int		parse(const std::string& str);
+			void	resetHeaders();
+			void	stripAll();
+			void	displayHeaders() const;
+
+			static std::vector<std::string>		initMethods();
+
 		private:
 			std::string									_method;
 			std::string									_version;
@@ -83,38 +112,6 @@ class Request
 			Request();
 			Request(const Request&);
 
-		public:
-			Request(const std::string& str);
-			~Request();
-			Request&	operator=(const Request&);
-
-			/*** GETTERS ***/
-			const std::map<std::string, std::string>&			getHeaders() const;
-			const std::map<std::string, std::string>&			getEnv() const;
-			const std::string&									getMethod() const;
-			const std::string&									getVersion() const;
-			int													getRet() const;
-			const std::string&									getBody() const;
-			int													getPort() const;
-			const std::string&									getPath() const;
-			const std::string&									getQuery() const;
-			const std::string&									getRaw() const;
-
-			/*** SETTERS **/
-			void	setBody(const std::string& line);
-			void	setRet(int);
-			void	setMethod(const std::string &method);
-
-			/*** UTILS ****/
-			int		parse(const std::string& str);
-			void	resetHeaders();
-			void	stripAll();
-			void	displayHeaders() const;
-
-			static std::vector<std::string>		initMethods();
-
 };
-
-std::ostream&	operator<<(std::ostream& os, const Request& re);
 
 # endif

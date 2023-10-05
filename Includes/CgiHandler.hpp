@@ -3,16 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:20 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 20:05:44 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/06 00:07:46 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef CGI_HANDLER_HPP
-
 # define CGI_HANDLER_HPP
 
 # define CGI_BUFSIZE 100536

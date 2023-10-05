@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:05 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:25:23 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 00:03:10 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,20 +45,13 @@ class AServer
 		std::vector<std::string>		serverBlocks;	// a vector of all the server {} block for config
 		std::vector<MasterSocket>		sockets;		// a vector of all the master sockets
 
-
 		std::map<long, MasterSocket>	_servers;		// all master sockets / servers
 		std::map<long, MasterSocket *>	_sockets;		// all new sockets
 		std::vector<int>				_ready;			// a vector of all the ready new sockets
 		fd_set							_fd_set;
 		long							_max_fd;
 
-
-
-
-
-
 		std::string						removeCommentLines(const std::string &input);
-
 };
 
 #endif

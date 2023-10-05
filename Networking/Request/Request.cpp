@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 19:50:37 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 00:50:23 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 00:09:27 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,25 +34,11 @@ Request::Request(const std::string& str) : _method (""), _version(""), _ret(200)
 	this->_env_for_cgi.clear();
 	this->parse(str);
 	if (this->_ret != 200 && str != "400")
-		std::cerr << RED << "Parse error : " << this->_ret << RESET << std::endl;
+		std::cerr << RED << "Parse error: " << this->_ret << RESET << std::endl;
 }
 
 Request::~Request()
 {
-}
-
-Request&	Request::operator=(const Request& obj)
-{
-	this->_headers = obj.getHeaders();
-	this->_env_for_cgi = obj.getEnv();
-	this->_method = obj.getMethod();
-	this->_version = obj.getVersion();
-	this->_ret = obj.getRet();
-	this->_body = obj.getBody();
-	this->_port = obj.getPort();
-	this->_path = obj.getPath();
-
-	return *this;
 }
 
 /*** GETTERS ***/
@@ -77,7 +63,7 @@ const std::string&	Request::getVersion() const
 	return this->_version;
 }
 
-int					Request::getRet() const
+int	Request::getRet() const
 {
 	return this->_ret;
 }
@@ -87,7 +73,7 @@ const std::string&	Request::getBody() const
 	return this->_body;
 }
 
-int					Request::getPort() const
+int	Request::getPort() const
 {
 	return this->_port;
 }

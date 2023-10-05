@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 22:22:55 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/06 00:44:14 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,6 +265,7 @@ void Response::getPathResponse(MasterSocket &master_socket, Location target_loca
 void			Response::call(Request &request, MasterSocket &requestConf, bool keepAlive)
 {
 	Location	target_location;
+	this->_keepAlive = keepAlive;
 
 	_code = request.getRet();
 	// here, target_location is the right location block
@@ -285,7 +286,7 @@ void			Response::call(Request &request, MasterSocket &requestConf, bool keepAliv
 	if (_code == 405 || _code == 413)
 	{
 		ResponseHeader	head;	// todo: add keepalive to every ResponseHeader	head declaration
-		head.setKeepAlive(keepAlive);
+		head.setKeepAlive(this->_keepAlive);
 		_response = this->readHtml(_errorMap[_code]);
 		head.setContentLength(_response.size());
 		_response = head.notAllowed(target_location.allow_methods, request.getPath(), _code, _response.size()) + "\r\n" + _response;
@@ -299,6 +300,7 @@ void			Response::call(Request &request, MasterSocket &requestConf, bool keepAliv
 	if (_code == 501 || _code == 400)
 	{
 		ResponseHeader	head;
+		head.setKeepAlive(this->_keepAlive);
 		_mimeType = "text/html";
 		_response = this->readHtml(_errorMap[_code]);
 		head.setContentLength(_response.size());
@@ -403,6 +405,7 @@ std::string	Response::findExecutablePath(const std::string& command, char** env)
 void			Response::getHandler(Request &request, MasterSocket &requestConf)
 {
 	ResponseHeader	head;
+	head.setKeepAlive(this->_keepAlive);
 
 	std::string phpPath = findExecutablePath("php-cgi", _env);
 	if (phpPath.empty())
@@ -495,6 +498,7 @@ std::string handlePostResponse(std::string phpResponse)
 void			Response::postHandler(Request & request, MasterSocket & requestConf)
 {
 	ResponseHeader	head;
+	head.setKeepAlive(this->_keepAlive);
 
 	if (request.getBody().size() > 0)
 	{
@@ -566,6 +570,7 @@ std::string handleDeleteResponse(std::string path)
 void			Response::deleteHandler(Request &request, MasterSocket &requestConf)
 {
 	ResponseHeader	head;
+	head.setKeepAlive(this->_keepAlive);
 	(void)request;
 	(void)requestConf;
 

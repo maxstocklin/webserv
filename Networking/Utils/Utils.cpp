@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 20:16:07 by max               #+#    #+#             */
-/*   Updated: 2023/10/03 23:28:47 by max              ###   ########.fr       */
+/*   Updated: 2023/10/05 23:45:29 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ bool isValidHost(const std::string& host)
 		if (++count > 4)
 			return (false);
 
-		int num = atoi(segment.c_str());
+		int num = std::atoi(segment.c_str());
 		if (num < 0 || num > 255)
 			return (false);
 
@@ -234,26 +234,6 @@ void	ft_skip_spacenl(const char *str, int *i)
 	|| (str[*i] == '\r' || str[*i] == '\v' || str[*i] == '\f'))
 		(*i)++;
 }
-
-int	ft_atoi(const char *str)
-{
-	int	i;
-	int	sign;
-	int	num;
-
-	i = 0;
-	sign = 1;
-	num = 0;
-	ft_skip_spacenl(str, &i);
-	if (str[i] == '-')
-		sign = -1;
-	if (str[i] == '-' || str[i] == '+')
-		i++;
-	while (str[i] >= '0' && str[i] <= '9')
-		num = num * 10 + (str[i++] - '0');
-	return (num * sign);
-}
-
 
 std::string						readValue(const std::string& line)
 {

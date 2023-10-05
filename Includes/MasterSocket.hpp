@@ -41,9 +41,6 @@
 			void								handle(long socket, char **env);	// main parsing function
 			void								parseChunks(long socket);
 
-			// void								parseRequest(ListeningSocket *master_socket, char **env);
-			// void								parseHeaders(ListeningSocket *master_socket, char **env, std::string headers);
-
 			const std::string					&get_path() const;
 			void								set_path(std::string path);
 			std::map<long, std::string>			_requests;					// at first, this map is the request, after the parsing, it's the response

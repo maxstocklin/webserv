@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/05 22:25:41 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/06 00:42:01 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	WebServer::readRequest(long socket, MasterSocket &serv)
 		if (!bytes_read)
 			std::cout << YELLOW << BOLD << "Client " << socket << " closed connection" << RESET << std::endl;
 		else
-			std::cerr << RED << BOLD << "ERROR: Client " << socket << " read returned -1." << RESET << std::endl; // todo: erno after read??
+			std::cerr << RED << BOLD << "ERROR: Client " << socket << " read returned -1." << RESET << std::endl;
 		return (-1);
 	}
 
@@ -291,7 +291,7 @@ bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket
 	if (conn_pos != std::string::npos)
 	{
 		// Get the value after the "connection:" string.
-		size_t start = conn_pos + strlen("\r\nconnection:");
+		size_t start = conn_pos + std::strlen("\r\nconnection:");
 		size_t end = lowerCaseHeaders.find("\r\n", start);
 		if(end == std::string::npos) // if there's no other header after "connection:"
 			end = lowerCaseHeaders.length(); // consider till the end of the string

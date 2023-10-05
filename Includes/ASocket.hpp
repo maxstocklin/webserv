@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:25:26 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 00:42:09 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ class ASocket
 		int							get_port();
 		int							get_domain();
 		std::string					get_host();
-		int							get_host_int();		// todo: not hardcode
+		int							get_host_int();
 		std::string					get_server_name();
 		std::string					get_index();
 		std::map<int, std::string>	get_error_pages();
@@ -93,11 +93,9 @@ class ASocket
 	private:
 		ASocket();
 
-		// main socket's fd
-		int							sock_fd;
-
-		int							connection;		
 		struct sockaddr_in			address;
+		int							sock_fd;
+		int							connection;		
 
 		ServerConfig 				*config;
 

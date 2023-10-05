@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:29:46 by max               #+#    #+#             */
-/*   Updated: 2023/10/04 22:59:04 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/06 00:43:56 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ private:
 	bool						_isAutoIndex;
 	t_listen					_hostPort;
 	std::map<int, std::string>	_errorMap;
-
+	bool						_keepAlive;
 	// 0 = directory listing
 	// 1 = normal html/jpeg body or CGI
 	// 2 = Error

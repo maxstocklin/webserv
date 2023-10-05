@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:55:37 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/03 20:24:34 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 00:40:57 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class BindingSocket : public ASocket
 		BindingSocket(std::string serverBlock);
 
 		// virtual function to connect to network
-		int connect_network(int Sock_fd, struct sockaddr_in address);  // todo --> sock??
+		int connect_network(int Sock_fd, struct sockaddr_in address);
 
 	private:
 		BindingSocket();

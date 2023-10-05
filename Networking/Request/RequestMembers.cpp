@@ -6,7 +6,7 @@
 /*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:18:10 by max               #+#    #+#             */
-/*   Updated: 2023/10/05 00:49:34 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 00:31:35 by max              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,6 @@
 
 void				Request::displayHeaders() const
 {
-}
-
-std::ostream&		operator<<(std::ostream& os, const Request& re)
-{
-	std::map<std::string, std::string>::const_iterator	it;
-
-	os << "Method : " << re.getMethod() << " |\tHTTP version : ";
-	os << re.getVersion() << '\n';
-	os << "Port : " << re.getPort() << '\n';
-	os << "Path : " << re.getPath() << '\n';
-
-	for (it = re.getHeaders().begin(); it != re.getHeaders().end(); it++)
-		os << it->first << ": " << it->second << '\n';
-
-	os << '\n' << "Request body :\n" << re.getBody() << '\n';
-
-	return os;
 }
 
 void				Request::resetHeaders()
@@ -69,7 +52,7 @@ int					Request::readFirstLine(const std::string& str)
 	if (i == std::string::npos)
 	{
 		this->_ret = 400;
-		std::cerr << RED << "RFL no space after method" << RESET << std::endl;
+		std::cerr << RED << "ERROR: Wrong header line in HTTP Request" << RESET << std::endl;
 		return 400;
 	}
 	this->_method.assign(line, 0, i);
@@ -156,7 +139,7 @@ int					Request::checkPort()
 	else
 	{
 		std::string tmp(this->_headers["Host"], i + 1);
-		this->_port = ft_atoi(tmp.c_str());
+		this->_port = std::atoi(tmp.c_str());
 	}
 	return (this->_port);
 }
@@ -236,7 +219,7 @@ void				Request::findQuery()
 	}
 }
 
-std::string 		Request::formatHeaderForCGI(std::string& key)
+std::string		Request::formatHeaderForCGI(std::string& key)
 {
 	to_upper(key);
 	for (size_t i = 0 ; i < key.size() ; i++)
