@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 22:40:13 by max               #+#    #+#             */
-/*   Updated: 2023/10/06 00:36:48 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 14:09:56 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,12 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 	if (tmpFileFd == -1)
 		std::cout << RED << "OPEN ERROR" << RESET << std::endl;
 
-	write(tmpFileFd, _body.c_str(), _body.size());
+	if (write(tmpFileFd, _body.c_str(), _body.size()) < 0)
+	{
+		std::cerr << RED << "Write crashed." << RESET << std::endl;
+		return ("Status: 500\r\n\r\n");
+	}
+	
 	close(tmpFileFd);
 	tmpFileFd = open(tmpFilePath, O_RDWR | O_CREAT );
 
@@ -170,7 +175,8 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 		execve(scriptName.c_str(), argv, env);
 
 		std::cerr << RED << "Execve crashed." << RESET << std::endl;
-		write(STDOUT_FILENO, "Status: 500\r\n\r\n", 15);
+		if (write(STDOUT_FILENO, "Status: 500\r\n\r\n", 15) < 0)
+			std::cerr << RED << "Write crashed." << RESET << std::endl;
 		exit(0);
 	}
 	else
@@ -199,7 +205,8 @@ std::string		CgiHandler::executeCgi(const std::string& scriptName)
 			if (readbytes <= 0)
 				break;
 			else if (readbytes > 20000)
-				return ("Status: 500\r\n\r\n");			newBody += buffer;
+				return ("Status: 500\r\n\r\n");
+			newBody += buffer;
 		}
 	}
 	dup2(saveStdin, STDIN_FILENO);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:02 by max               #+#    #+#             */
-/*   Updated: 2023/10/06 00:44:14 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 14:45:00 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -475,9 +475,6 @@ std::string handlePostResponse(std::string phpResponse)
 		imagePath = imagePath.substr(10); 
 	}
 
-	std::cout << "nameLastname = " << nameLastname << std::endl;
-	std::cout << "imagePath = ." << imagePath << "." << std::endl;
-
 	httpResponse += "<!DOCTYPE html>\n";
 	httpResponse += "<html lang=\"en\">\n";
 	httpResponse += "<head>\n";
@@ -557,7 +554,6 @@ std::string handleDeleteResponse(std::string path)
 	httpResponse += "<div class=\"container\">\n";
 	httpResponse += "<h1>" + path + "</h1>\n";  // Display the name and lastname
 	httpResponse += "<p>was successfully deleted!</p>\n";
-	//  <img src="files/image.jpeg" alt="">
 	httpResponse += "<a href=\"/\">Go back to the home page</a>\n";
 	httpResponse += "</div\n";
 	httpResponse += "</body>\n";

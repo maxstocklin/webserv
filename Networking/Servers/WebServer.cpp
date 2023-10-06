@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: max <max@student.42.fr>                    +#+  +:+       +#+        */
+/*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 15:29:07 by mstockli          #+#    #+#             */
-/*   Updated: 2023/10/06 00:42:01 by max              ###   ########.fr       */
+/*   Updated: 2023/10/06 14:56:04 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,24 +193,21 @@ void	WebServer::launch()
 				}
 			}
 
-			// if (select_activity)
-			// 	std::cout << "\rReceived a connection !   " << std::endl; //   flush replaces what has been written on the last std_out
-
-
 			// check read 
 			for (std::map<long, MasterSocket *>::iterator it = _sockets.begin() ; select_activity && it != _sockets.end() ; it++)
 			{
 				long	socket = it->first; // new socket
 
 				if (FD_ISSET(socket, &reading_set))
-				{
-					// std::cout << "read" << std::endl;
-					
+				{					
 					long	readRet = readRequest(socket, *it->second);
 					if (readRet == 0)
 					{
 						std::cout << GREEN << "\r============= HTTP REQUEST RECEIVED =============" << RESET << std::endl;
+						// std::cout << YELLOW<< " REQUEST = \n" << it->second->_requests[socket] << RESET << std::endl;
 						it->second->handle(socket, env); // parsing
+						// std::cout << GREEN<< " RESPONSE = \n" << it->second->_requests[socket] << RESET << std::endl;
+
 						_ready.push_back(socket); // add to ready set to write()
 					}
 					else if (readRet == -1)
@@ -279,7 +276,10 @@ bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket
 
 	size_t headersEndPos = completeData.find("\r\n\r\n");
 	if (headersEndPos == std::string::npos)
+	{
 		return (false);  // Headers aren't fully received yet
+
+	}
 
 	std::string headers = completeData.substr(0, headersEndPos);
 	std::string body = completeData.substr(headersEndPos + 4);  // +4 to skip "\r\n\r\n"
@@ -319,6 +319,7 @@ bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket
 	// std::cout << "\n HEADER :" << std::endl << "[\n" << YELLOW << headers << RESET << "\n]" << std::endl;
 	// std::cout << "\n BODY :" << std::endl << "[\n" << YELLOW << body.substr(0, 1800) << RESET << "\n]" << std::endl;
 
+	lowerCaseHeaders = lowerCaseHeaders + "\r\n";
 	size_t contentLengthPos = lowerCaseHeaders.find("\r\ncontent-length:");
 
 	if (contentLengthPos != std::string::npos)
@@ -332,6 +333,10 @@ bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket
 			try
 			{
 				int contentLength = std::stoi(lengthStr);
+				if (contentLength == 0)
+				{
+					return (true);
+				}
 				if (body.size() == static_cast<size_t>(contentLength))
 					return (true);
 				else if (body.size() > static_cast<size_t>(contentLength))
@@ -360,6 +365,7 @@ bool WebServer::requestCompletelyReceived(std::string completeData, MasterSocket
 	if (contentLengthPos == std::string::npos && lowerCaseHeaders.find("transfer-encoding:") == std::string::npos)
 		return (true);
 
+	std::cout << "Body not completely received\n";
 	// Body not completely received
 	return (false);
 }

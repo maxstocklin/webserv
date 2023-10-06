@@ -6,7 +6,7 @@
 /*   By: mstockli <mstockli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 20:30:08 by max               #+#    #+#             */
-/*   Updated: 2023/10/04 23:06:49 by mstockli         ###   ########.fr       */
+/*   Updated: 2023/10/06 12:16:32 by mstockli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,6 @@ std::string		ResponseHeader::writeHeader(void)
 		header += "Retry-After: " + _retryAfter + "\r\n";
 	if (_server != "")
 		header += "Server: " + _server + "\r\n";
-	if (_transferEncoding != "")
-		header += "Transfer-Encoding: " + _transferEncoding + "\r\n";
 	if (_wwwAuthenticate != "")
 		header += "WWW-Authenticate: " + _wwwAuthenticate + "\r\n";
 	// header += "\r\n";
